@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "625588765474",
+    "project_id": "blinq-business-card",
+    "storage_bucket": "blinq-business-card.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:625588765474:android:db989ec2eaccd0ca4bdb7b",
+        "android_client_info": {
+          "package_name": "com.app.blinkprofile.blinq"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "625588765474-ssric3pipv652a1sc80amg36ka4eddkp.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDfOVb5E3xeqQjcniLDPCKkbC8CAIqmf3c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "625588765474-ssric3pipv652a1sc80amg36ka4eddkp.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
