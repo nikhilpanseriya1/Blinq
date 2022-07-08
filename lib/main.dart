@@ -1,4 +1,6 @@
+import 'package:blinq/App/Authentication/stepper_screen.dart';
 import 'package:blinq/App/splash_screen.dart';
+import 'package:country_code_picker/country_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:get_storage/get_storage.dart';
@@ -27,7 +29,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
-      title: 'Flutter Demo',
+      title: appName,
+      localizationsDelegates: const [CountryLocalizations.delegate],
       // theme: ThemeData(
       //   primarySwatch: Colors.blue,
       // ),
@@ -42,8 +45,7 @@ class MyApp extends StatelessWidget {
           hoverColor: Colors.transparent
           // primarySwatch: Colors.blue,
           ),
-      builder: (context, widget) => ResponsiveWrapper.builder(
-          BouncingScrollWrapper.builder(context, widget!),
+      builder: (context, widget) => ResponsiveWrapper.builder(BouncingScrollWrapper.builder(context, widget!),
           maxWidth: MediaQuery.of(context).size.width,
           minWidth: 420,
           defaultScale: true,

@@ -8,3 +8,4 @@ export 'package:blinq/Utility/font_style_utility.dart';
 export 'package:blinq/Utility/common_textfield.dart';
 export 'package:blinq/Utility/string_utility.dart';
 export 'package:blinq/Utility/common_appbar.dart';
+export 'package:blinq/Utility/common_function.dart';

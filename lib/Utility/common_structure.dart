@@ -8,23 +8,27 @@ Widget commonStructure({
   Color? bgColor,
   double? padding,
   Widget? bottomNavigation,
+  Widget? floatingButton,
 }) {
   ///Pass null in appbar when it's optional ex = appBar : null
-  return Stack(
-    children: [
-      Scaffold(
-        backgroundColor: bgColor ?? colorWhite,
-        resizeToAvoidBottomInset: true,
-        appBar: appBar,
-        bottomNavigationBar: bottomNavigation,
+  return SafeArea(
+    child: Stack(
+      children: [
+        Scaffold(
+          backgroundColor: bgColor ?? colorWhite,
+          resizeToAvoidBottomInset: true,
+          appBar: appBar,
+          bottomNavigationBar: bottomNavigation,
 
-        ///adding listView cause scroll issue
-        body: Container(
-          padding: EdgeInsets.symmetric(horizontal: padding ?? 12),
-          height: MediaQuery.of(context).size.height,
-          child: child,
+          ///adding listView cause scroll issue
+          body: Container(
+            padding: EdgeInsets.symmetric(horizontal: padding ?? 12),
+            height: MediaQuery.of(context).size.height,
+            child: child,
+          ),
+          floatingActionButton: floatingButton,
         ),
-      ),
-    ],
+      ],
+    ),
   );
 }

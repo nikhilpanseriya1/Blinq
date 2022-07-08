@@ -11,6 +11,7 @@ class FontStyleUtility{
   static TextStyle blackInter22W700 = const TextStyle(color: colorSemiDarkBlack, fontSize: 22, fontFamily: 'Inter', fontWeight: FontWeight.w700);
   static TextStyle blackInter24W500 = const TextStyle(color: colorSemiDarkBlack, fontSize: 24, fontFamily: 'Inter', fontWeight: FontWeight.w500);
   static TextStyle blackInter26W400 = const TextStyle(color: colorSemiDarkBlack, fontSize: 26, fontFamily: 'Inter', fontWeight: FontWeight.w400);
+  static TextStyle blackInter26W300 = const TextStyle(color: colorSemiDarkBlack, fontSize: 26, fontFamily: 'Inter', fontWeight: FontWeight.w300);
   static TextStyle blackInter24W700 = const TextStyle(color: colorSemiDarkBlack, fontSize: 24, fontFamily: 'Inter', fontWeight: FontWeight.w700);
   static TextStyle blackInter24W800 = const TextStyle(color: colorSemiDarkBlack, fontSize: 24, fontFamily: 'Inter', fontWeight: FontWeight.w800);
   static TextStyle blackInter16W600 = const TextStyle(color: colorSemiDarkBlack, fontSize: 16, fontFamily: 'Inter', fontWeight: FontWeight.w600);

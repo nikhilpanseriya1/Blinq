@@ -21,11 +21,12 @@ Widget commonFillButtonView(
       return Container(
         width: width ?? getScreenWidth(context) - 20,
         height: height,
-        decoration: BoxDecoration(color: color ?? colorDarkBlack, borderRadius: BorderRadius.circular(7)),
+        decoration: BoxDecoration(color: color ?? colorPrimary, borderRadius: BorderRadius.circular(50)),
         child: TextButton(
             onPressed: tapOnButton,
             child: child ??
-                Text(title,
+                Text(
+                  title,
                   style: FontStyleUtility.blackInter16W600.copyWith(color: fontColor ?? colorWhite),
                 )),
       );
@@ -89,7 +90,9 @@ Widget commonButtonView(
     Image? prefixImage,
     Color? color,
     Color? fontColor,
+    TextStyle? textStyle,
     double? height = 60.0,
+    double? fontSize = 18,
     double? width}) {
   return Builder(
     builder: (BuildContext context) {
@@ -98,7 +101,7 @@ Widget commonButtonView(
           height: height,
           child: Container(
             decoration: BoxDecoration(
-              color: colorWhite,
+              color: color ?? colorWhite,
               borderRadius: BorderRadius.circular(7),
               border: Border.all(color: colorBlack.withOpacity(0.1), width: 1),
             ),
@@ -113,15 +116,18 @@ Widget commonButtonView(
                     suffixImage == null
                         ? Expanded(
                             child: Center(
-                              child: commonText(
-                                text: title,
-                                style: FontStyleUtility.blackInter16W600,
+                              child: Text(
+                                title,
+                                style: textStyle ??
+                                    FontStyleUtility.blackInter16W600
+                                        .copyWith(color: fontColor ?? colorBlack),
                               ),
                             ),
                           )
-                        : commonText(
-                            text: title,
-                            style: FontStyleUtility.blackInter16W600,
+                        : Text(
+                            title,
+                            style: textStyle ??
+                                FontStyleUtility.blackInter16W600.copyWith(color: fontColor ?? colorBlack),
                           ),
                     suffixImage ?? const SizedBox()
                   ],
@@ -138,13 +144,14 @@ Widget commonRoundedCornerButton({required Function() onTap, required String tit
     onTap: onTap,
     highlightColor: colorWhite,
     child: Container(
-      decoration: BoxDecoration(color: colorDarkBlue.withOpacity(0.5), borderRadius: BorderRadius.circular(25)),
+      decoration:
+          BoxDecoration(color: colorDarkBlue.withOpacity(0.5), borderRadius: BorderRadius.circular(25)),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          commonText(text: title, style: FontStyleUtility.blackInter16W600.copyWith(color: colorWhite, fontSize: 18)),
+          Text(title, style: FontStyleUtility.blackInter16W600.copyWith(color: colorWhite, fontSize: 18)),
           10.widthBox,
           SizedBox(child: icon ?? const SizedBox()),
         ],

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:blinq/App/Home/home_screen.dart';
 import 'package:blinq/Utility/utility_export.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -20,7 +21,9 @@ class _SplashScreenState extends State<SplashScreen> {
     // TODO: implement initState
     super.initState();
 
-    Timer(const Duration(seconds: 2), () => Get.to(() => const StartScreen()));
+    getIsLogin()
+        ? Timer(const Duration(seconds: 2), () => Get.to(() => const HomeScreen()))
+        : Timer(const Duration(seconds: 2), () => Get.to(() => const StartScreen()));
   }
 
   @override

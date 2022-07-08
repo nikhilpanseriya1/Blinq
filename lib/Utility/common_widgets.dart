@@ -20,16 +20,13 @@ import 'package:velocity_x/velocity_x.dart';
 // import '../View/LoginFlow/IntroQuestionsFlow/personal_detail_view_step1.dart';
 // import '../View/LoginFlow/IntroQuestionsFlow/real_time_update_view_step3.dart';
 // import '../View/LoginFlow/IntroQuestionsFlow/status_view_step6.dart';
-import '../main.dart';
-import 'common_function.dart';
-import 'constants.dart';
+// import '../main.dart';
+// import 'common_function.dart';
+// import 'constants.dart';
 
-
-
-Widget commonText(
-    {required String text, required TextStyle style, TextAlign? textAlign}) {
-  return Text(text, style: style, textAlign: textAlign ?? TextAlign.start);
-}
+// Widget commonText({required String text, required TextStyle style, TextAlign? textAlign}) {
+//   return Text(text, style: style, textAlign: textAlign ?? TextAlign.start);
+// }
 
 disableFocusScopeNode(BuildContext context) {
   FocusScopeNode currentFocus = FocusScope.of(context);
@@ -49,10 +46,7 @@ Widget commonRow(
       Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          SizedBox(
-              child: commonText(
-                  text: title,
-                  style: titleTextStyle ?? FontStyleUtility.greyInter16W500)),
+          SizedBox(child: Text(title, style: titleTextStyle ?? FontStyleUtility.greyInter16W500)),
           suffix,
         ],
       ),
@@ -76,10 +70,7 @@ Widget searchCommonRow(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
           SizedBox(
-              width: 100,
-              child: commonText(
-                  text: title,
-                  style: titleTextStyle ?? FontStyleUtility.blackInter14W500)),
+              width: 100, child: Text(title, style: titleTextStyle ?? FontStyleUtility.blackInter14W500)),
           suffix,
         ],
       ),
@@ -92,10 +83,7 @@ Widget searchCommonRow(
 }
 
 Widget commonInboxCard(
-    {required String text,
-    required String timeText,
-    Widget? suffixImage,
-    Color? backgroundColor}) {
+    {required String text, required String timeText, Widget? suffixImage, Color? backgroundColor}) {
   return Padding(
     padding: const EdgeInsets.only(top: 10, bottom: 10),
     child: Container(
@@ -106,8 +94,7 @@ Widget commonInboxCard(
           ),
           color: backgroundColor ?? colorOffWhite),
       child: Padding(
-        padding:
-            const EdgeInsets.only(left: 15, right: 15, top: 20, bottom: 20),
+        padding: const EdgeInsets.only(left: 15, right: 15, top: 20, bottom: 20),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -117,16 +104,9 @@ Widget commonInboxCard(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                      child: commonText(
-                          text: text,
-                          style: FontStyleUtility.blackInter16W500
-                              .copyWith(height: 1.4)),
-                    ),
+                    Text(text, style: FontStyleUtility.blackInter16W500.copyWith(height: 1.4)),
                     10.heightBox,
-                    commonText(
-                        text: timeText,
-                        style: FontStyleUtility.greyInter16W500),
+                    Text(timeText, style: FontStyleUtility.greyInter16W500),
                   ],
                 ),
               ),
@@ -153,11 +133,10 @@ Widget introScreenCommonRow({required String text, bool? isSelected}) {
         borderRadius: BorderRadius.circular(5)),
     child: Padding(
       padding: const EdgeInsets.only(left: 10, right: 10),
-      child: commonText(
-          text: text,
-          style: FontStyleUtility.greyInter14W500.copyWith(
-              fontWeight:
-                  isSelected ?? false ? FontWeight.w600 : FontWeight.w500)),
+      child: Text(
+           text,
+          style: FontStyleUtility.greyInter14W500
+              .copyWith(fontWeight: isSelected ?? false ? FontWeight.w600 : FontWeight.w500)),
     ),
   );
 }
@@ -171,9 +150,7 @@ getScreenHeight(BuildContext context) {
 }
 
 Widget loginFlowCommonBottomBar(
-    {required Function() onTap,
-    required String textSpanMessage,
-    required String textSpanClick}) {
+    {required Function() onTap, required String textSpanMessage, required String textSpanClick}) {
   return SizedBox(
     height: 40,
     child: Padding(
@@ -187,13 +164,10 @@ Widget loginFlowCommonBottomBar(
             child: RichText(
               textAlign: TextAlign.center,
               text: TextSpan(children: [
-                TextSpan(
-                    text: textSpanMessage,
-                    style: FontStyleUtility.blackInter16W500),
+                TextSpan(text: textSpanMessage, style: FontStyleUtility.blackInter16W500),
                 TextSpan(
                     text: " $textSpanClick",
-                    style: FontStyleUtility.blackInter16W500
-                        .copyWith(color: colorPrimary))
+                    style: FontStyleUtility.blackInter16W500.copyWith(color: colorPrimary))
               ]),
             ),
           ),
@@ -203,11 +177,7 @@ Widget loginFlowCommonBottomBar(
   );
 }
 
-Widget commonProfileRow(
-    {required Widget title,
-    Widget? subTitle,
-    required Function() onTap,
-    int? height}) {
+Widget commonProfileRow({required Widget title, Widget? subTitle, required Function() onTap, int? height}) {
   return Column(
     children: [
       InkWell(
@@ -254,9 +224,7 @@ Future<void> showAlertDialog(
         content: SingleChildScrollView(
           child: ListBody(
             children: <Widget>[
-              Text(msg,
-                  style:
-                      FontStyleUtility.blackInter16W500.copyWith(height: 1.5)),
+              Text(msg, style: FontStyleUtility.blackInter16W500.copyWith(height: 1.5)),
             ],
           ),
         ),
@@ -282,30 +250,28 @@ Future<void> showAlertDialog(
 
 // BorderRadius commonButtonBorderRadius = BorderRadius.circular(5.0);
 OutlineInputBorder countryBorder = OutlineInputBorder(
-  borderSide:
-      BorderSide(color: borderColor ?? colorBlack.withOpacity(0.1), width: 1),
+  borderSide: BorderSide(color: borderColor ?? colorBlack.withOpacity(0.1), width: 1),
   borderRadius: BorderRadius.circular(5.0),
 );
 
 commonCountryCodePicker({
   required Function onChanged,
   required String initialSelection,
-  required TextEditingController textController,
   FocusNode? focusNode,
   bool? hideMainText,
   Color? borderColor,
   double? height,
   double? width,
   bool? alignLeft = false,
+  bool? showOnlyCountryWhenClosed,
   bool isShowDropIcon = true,
 }) {
   return Builder(builder: (context) {
     return Container(
       width: width ?? MediaQuery.of(context).size.width,
-      height: height ?? 60,
+      height: height ?? 50,
       decoration: BoxDecoration(
-          border: Border.all(
-              color: borderColor ?? colorBlack.withOpacity(0.1), width: 1),
+          border: Border.all(color: borderColor ?? colorBlack.withOpacity(0.1), width: 1),
           borderRadius: BorderRadius.circular(5.0)),
       child: Stack(
         children: [
@@ -323,7 +289,7 @@ commonCountryCodePicker({
               : const SizedBox(),
           CountryCodePicker(
             onInit: (code) {},
-            flagWidth: 30,
+            flagWidth: 25,
             // hideMainText: true,
             padding: const EdgeInsets.all(0),
             onChanged: (cCode) {
@@ -331,7 +297,7 @@ commonCountryCodePicker({
             },
             initialSelection: initialSelection,
             showCountryOnly: true,
-            showOnlyCountryWhenClosed: true,
+            showOnlyCountryWhenClosed: showOnlyCountryWhenClosed ?? false,
             searchStyle: FontStyleUtility.blackInter16W500,
             dialogTextStyle: FontStyleUtility.blackInter18W500,
             showFlagDialog: true,
@@ -344,8 +310,7 @@ commonCountryCodePicker({
             hideMainText: hideMainText ?? false,
             dialogBackgroundColor: Colors.black,
             showFlag: true,
-            boxDecoration: BoxDecoration(
-                color: colorWhite, borderRadius: BorderRadius.circular(20.0)),
+            boxDecoration: BoxDecoration(color: colorWhite, borderRadius: BorderRadius.circular(20.0)),
             searchDecoration: InputDecoration(
               filled: true,
               // prefixIcon: const Icon(

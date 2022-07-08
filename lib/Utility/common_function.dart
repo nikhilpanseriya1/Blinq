@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:validators/validators.dart';
 
 import '../main.dart';
 import 'constants.dart';
@@ -27,11 +28,7 @@ import 'constants.dart';
 // }
 
 showSnackBar(
-    {String title = appName,
-    required String message,
-    Color? color,
-    Color? textColor,
-    int? duration}) {
+    {String title = appName, required String message, Color? color, Color? textColor, int? duration}) {
   return Get.snackbar(
     title, // title
     message, // message
@@ -49,17 +46,26 @@ showSnackBar(
   );
 }
 
+showBottomSnackBar({
+  required BuildContext context,
+  required String message,
+  /*Color? color, Color? textColor, int? duration*/
+}) {
+  return ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+    content: Text(message),
+    backgroundColor: colorPrimary,
+  ));
+}
+
 void showInSnackBar({String? text, required BuildContext context}) {
-  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(text ?? ""), duration: const Duration(seconds: 2)));
+  ScaffoldMessenger.of(context)
+      .showSnackBar(SnackBar(content: Text(text ?? ""), duration: const Duration(seconds: 2)));
 }
 
 /// Authentication Function
 
 getObject(String key) {
-  return getPreference.read(key) != null
-      ? json.decode(getPreference.read(key))
-      : null;
+  return getPreference.read(key) != null ? json.decode(getPreference.read(key)) : null;
 }
 
 setObject(String key, value) {
@@ -139,8 +145,8 @@ phoneValidationFunction(String val) {
 
 // Api Functions
 
-RegExp passwordRegExpValid = RegExp(
-    r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%#^()*?-_&])[A-Za-z\d@$!%*-_?&#^()]{8,}$");
+RegExp passwordRegExpValid =
+    RegExp(r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%#^()*?-_&])[A-Za-z\d@$!%*-_?&#^()]{8,}$");
 
 isNotEmptyString(String? data) {
   return data != null && data.isNotEmpty;
@@ -164,7 +170,6 @@ showLog(text) {
 
 setIsLogin({required bool isLogin}) {
   return getPreference.write(PrefConstants.isLogin, isLogin);
-  // return getPreference.write(ApiConfig.isLoginPref, isLogin);
 }
 
 bool getIsLogin() {
@@ -207,8 +212,15 @@ dateFormatter(String? dateTime, {String? myFormat}) {
 //   return getPreference.read(key);
 // }
 
-emptyFieldValidation(value, String msg) {
-  return value.toString().isEmpty ? msg : null;
+emptyFieldValidation(value, {String? msg}) {
+  return value.toString().isEmpty ? msg ?? notEmptyFieldMessage : null;
+}
+
+urlOrLinkValidation(value, {String? msg}) {
+  if (!isURL(value)) {
+    return msg ?? 'Please enter a valid URL';
+  }
+  return null;
 }
 
 alertPriceFieldValidation(value, String msg) {
@@ -259,8 +271,7 @@ DateTime? currentBackPressTime;
 
 Future<bool> onWillPop() {
   DateTime now = DateTime.now();
-  if (currentBackPressTime == null ||
-      now.difference(currentBackPressTime!) > const Duration(seconds: 2)) {
+  if (currentBackPressTime == null || now.difference(currentBackPressTime!) > const Duration(seconds: 2)) {
     currentBackPressTime = now;
     Fluttertoast.showToast(msg: 'press again to Exit!');
     return Future.value(false);
@@ -268,12 +279,20 @@ Future<bool> onWillPop() {
   return Future.value(true);
 }
 
+// passwordValidation(String value) {
+//   return value.toString().isEmpty
+//       ? notEmptyFieldMessage
+//       : value.length < 6
+//           ? 'Enter At least 6 character'
+//           : null;
+// }
+
 passwordValidation(String value) {
   return value.toString().isEmpty
       ? notEmptyFieldMessage
-      : value.length < 6
-          ? 'Enter At least 6 character'
-          : null;
+      : passwordRegExpValid.hasMatch(value)
+          ? null
+          : 'Password must be contain capital letter, small letter, special character and minimum 8 characters';
 }
 
 // launchURL(String url, {bool forceWeb = false}) async {

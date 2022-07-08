@@ -41,17 +41,10 @@ PreferredSize commonAppBar({
                   Get.back();
                 }
               },
-              child: InkWell(
-                highlightColor: appbarBgColor ?? colorWhite,
-                focusColor: appbarBgColor ?? colorWhite,
-                onTap: () {
-                  Get.back();
-                },
-                child: const Icon(
-                  Icons.keyboard_backspace_sharp,
-                  color: colorBlack,
-                  size: 25,
-                ),
+              child: const Icon(
+                Icons.arrow_back_ios,
+                color: colorPrimary,
+                size: 25,
               ),
             ),
         title: Text(
