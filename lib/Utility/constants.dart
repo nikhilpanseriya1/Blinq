@@ -1,8 +1,10 @@
+import 'package:blinq/App/Home/Controller/home_controller.dart';
 import 'package:get/get.dart';
 
 import '../App/Authentication/Controller/authentication_controller.dart';
 
 AuthenticationController kAuthenticationController = Get.put(AuthenticationController());
+HomeController kHomeController = Get.put(HomeController());
 
 class PrefConstants {
   static const String isLogin = "isLogin";
