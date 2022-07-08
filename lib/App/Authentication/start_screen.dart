@@ -24,7 +24,7 @@ class _StartScreenState extends State<StartScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              100.heightBox,
+              75.heightBox,
               Center(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -44,7 +44,7 @@ class _StartScreenState extends State<StartScreen> {
                     10.heightBox,
                     Text(
                       'Welcome to $appName',
-                      style: FontStyleUtility.blackDMSerifDisplay20W400.copyWith(color: colorWhite),
+                      style: FontStyleUtility.blackDMSerifDisplay20W400.copyWith(color: colorWhite, fontSize: 22),
                     ),
                     50.heightBox,
                     Text(
@@ -84,7 +84,8 @@ class _StartScreenState extends State<StartScreen> {
                     Text(
                       'ENTER A BLINQ FOR BUSINESS CODE',
                       style: FontStyleUtility.blackInter20W600.copyWith(color: colorWhite),
-                    )
+                    ),
+                    20.heightBox,
                   ],
                 ),
               ),
