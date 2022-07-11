@@ -106,8 +106,7 @@ class _StepperScreenState extends State<StepperScreen> {
               if (formKey.currentState!.validate()) {
                 if (selectedStep.value == 0) {
                   auth
-                      .createUserWithEmailAndPassword(
-                          email: emailController.text, password: passwordController.text)
+                      .createUserWithEmailAndPassword(email: emailController.text, password: passwordController.text)
                       .then((value) {
                     // Get.offAll(() => const HomeScreen());
                     /// save userId
@@ -299,9 +298,9 @@ class _StepperScreenState extends State<StepperScreen> {
                 Container(
                   height: 125,
                   width: 125,
-                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(100), boxShadow: const [
-                    BoxShadow(color: colorGrey, offset: Offset(0.0, 3.0), blurRadius: 10)
-                  ]),
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(100),
+                      boxShadow: const [BoxShadow(color: colorGrey, offset: Offset(0.0, 3.0), blurRadius: 10)]),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(100),
                     child: Image(
@@ -359,16 +358,14 @@ class _StepperScreenState extends State<StepperScreen> {
                   height: 200,
                   width: getScreenWidth(context) * 0.9,
                   decoration: BoxDecoration(borderRadius: BorderRadius.circular(25), boxShadow: [
-                    BoxShadow(
-                        color: colorGrey.withOpacity(0.5), offset: const Offset(0.0, 3.0), blurRadius: 10)
+                    BoxShadow(color: colorGrey.withOpacity(0.5), offset: const Offset(0.0, 3.0), blurRadius: 10)
                   ]),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(25),
                     child: Image(
                       fit: BoxFit.cover,
                       image: kAuthenticationController.selectedCompanyLogo.value.isNotEmpty
-                          ? FileImage(File(kAuthenticationController.selectedCompanyLogo.value))
-                              as ImageProvider
+                          ? FileImage(File(kAuthenticationController.selectedCompanyLogo.value)) as ImageProvider
                           : bgPlaceholder,
                     ),
                     // backgroundImage: userProfile2,
@@ -490,15 +487,15 @@ class _StepperScreenState extends State<StepperScreen> {
 
   Future<void> checkUserValid() async {
     try {
-      await FirebaseAuth.instance.createUserWithEmailAndPassword(
-          email: emailController.text.trim(), password: passwordController.text);
+      await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(email: emailController.text.trim(), password: passwordController.text);
     } catch (e) {
       showLog(e);
     }
   }
 }
 
-Future<void> picImageFromGallery({required bool isProfile}) async {
+Future<void> picImageFromGallery({required bool isProfile, Function? callBack}) async {
   var permissionStatus = await Permission.storage.status;
   if (!permissionStatus.isGranted) await Permission.storage.request();
   if (await Permission.storage.isGranted) {
@@ -510,6 +507,10 @@ Future<void> picImageFromGallery({required bool isProfile}) async {
         isProfile
             ? kAuthenticationController.selectedImage.value = imageTemporary.path
             : kAuthenticationController.selectedCompanyLogo.value = imageTemporary.path;
+
+        if (callBack != null) {
+          callBack();
+        }
       }
     } on PlatformException catch (e) {
       print('failed to pic image: $e');

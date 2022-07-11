@@ -27,11 +27,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   var userData = FirebaseFirestore.instance.collection('users');
 
-  // getData() async {
-  //   try {} catch (e) {
-  //     print(e);
-  //   }
-  // }
+  final Stream<QuerySnapshot> users = FirebaseFirestore.instance.collection('users').snapshots();
 
   Future getUserList() async {
     try {
@@ -95,120 +91,129 @@ class _HomeScreenState extends State<HomeScreen> {
         ]),
         child: SingleChildScrollView(
           physics: const ClampingScrollPhysics(),
-          child: StreamBuilder(
-              stream: null /*userData*/,
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) CircularProgressIndicator();
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    30.heightBox,
-                    Center(
-                      child: QrImage(
-                        data: "Jevalino 1234567890",
-                        version: QrVersions.auto,
-                        size: 200.0,
-                      ),
+          child: StreamBuilder<QuerySnapshot>(
+            stream: users,
+            builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+              if (snapshot.hasError) {
+                return Text('Something went wrong');
+              }
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return (Text('Loading...'));
+              }
+              var data = snapshot.requireData;
+              // final userDoc = await usersCollection.doc(userId).get();
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  30.heightBox,
+                  Center(
+                    child: QrImage(
+                      data: "Jevalino 1234567890",
+                      version: QrVersions.auto,
+                      size: 200.0,
                     ),
-                    20.heightBox,
-                    Obx(
-                      () => SizedBox(
-                        height: getScreenHeight(context) * 0.30,
-                        child: Stack(
-                          children: [
-                            Container(
-                              height: getScreenHeight(context) * 0.25,
-                              width: getScreenWidth(context),
-                              decoration: BoxDecoration(borderRadius: BorderRadius.circular(25), boxShadow: [
-                                BoxShadow(
-                                    color: colorGrey.withOpacity(0.5), offset: const Offset(0.0, 3.0), blurRadius: 10)
+                  ),
+                  20.heightBox,
+                  Obx(
+                    () => SizedBox(
+                      height: getScreenHeight(context) * 0.30,
+                      child: Stack(
+                        children: [
+                          Container(
+                            height: getScreenHeight(context) * 0.25,
+                            width: getScreenWidth(context),
+                            decoration: BoxDecoration(borderRadius: BorderRadius.circular(25), boxShadow: [
+                              BoxShadow(
+                                  color: colorGrey.withOpacity(0.5), offset: const Offset(0.0, 3.0), blurRadius: 10)
+                            ]),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(15),
+                              child: Image(
+                                fit: BoxFit.cover,
+                                image: kAuthenticationController.selectedCompanyLogo.value.isNotEmpty
+                                    ? FileImage(File(kAuthenticationController.selectedCompanyLogo.value))
+                                        as ImageProvider
+                                    : bgPlaceholder,
+                              ),
+                              // backgroundImage: userProfile2,
+                            ),
+                          ),
+                          Align(
+                            alignment: Alignment.bottomRight,
+                            child: Container(
+                              height: 100,
+                              width: 100,
+                              margin: const EdgeInsets.only(right: 15),
+                              decoration: BoxDecoration(borderRadius: BorderRadius.circular(100), boxShadow: const [
+                                BoxShadow(color: colorGrey, offset: Offset(0.0, 3.0), blurRadius: 10)
                               ]),
                               child: ClipRRect(
-                                borderRadius: BorderRadius.circular(15),
+                                borderRadius: BorderRadius.circular(100),
                                 child: Image(
+                                  height: 100,
+                                  width: 100,
                                   fit: BoxFit.cover,
-                                  image: kAuthenticationController.selectedCompanyLogo.value.isNotEmpty
-                                      ? FileImage(File(kAuthenticationController.selectedCompanyLogo.value))
-                                          as ImageProvider
-                                      : bgPlaceholder,
+                                  image: kAuthenticationController.selectedImage.value.isNotEmpty
+                                      ? FileImage(File(kAuthenticationController.selectedImage.value)) as ImageProvider
+                                      : profilePlaceholder,
                                 ),
                                 // backgroundImage: userProfile2,
                               ),
                             ),
-                            Align(
-                              alignment: Alignment.bottomRight,
-                              child: Container(
-                                height: 100,
-                                width: 100,
-                                margin: const EdgeInsets.only(right: 15),
-                                decoration: BoxDecoration(borderRadius: BorderRadius.circular(100), boxShadow: const [
-                                  BoxShadow(color: colorGrey, offset: Offset(0.0, 3.0), blurRadius: 10)
-                                ]),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(100),
-                                  child: Image(
-                                    height: 100,
-                                    width: 100,
-                                    fit: BoxFit.cover,
-                                    image: kAuthenticationController.selectedImage.value.isNotEmpty
-                                        ? FileImage(File(kAuthenticationController.selectedImage.value))
-                                            as ImageProvider
-                                        : profilePlaceholder,
-                                  ),
-                                  // backgroundImage: userProfile2,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
-                    10.heightBox,
-                    Text('Developer', style: FontStyleUtility.blackInter22W400),
-                    10.heightBox,
-                    Text('IT Department', style: FontStyleUtility.blackInter22W400),
-                    10.heightBox,
-                    Text('Google', style: FontStyleUtility.blackInter22W400),
+                  ),
+                  10.heightBox,
+                  Text('Developer', style: FontStyleUtility.blackInter22W400),
+                  10.heightBox,
+                  Text('IT Department', style: FontStyleUtility.blackInter22W400),
+                  10.heightBox,
+                  Text('Google', style: FontStyleUtility.blackInter22W400),
 
-                    StreamBuilder(
-                        stream: FirebaseAuth.instance.authStateChanges(),
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState != ConnectionState.active) {
-                            return Center(child: CircularProgressIndicator()); // 👈 user is loading
-                          }
-                          final user = snapshot.data;
-                          // final uid = user.uid; // 👈 get the UID
-                          if (user != null) {
-                            print(user);
+                  // Text('Hello, i\'m ${data.docs[6]['first_name']} ${data.docs[6]['last_name']}'),
 
-                            CollectionReference users = FirebaseFirestore.instance.collection('users');
-
-                            return FutureBuilder<DocumentSnapshot>(
-                              future: users.doc(kAuthenticationController.userId).get(),
-                              builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
-                                if (snapshot.hasError) {
-                                  return Text("Something went wrong");
-                                }
-
-                                if (snapshot.hasData && !snapshot.data!.exists) {
-                                  return Text("Document does not exist");
-                                }
-
-                                if (snapshot.connectionState == ConnectionState.done) {
-                                  Map<String, dynamic> data = snapshot.data!.data() as Map<String, dynamic>;
-                                  return Text("Hello, ${data['first_name']} ${data['last_name']}");
-                                }
-
-                                return Text("loading");
-                              },
-                            );
-                          } else {
-                            return Text("user is not logged in");
-                          }
-                        }),
-                  ],
-                );
-              }),
+                  // StreamBuilder(
+                  //     stream: FirebaseAuth.instance.authStateChanges(),
+                  //     builder: (context, snapshot) {
+                  //       if (snapshot.connectionState != ConnectionState.active) {
+                  //         return Center(child: CircularProgressIndicator()); // 👈 user is loading
+                  //       }
+                  //       final user = snapshot.data;
+                  //       // final uid = user.uid; // 👈 get the UID
+                  //       if (user != null) {
+                  //         print(user);
+                  //
+                  //         CollectionReference users = FirebaseFirestore.instance.collection('users');
+                  //
+                  //         return FutureBuilder<DocumentSnapshot>(
+                  //           future: users.doc(kAuthenticationController.userId).get(),
+                  //           builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+                  //             if (snapshot.hasError) {
+                  //               return Text("Something went wrong");
+                  //             }
+                  //
+                  //             if (snapshot.hasData && !snapshot.data!.exists) {
+                  //               return Text("Document does not exist");
+                  //             }
+                  //
+                  //             if (snapshot.connectionState == ConnectionState.done) {
+                  //               Map<String, dynamic> data = snapshot.data!.data() as Map<String, dynamic>;
+                  //               return Text("Hello, ${data['first_name']} ${data['last_name']}");
+                  //             }
+                  //
+                  //             return Text("loading");
+                  //           },
+                  //         );
+                  //       } else {
+                  //         return Text("user is not logged in");
+                  //       }
+                  //     }),
+                ],
+              );
+            },
+          ),
         ),
         floatingButton: FloatingActionButton.extended(
           backgroundColor: colorPrimary,

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:blinq/App/Home/add_field_screen.dart';
 import 'package:blinq/Utility/constants.dart';
 import 'package:blinq/Utility/utility_export.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:velocity_x/velocity_x.dart';
@@ -21,6 +22,27 @@ class _EditScreenState extends State<EditScreen> {
   RxBool logoToQr = false.obs;
   RxBool metField = false.obs;
 
+  RxBool isProfileChanged = false.obs;
+  RxBool isLogoChanged = false.obs;
+
+  Future uploadFile({required String filePath, required bool isProfile}) async {
+    File file = File(filePath);
+
+    final fileName = DateTime.now();
+    final destination;
+    isProfile ? destination = 'UserProfile/profilePic$fileName' : destination = 'UserProfile/companyLogo$fileName';
+    // task = FirebaseApi.uploadFile(destination, file!);
+    // setState(() {});
+    try {
+      final ref = FirebaseStorage.instance.ref(destination);
+      final snapshot = await ref.putFile(file).whenComplete(() {});
+      final urlDownload = await snapshot.ref.getDownloadURL();
+      print('Download-Link: $urlDownload');
+    } on FirebaseException catch (e) {
+      showLog(e);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return commonStructure(
@@ -28,8 +50,13 @@ class _EditScreenState extends State<EditScreen> {
         padding: 0,
         appBar: commonAppBar(
             leadingIcon: IconButton(
-                onPressed: () {
-                  showLog('Click done...');
+                onPressed: () async {
+                  if (isProfileChanged.value) {
+                    await uploadFile(filePath: kAuthenticationController.selectedImage.value, isProfile: true);
+                  }
+                  if (isLogoChanged.value) {
+                    await uploadFile(filePath: kAuthenticationController.selectedCompanyLogo.value, isProfile: false);
+                  }
                   Get.back();
                 },
                 icon: Icon(
@@ -94,7 +121,11 @@ class _EditScreenState extends State<EditScreen> {
                                         child: commonButtonView(
                                             title: 'Upload Company Logo',
                                             tapOnButton: () {
-                                              picImageFromGallery(isProfile: false);
+                                              picImageFromGallery(
+                                                  isProfile: false,
+                                                  callBack: () {
+                                                    isLogoChanged.value = true;
+                                                  });
                                             },
                                             height: 45,
                                             textStyle: FontStyleUtility.greyInter14W400,
@@ -132,7 +163,11 @@ class _EditScreenState extends State<EditScreen> {
                                   ),
                                   InkWell(
                                     onTap: () {
-                                      picImageFromGallery(isProfile: true);
+                                      picImageFromGallery(
+                                          isProfile: true,
+                                          callBack: () {
+                                            isProfileChanged.value = true;
+                                          });
                                     },
                                     child: Container(
                                       height: 100,
