@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:blinq/App/Home/add_field_screen.dart';
 import 'package:blinq/Utility/constants.dart';
 import 'package:blinq/Utility/utility_export.dart';
 import 'package:flutter/material.dart';
@@ -66,21 +67,18 @@ class _EditScreenState extends State<EditScreen> {
                                   Container(
                                     height: getScreenHeight(context) * 0.22,
                                     width: getScreenWidth(context) * 0.9,
-                                    decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(15),
-                                        boxShadow: [
-                                          BoxShadow(
-                                              color: colorGrey.withOpacity(0.5),
-                                              offset: const Offset(0.0, 3.0),
-                                              blurRadius: 10)
-                                        ]),
+                                    decoration: BoxDecoration(borderRadius: BorderRadius.circular(15), boxShadow: [
+                                      BoxShadow(
+                                          color: colorGrey.withOpacity(0.5),
+                                          offset: const Offset(0.0, 3.0),
+                                          blurRadius: 10)
+                                    ]),
                                     child: ClipRRect(
                                       borderRadius: BorderRadius.circular(15),
                                       child: Image(
                                         fit: BoxFit.cover,
                                         image: kAuthenticationController.selectedCompanyLogo.value.isNotEmpty
-                                            ? FileImage(
-                                                    File(kAuthenticationController.selectedCompanyLogo.value))
+                                            ? FileImage(File(kAuthenticationController.selectedCompanyLogo.value))
                                                 as ImageProvider
                                             : bgPlaceholder,
                                       ),
@@ -91,8 +89,7 @@ class _EditScreenState extends State<EditScreen> {
                                     height: getScreenHeight(context) * 0.22,
                                     width: getScreenWidth(context) * 0.9,
                                     decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(15),
-                                        color: colorBlack.withOpacity(0.15)),
+                                        borderRadius: BorderRadius.circular(15), color: colorBlack.withOpacity(0.15)),
                                     child: Center(
                                         child: commonButtonView(
                                             title: 'Upload Company Logo',
@@ -117,8 +114,7 @@ class _EditScreenState extends State<EditScreen> {
                                     decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(100),
                                         boxShadow: const [
-                                          BoxShadow(
-                                              color: colorGrey, offset: Offset(0.0, 3.0), blurRadius: 10)
+                                          BoxShadow(color: colorGrey, offset: Offset(0.0, 3.0), blurRadius: 10)
                                         ]),
                                     child: ClipRRect(
                                       borderRadius: BorderRadius.circular(100),
@@ -171,8 +167,8 @@ class _EditScreenState extends State<EditScreen> {
                       Center(
                         child: Container(
                           padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-                          decoration: BoxDecoration(
-                              color: colorGrey.withOpacity(0.2), borderRadius: BorderRadius.circular(5)),
+                          decoration:
+                              BoxDecoration(color: colorGrey.withOpacity(0.2), borderRadius: BorderRadius.circular(5)),
                           child: Text(
                             'Tap a field below to add it +',
                             style: FontStyleUtility.blackInter16W500,
@@ -187,34 +183,39 @@ class _EditScreenState extends State<EditScreen> {
                   padding: EdgeInsets.only(top: 10, bottom: 10),
                   decoration: BoxDecoration(
                       color: colorPrimary.withOpacity(0.15),
-                      borderRadius:
-                          BorderRadius.only(topRight: Radius.circular(20), topLeft: Radius.circular(20))),
+                      borderRadius: BorderRadius.only(topRight: Radius.circular(20), topLeft: Radius.circular(20))),
                   child: GridView.builder(
                       physics: NeverScrollableScrollPhysics(),
                       shrinkWrap: true,
                       itemCount: kHomeController.socialMediaList.length,
-                      gridDelegate:
-                          SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, childAspectRatio: 1.2),
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, childAspectRatio: 1.2),
                       itemBuilder: (BuildContext context, int index) {
-                        return Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            Container(
-                              height: 60,
-                              width: 60,
-                              padding: EdgeInsets.all(15),
-                              decoration: BoxDecoration(
-                                  color: colorPrimary, borderRadius: BorderRadius.circular(100)),
-                              child: Image(
-                                image: kHomeController.socialMediaList[index].logo,
-                                color: colorWhite,
+                        return InkWell(
+                          highlightColor: colorWhite,
+                          splashColor: colorWhite,
+                          onTap: () {
+                            Get.to(() => AddFieldScreen(index: index));
+                          },
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              Container(
+                                height: 60,
+                                width: 60,
+                                padding: EdgeInsets.all(15),
+                                decoration:
+                                    BoxDecoration(color: colorPrimary, borderRadius: BorderRadius.circular(100)),
+                                child: Image(
+                                  image: kHomeController.socialMediaList[index].logo,
+                                  color: colorWhite,
+                                ),
                               ),
-                            ),
-                            Text(
-                              kHomeController.socialMediaList[index].name,
-                              style: FontStyleUtility.blackInter14W500.copyWith(color: colorPrimary),
-                            )
-                          ],
+                              Text(
+                                kHomeController.socialMediaList[index].name,
+                                style: FontStyleUtility.blackInter14W500.copyWith(color: colorPrimary),
+                              )
+                            ],
+                          ),
                         );
                       }),
                 )

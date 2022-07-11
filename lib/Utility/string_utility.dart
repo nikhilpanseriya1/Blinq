@@ -8,15 +8,11 @@ const String phoneNumberError = "Please enter valid phone number";
 const String creditCardError = "Please enter valid card number";
 const String passwordError = "password must be at least 6 character";
 const String confirmPassError = "Password and confirm password must be same";
-const String shortDummyText = 'Lorem Ipsum is simply dummy text of the printing and typesetting industry.';
-const String dummyText =
-    'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsumzhas been the industry\'s standard dummy text ever since the 1500s';
-const String introDummyDescription =
-    'When an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.';
-const String dummyText_2 =
-    'It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.';
-const String dummyText_3 =
-    'It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using \'Content here, content here\', making it look like readable English. ';
+
+String typePhone = 'fieldPhoneNumber';
+String typeEmail = 'fieldEmail';
+String typeLink = 'fieldLink';
+String typeString = 'fieldString';
 
 const String isForgotPassType = 'isForgotPassword';
 const String isNewUser = 'isNewUser';
@@ -41,7 +37,8 @@ const String introStep4Ans =
     ' New Buys and Sells are identified to the right of the stock table, when they occur, for BUY/SELL AT OPEN the next morning, if applicable.';
 
 const String introStep5 = 'It may be days or even weeks before the next trade is made, so be patient.';
-const String introStep5Ans = 'The Model Portfolio is usually updated daily after the market close @ 3:00 PM CT and before 6:00 PM CT.';
+const String introStep5Ans =
+    'The Model Portfolio is usually updated daily after the market close @ 3:00 PM CT and before 6:00 PM CT.';
 
 const String introStep6 = 'Click on LTSTOCKPICKS Portfolio Tab above and follow along, if you like.';
 const String introStep6Ans = 'Since this is a long-term portfolio, the exact entry day or price is not that important.';
@@ -50,7 +47,8 @@ const String introStep7 =
     ' Buying every single position on the initial entry day will mirror the portfolio\'s performance. Selecting fewer stocks may out/underperform my list.';
 const String introStep7Ans = 'All trades are placed as a "market order at open" for trading the next day.';
 
-const String introStep8 = 'As new stock entries are "flagged", orders should be entered to "buy or sell at market" on the next day\'s open.';
+const String introStep8 =
+    'As new stock entries are "flagged", orders should be entered to "buy or sell at market" on the next day\'s open.';
 const String introStep8Ans =
     'Try to maintain a fairly even balance across the stock positions shown in the Model Portfolio that you have decided to buy.';
 

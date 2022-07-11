@@ -27,8 +27,7 @@ import 'constants.dart';
 //   }
 // }
 
-showSnackBar(
-    {String title = appName, required String message, Color? color, Color? textColor, int? duration}) {
+showSnackBar({String title = appName, required String message, Color? color, Color? textColor, int? duration}) {
   return Get.snackbar(
     title, // title
     message, // message
@@ -58,8 +57,7 @@ showBottomSnackBar({
 }
 
 void showInSnackBar({String? text, required BuildContext context}) {
-  ScaffoldMessenger.of(context)
-      .showSnackBar(SnackBar(content: Text(text ?? ""), duration: const Duration(seconds: 2)));
+  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(text ?? ""), duration: const Duration(seconds: 2)));
 }
 
 /// Authentication Function
@@ -244,27 +242,35 @@ profileLinkValidation(String value) {
           : 'Please enter valid profile link';
 }
 
-emailValidation(String? value) {
+// emailValidation(String? value) {
+//   if (value?.isEmpty ?? false) {
+//     return 'Please enter email address.';
+//   } else if (value?.isNotEmpty ?? false) {
+//     String pattern = r"^[a-zA-Z0-9.]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]"
+//         r"{0,253}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z-]"
+//         r"{0,253}[a-zA-Z])?)*$";
+//     RegExp regex = RegExp(pattern);
+//     if (value!.isEmpty || !regex.hasMatch(value)) {
+//       return 'Enter a valid email address.';
+//     }
+//   }
+// }
+
+urlValidation(String? value) {
   if (value?.isEmpty ?? false) {
-    return 'Please enter email address.';
+    return 'Please enter URL';
   } else if (value?.isNotEmpty ?? false) {
-    String pattern = r"^[a-zA-Z0-9.]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]"
-        r"{0,253}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z-]"
-        r"{0,253}[a-zA-Z])?)*$";
-    RegExp regex = RegExp(pattern);
-    if (value!.isEmpty || !regex.hasMatch(value)) {
-      return 'Enter a valid email address.';
-    }
+    GetUtils.isURL(value ?? '') ? null : 'Please enter valid URL';
   }
 }
 
-// emailValidation(value) {
-//   return value.toString().isEmpty
-//       ? notEmptyFieldMessage
-//       : !GetUtils.isEmail(value)
-//           ? "Please Enter Valid Email Address"
-//           : null;
-// }
+emailValidation(value) {
+  return value.toString().isEmpty
+      ? notEmptyFieldMessage
+      : !GetUtils.isEmail(value)
+          ? "Please Enter Valid Email Address"
+          : null;
+}
 
 DateTime? exitBackPressTime;
 DateTime? currentBackPressTime;
