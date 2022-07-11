@@ -58,9 +58,9 @@ class _LoginScreenState extends State<LoginScreen> {
               tapOnButton: () {
                 if (formKey.currentState!.validate()) {
                   auth
-                      .signInWithEmailAndPassword(
-                          email: emailController.text, password: passwordController.text)
-                      .then((_) {
+                      .signInWithEmailAndPassword(email: emailController.text, password: passwordController.text)
+                      .then((val) {
+                    print(val.user?.uid);
                     Get.offAll(() => const HomeScreen());
                   }).catchError((e) {
                     showBottomSnackBar(context: context, message: e.message);

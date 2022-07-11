@@ -1,7 +1,6 @@
 import 'package:blinq/App/Authentication/login_screen.dart';
 import 'package:blinq/App/Authentication/stepper_screen.dart';
 import 'package:blinq/Utility/utility_export.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:velocity_x/velocity_x.dart';

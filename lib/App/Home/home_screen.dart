@@ -1,12 +1,15 @@
 import 'dart:io';
 
 import 'package:blinq/Utility/utility_export.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:velocity_x/velocity_x.dart';
 
 import '../../Utility/constants.dart';
+import '../Authentication/start_screen.dart';
 import 'edit_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -17,6 +20,12 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  Future<void> userSetup(String displayName) async {
+    DatabaseReference taskRef = FirebaseDatabase.instance.ref().child('users').child('uid');
+
+    // String taskId = taskRef.push().key;
+  }
+
   @override
   void initState() {
     // TODO: implement initState
@@ -44,6 +53,16 @@ class _HomeScreenState extends State<HomeScreen> {
                 Icons.edit,
                 color: colorPrimary,
                 size: 22,
+              )),
+          IconButton(
+              onPressed: () {
+                setIsLogin(isLogin: false);
+                Get.offAll(() => StartScreen());
+              },
+              icon: const Icon(
+                Icons.logout,
+                color: colorPrimary,
+                size: 22,
               ))
         ]),
         child: SingleChildScrollView(
@@ -69,18 +88,14 @@ class _HomeScreenState extends State<HomeScreen> {
                         height: getScreenHeight(context) * 0.25,
                         width: getScreenWidth(context),
                         decoration: BoxDecoration(borderRadius: BorderRadius.circular(25), boxShadow: [
-                          BoxShadow(
-                              color: colorGrey.withOpacity(0.5),
-                              offset: const Offset(0.0, 3.0),
-                              blurRadius: 10)
+                          BoxShadow(color: colorGrey.withOpacity(0.5), offset: const Offset(0.0, 3.0), blurRadius: 10)
                         ]),
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(15),
                           child: Image(
                             fit: BoxFit.cover,
                             image: kAuthenticationController.selectedCompanyLogo.value.isNotEmpty
-                                ? FileImage(File(kAuthenticationController.selectedCompanyLogo.value))
-                                    as ImageProvider
+                                ? FileImage(File(kAuthenticationController.selectedCompanyLogo.value)) as ImageProvider
                                 : bgPlaceholder,
                           ),
                           // backgroundImage: userProfile2,
@@ -94,9 +109,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           margin: const EdgeInsets.only(right: 15),
                           decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(100),
-                              boxShadow: const [
-                                BoxShadow(color: colorGrey, offset: Offset(0.0, 3.0), blurRadius: 10)
-                              ]),
+                              boxShadow: const [BoxShadow(color: colorGrey, offset: Offset(0.0, 3.0), blurRadius: 10)]),
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(100),
                             child: Image(
@@ -104,8 +117,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               width: 100,
                               fit: BoxFit.cover,
                               image: kAuthenticationController.selectedImage.value.isNotEmpty
-                                  ? FileImage(File(kAuthenticationController.selectedImage.value))
-                                      as ImageProvider
+                                  ? FileImage(File(kAuthenticationController.selectedImage.value)) as ImageProvider
                                   : profilePlaceholder,
                             ),
                             // backgroundImage: userProfile2,
