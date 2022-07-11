@@ -9,6 +9,7 @@ HomeController kHomeController = Get.put(HomeController());
 class PrefConstants {
   static const String isLogin = "isLogin";
   static const String loginToken = "loginToken";
+  static const String userId = "userId";
 // static const String rememberMe = "rememberMe";
 // static const String showOnBoarding = "showOnBoarding";
 // static const String email = "email";

@@ -110,6 +110,8 @@ class _StepperScreenState extends State<StepperScreen> {
                           email: emailController.text, password: passwordController.text)
                       .then((value) {
                     // Get.offAll(() => const HomeScreen());
+                    /// save userId
+                    setObject(PrefConstants.userId, value.user?.uid);
                     pageController.animateToPage(++selectedStep.value,
                         duration: const Duration(milliseconds: 400), curve: Curves.bounceInOut);
                   }).catchError((e) {

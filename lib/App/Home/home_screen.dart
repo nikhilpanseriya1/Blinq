@@ -1,10 +1,13 @@
 import 'dart:io';
 
 import 'package:blinq/Utility/utility_export.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:velocity_x/velocity_x.dart';
 
@@ -20,17 +23,37 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  Future<void> userSetup(String displayName) async {
-    DatabaseReference taskRef = FirebaseDatabase.instance.ref().child('users').child('uid');
+  final auth = FirebaseAuth.instance;
 
-    // String taskId = taskRef.push().key;
+  var userData = FirebaseFirestore.instance.collection('users');
+
+  // getData() async {
+  //   try {} catch (e) {
+  //     print(e);
+  //   }
+  // }
+
+  Future getUserList() async {
+    try {
+      List mainList = [];
+      await userData.get().then((value) {
+        showLog(value);
+      });
+    } catch (e) {
+      showLog(e);
+      return null;
+    }
   }
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    kAuthenticationController.userId = getObject(PrefConstants.userId);
     setIsLogin(isLogin: true);
+    // getUserList();
+    // userSetup();
+    // getData();
   }
 
   @override
@@ -55,9 +78,14 @@ class _HomeScreenState extends State<HomeScreen> {
                 size: 22,
               )),
           IconButton(
-              onPressed: () {
-                setIsLogin(isLogin: false);
-                Get.offAll(() => StartScreen());
+              onPressed: () async {
+                try {
+                  setIsLogin(isLogin: false);
+                  Get.offAll(() => StartScreen());
+                  await auth.signOut();
+                } catch (error) {
+                  print(error.toString());
+                }
               },
               icon: const Icon(
                 Icons.logout,
@@ -67,75 +95,120 @@ class _HomeScreenState extends State<HomeScreen> {
         ]),
         child: SingleChildScrollView(
           physics: const ClampingScrollPhysics(),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              30.heightBox,
-              Center(
-                child: QrImage(
-                  data: "Jevalino 1234567890",
-                  version: QrVersions.auto,
-                  size: 200.0,
-                ),
-              ),
-              20.heightBox,
-              Obx(
-                () => SizedBox(
-                  height: getScreenHeight(context) * 0.30,
-                  child: Stack(
-                    children: [
-                      Container(
-                        height: getScreenHeight(context) * 0.25,
-                        width: getScreenWidth(context),
-                        decoration: BoxDecoration(borderRadius: BorderRadius.circular(25), boxShadow: [
-                          BoxShadow(color: colorGrey.withOpacity(0.5), offset: const Offset(0.0, 3.0), blurRadius: 10)
-                        ]),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(15),
-                          child: Image(
-                            fit: BoxFit.cover,
-                            image: kAuthenticationController.selectedCompanyLogo.value.isNotEmpty
-                                ? FileImage(File(kAuthenticationController.selectedCompanyLogo.value)) as ImageProvider
-                                : bgPlaceholder,
-                          ),
-                          // backgroundImage: userProfile2,
-                        ),
+          child: StreamBuilder(
+              stream: null /*userData*/,
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) CircularProgressIndicator();
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    30.heightBox,
+                    Center(
+                      child: QrImage(
+                        data: "Jevalino 1234567890",
+                        version: QrVersions.auto,
+                        size: 200.0,
                       ),
-                      Align(
-                        alignment: Alignment.bottomRight,
-                        child: Container(
-                          height: 100,
-                          width: 100,
-                          margin: const EdgeInsets.only(right: 15),
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(100),
-                              boxShadow: const [BoxShadow(color: colorGrey, offset: Offset(0.0, 3.0), blurRadius: 10)]),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(100),
-                            child: Image(
-                              height: 100,
-                              width: 100,
-                              fit: BoxFit.cover,
-                              image: kAuthenticationController.selectedImage.value.isNotEmpty
-                                  ? FileImage(File(kAuthenticationController.selectedImage.value)) as ImageProvider
-                                  : profilePlaceholder,
+                    ),
+                    20.heightBox,
+                    Obx(
+                      () => SizedBox(
+                        height: getScreenHeight(context) * 0.30,
+                        child: Stack(
+                          children: [
+                            Container(
+                              height: getScreenHeight(context) * 0.25,
+                              width: getScreenWidth(context),
+                              decoration: BoxDecoration(borderRadius: BorderRadius.circular(25), boxShadow: [
+                                BoxShadow(
+                                    color: colorGrey.withOpacity(0.5), offset: const Offset(0.0, 3.0), blurRadius: 10)
+                              ]),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(15),
+                                child: Image(
+                                  fit: BoxFit.cover,
+                                  image: kAuthenticationController.selectedCompanyLogo.value.isNotEmpty
+                                      ? FileImage(File(kAuthenticationController.selectedCompanyLogo.value))
+                                          as ImageProvider
+                                      : bgPlaceholder,
+                                ),
+                                // backgroundImage: userProfile2,
+                              ),
                             ),
-                            // backgroundImage: userProfile2,
-                          ),
+                            Align(
+                              alignment: Alignment.bottomRight,
+                              child: Container(
+                                height: 100,
+                                width: 100,
+                                margin: const EdgeInsets.only(right: 15),
+                                decoration: BoxDecoration(borderRadius: BorderRadius.circular(100), boxShadow: const [
+                                  BoxShadow(color: colorGrey, offset: Offset(0.0, 3.0), blurRadius: 10)
+                                ]),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(100),
+                                  child: Image(
+                                    height: 100,
+                                    width: 100,
+                                    fit: BoxFit.cover,
+                                    image: kAuthenticationController.selectedImage.value.isNotEmpty
+                                        ? FileImage(File(kAuthenticationController.selectedImage.value))
+                                            as ImageProvider
+                                        : profilePlaceholder,
+                                  ),
+                                  // backgroundImage: userProfile2,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                    ],
-                  ),
-                ),
-              ),
-              10.heightBox,
-              Text('Developer', style: FontStyleUtility.blackInter22W400),
-              10.heightBox,
-              Text('IT Department', style: FontStyleUtility.blackInter22W400),
-              10.heightBox,
-              Text('Google', style: FontStyleUtility.blackInter22W400),
-            ],
-          ),
+                    ),
+                    10.heightBox,
+                    Text('Developer', style: FontStyleUtility.blackInter22W400),
+                    10.heightBox,
+                    Text('IT Department', style: FontStyleUtility.blackInter22W400),
+                    10.heightBox,
+                    Text('Google', style: FontStyleUtility.blackInter22W400),
+
+                    StreamBuilder(
+                        stream: FirebaseAuth.instance.authStateChanges(),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState != ConnectionState.active) {
+                            return Center(child: CircularProgressIndicator()); // 👈 user is loading
+                          }
+                          final user = snapshot.data;
+                          // final uid = user.uid; // 👈 get the UID
+                          if (user != null) {
+                            print(user);
+
+                            CollectionReference users = FirebaseFirestore.instance.collection('users');
+
+                            return FutureBuilder<DocumentSnapshot>(
+                              future: users.doc(kAuthenticationController.userId).get(),
+                              builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+                                if (snapshot.hasError) {
+                                  return Text("Something went wrong");
+                                }
+
+                                if (snapshot.hasData && !snapshot.data!.exists) {
+                                  return Text("Document does not exist");
+                                }
+
+                                if (snapshot.connectionState == ConnectionState.done) {
+                                  Map<String, dynamic> data = snapshot.data!.data() as Map<String, dynamic>;
+                                  return Text("Hello, ${data['first_name']} ${data['last_name']}");
+                                }
+
+                                return Text("loading");
+                              },
+                            );
+                          } else {
+                            return Text("user is not logged in");
+                          }
+                        }),
+                  ],
+                );
+              }),
         ),
         floatingButton: FloatingActionButton.extended(
           backgroundColor: colorPrimary,

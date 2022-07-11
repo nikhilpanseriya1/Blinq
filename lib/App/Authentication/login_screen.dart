@@ -1,4 +1,5 @@
 import 'package:blinq/App/Home/home_screen.dart';
+import 'package:blinq/Utility/constants.dart';
 import 'package:blinq/Utility/utility_export.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -60,7 +61,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   auth
                       .signInWithEmailAndPassword(email: emailController.text, password: passwordController.text)
                       .then((val) {
-                    print(val.user?.uid);
+                    /// save userId
+                    setObject(PrefConstants.userId, val.user?.uid);
                     Get.offAll(() => const HomeScreen());
                   }).catchError((e) {
                     showBottomSnackBar(context: context, message: e.message);
