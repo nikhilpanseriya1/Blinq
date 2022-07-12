@@ -32,12 +32,20 @@ class _AddFieldScreenState extends State<AddFieldScreen> {
           splashColor: colorWhite,
           onTap: () {
             if (formKey.currentState!.validate()) {
-              kHomeController.addFieldsModelList.add(AddFieldsModel(
-                  data: kHomeController.socialMediaList[widget.index].type == typePhone
-                      ? '$selectedCountryCode ${mainController.text}'
-                      : mainController.text,
-                  label: titleController.text,
-                  title: kHomeController.socialMediaList[widget.index].name));
+              kHomeController.addFieldsModelList.add({
+                'data': kHomeController.socialMediaList[widget.index].type == typePhone
+                    ? '$selectedCountryCode ${mainController.text}'
+                    : mainController.text,
+                'label': titleController.text,
+                'title': kHomeController.socialMediaList[widget.index].name
+              });
+
+              // kHomeController.addFieldsModelList.add(AddFieldsModel(
+              //     data: kHomeController.socialMediaList[widget.index].type == typePhone
+              //         ? '$selectedCountryCode ${mainController.text}'
+              //         : mainController.text,
+              //     label: titleController.text,
+              //     title: kHomeController.socialMediaList[widget.index].name));
 
               Get.back();
             }

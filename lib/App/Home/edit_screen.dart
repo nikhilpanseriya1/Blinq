@@ -313,11 +313,11 @@ class _EditScreenState extends State<EditScreen> {
                                             ),
                                           ),
                                           title: Text(
-                                            kHomeController.addFieldsModelList[index].data,
+                                            kHomeController.addFieldsModelList[index]['data'],
                                             style: FontStyleUtility.blackInter16W500,
                                           ),
                                           subtitle: Text(
-                                            kHomeController.addFieldsModelList[index].label,
+                                            kHomeController.addFieldsModelList[index]['label'],
                                             style: FontStyleUtility.greyInter14W400,
                                           ),
                                           trailing: IconButton(
