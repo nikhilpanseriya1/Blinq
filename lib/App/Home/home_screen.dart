@@ -27,19 +27,20 @@ class _HomeScreenState extends State<HomeScreen> {
 
   var userData = FirebaseFirestore.instance.collection('users');
 
-  final Stream<QuerySnapshot> users = FirebaseFirestore.instance.collection('users').snapshots();
+  // final Stream users = FirebaseFirestore.instance.collection('users').snapshots();
+  final users = FirebaseFirestore.instance.collection('users');
 
-  Future getUserList() async {
-    try {
-      List mainList = [];
-      await userData.get().then((value) {
-        showLog(value);
-      });
-    } catch (e) {
-      showLog(e);
-      return null;
-    }
-  }
+  // Future getUserList() async {
+  //   try {
+  //     List mainList = [];
+  //     await userData.get().then((value) {
+  //       showLog(value);
+  //     });
+  //   } catch (e) {
+  //     showLog(e);
+  //     return null;
+  //   }
+  // }
 
   @override
   void initState() {
@@ -91,16 +92,17 @@ class _HomeScreenState extends State<HomeScreen> {
         ]),
         child: SingleChildScrollView(
           physics: const ClampingScrollPhysics(),
-          child: StreamBuilder<QuerySnapshot>(
-            stream: users,
-            builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+          child: StreamBuilder(
+            stream: FirebaseFirestore.instance.collection('users').doc(kAuthenticationController.userId).snapshots(),
+            builder: (context, snapshot) {
               if (snapshot.hasError) {
                 return Text('Something went wrong');
               }
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return (Text('Loading...'));
               }
-              var data = snapshot.requireData;
+              var userData = snapshot.requireData;
+
               // final userDoc = await usersCollection.doc(userId).get();
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -172,7 +174,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   10.heightBox,
                   Text('Google', style: FontStyleUtility.blackInter22W400),
 
-                  // Text('Hello, i\'m ${data.docs[6]['first_name']} ${data.docs[6]['last_name']}'),
+                  // Text('Hello, i\'m ${userData['first_name']} ${userData['last_name']}'),
 
                   // StreamBuilder(
                   //     stream: FirebaseAuth.instance.authStateChanges(),
