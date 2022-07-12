@@ -4,7 +4,6 @@ import 'package:blinq/Utility/utility_export.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
@@ -15,6 +14,8 @@ import '../../Utility/constants.dart';
 import '../Authentication/start_screen.dart';
 import 'edit_screen.dart';
 
+var userData;
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
 
@@ -24,8 +25,6 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final auth = FirebaseAuth.instance;
-
-  var userData = FirebaseFirestore.instance.collection('users');
 
   // final Stream users = FirebaseFirestore.instance.collection('users').snapshots();
   final users = FirebaseFirestore.instance.collection('users');
@@ -59,7 +58,9 @@ class _HomeScreenState extends State<HomeScreen> {
         context: context,
         appBar: commonAppBar(title: 'Work', actionWidgets: [
           IconButton(
-              onPressed: () {},
+              onPressed: () {
+                Get.to(() => EditScreen(isFromEdit: false));
+              },
               icon: const Icon(
                 Icons.add,
                 color: colorPrimary,
@@ -67,7 +68,7 @@ class _HomeScreenState extends State<HomeScreen> {
               )),
           IconButton(
               onPressed: () {
-                Get.to(() => EditScreen());
+                Get.to(() => EditScreen(isFromEdit: true));
               },
               icon: const Icon(
                 Icons.edit,
@@ -101,7 +102,8 @@ class _HomeScreenState extends State<HomeScreen> {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return (Text('Loading...'));
               }
-              var userData = snapshot.requireData;
+
+              userData = snapshot.requireData;
 
               // final userDoc = await usersCollection.doc(userId).get();
               return Column(
@@ -174,8 +176,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   10.heightBox,
                   Text('Google', style: FontStyleUtility.blackInter22W400),
 
-
-                  // Text('Hello, i\'m ${userData['first_name']} ${userData['last_name']}'),
+                  Text('Hello, i\'m ${userData['first_name']} ${userData['last_name']}'),
 
                   // StreamBuilder(
                   //     stream: FirebaseAuth.instance.authStateChanges(),

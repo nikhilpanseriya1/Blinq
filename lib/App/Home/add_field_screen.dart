@@ -1,3 +1,4 @@
+import 'package:blinq/App/Home/Model/social_media_model.dart';
 import 'package:blinq/Utility/utility_export.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -15,10 +16,11 @@ class AddFieldScreen extends StatefulWidget {
 }
 
 class _AddFieldScreenState extends State<AddFieldScreen> {
-  TextEditingController phoneController = TextEditingController();
-  Rx<TextEditingController> titleController = TextEditingController().obs;
+  TextEditingController mainController = TextEditingController();
+  TextEditingController titleController = TextEditingController();
   RxString title = ''.obs;
   GlobalKey<FormState> formKey = GlobalKey();
+  String selectedCountryCode = '+91';
 
   @override
   Widget build(BuildContext context) {
@@ -26,8 +28,17 @@ class _AddFieldScreenState extends State<AddFieldScreen> {
       context: context,
       appBar: commonAppBar(title: 'Add ${kHomeController.socialMediaList[widget.index].name}', actionWidgets: [
         InkWell(
+          highlightColor: colorWhite,
+          splashColor: colorWhite,
           onTap: () {
             if (formKey.currentState!.validate()) {
+              kHomeController.addFieldsModelList.add(AddFieldsModel(
+                  data: kHomeController.socialMediaList[widget.index].type == typePhone
+                      ? '$selectedCountryCode ${mainController.text}'
+                      : mainController.text,
+                  label: titleController.text,
+                  title: kHomeController.socialMediaList[widget.index].name));
+
               Get.back();
             }
           },
@@ -70,7 +81,10 @@ class _AddFieldScreenState extends State<AddFieldScreen> {
                     ? SizedBox(
                         width: 110,
                         child: commonCountryCodePicker(
-                          onChanged: () {},
+                          onChanged: (value) {
+                            selectedCountryCode = value;
+                            showLog(selectedCountryCode);
+                          },
                           borderColor: colorWhite.withOpacity(0.0),
                           initialSelection: 'IN',
                           isShowDropIcon: false,
@@ -79,7 +93,7 @@ class _AddFieldScreenState extends State<AddFieldScreen> {
                     : null,
                 hintText: 'WhatsApp Phone Number',
                 keyboardType: TextInputType.number,
-                textEditingController: phoneController,
+                textEditingController: mainController,
                 validationFunction: (val) {
                   return kHomeController.socialMediaList[widget.index].type == typePhone
                       ? phoneValidationFunction(val)
@@ -92,7 +106,7 @@ class _AddFieldScreenState extends State<AddFieldScreen> {
             20.heightBox,
             commonTextField(
               hintText: 'Title (Optional)',
-              textEditingController: titleController.value,
+              textEditingController: titleController,
               onChangedFunction: (val) {
                 title.value = val;
               },
@@ -109,7 +123,7 @@ class _AddFieldScreenState extends State<AddFieldScreen> {
                         splashColor: colorWhite,
                         highlightColor: colorWhite,
                         onTap: () {
-                          titleController.value.text = element;
+                          titleController.text = element;
                           title.value = element;
                         },
                         child: Obx(

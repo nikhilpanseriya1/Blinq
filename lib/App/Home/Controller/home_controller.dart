@@ -4,6 +4,8 @@ import 'package:get/get.dart';
 import '../../../Utility/utility_export.dart';
 
 class HomeController extends GetxController {
+  RxList<AddFieldsModel> addFieldsModelList = <AddFieldsModel>[].obs;
+
   RxList<SocialMediaModel> socialMediaList = [
     SocialMediaModel(
         name: 'Phone Number',
