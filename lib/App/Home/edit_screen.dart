@@ -42,6 +42,9 @@ class _EditScreenState extends State<EditScreen> {
 
   GlobalKey<FormState> formKey = GlobalKey();
 
+  /// saved used data
+  var currentUserData;
+
   Future uploadFile({required String filePath, required bool isProfile, required Function() callBack}) async {
     File file = File(filePath);
 
@@ -88,9 +91,8 @@ class _EditScreenState extends State<EditScreen> {
           IconButton(
               onPressed: () async {
                 if (widget.isFromEdit) {
-                  var ref = FirebaseFirestore.instance.doc('users/${kAuthenticationController.userId}');
-
-                  ref.update({
+                  var userRef = FirebaseFirestore.instance.doc('users/${kAuthenticationController.userId}');
+                  userRef.update({
                     'first_name': firstNameController.text,
                     'last_name': lastNameController.text,
                     'jon_title': jobTitleController.text,
@@ -278,72 +280,102 @@ class _EditScreenState extends State<EditScreen> {
                         commonSwitchRow(enable: branding, title: 'Display $appName branding on card'),
                         commonSwitchRow(enable: logoToQr, title: 'Add Logo to Qe Code'),
                         commonSwitchRow(enable: metField, title: '\'Where We Met\' field'),
-                        kHomeController.addFieldsModelList.isNotEmpty
-                            ? Padding(
-                                padding: const EdgeInsets.only(top: 20),
-                                child: Column(
-                                  children: [
-                                    Center(
-                                      child: Container(
-                                        padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-                                        decoration: BoxDecoration(
-                                            color: colorGrey.withOpacity(0.2), borderRadius: BorderRadius.circular(5)),
-                                        child: Text(
-                                          'Tap a field below to add it +',
-                                          style: FontStyleUtility.blackInter16W500,
-                                        ),
-                                      ),
-                                    ),
-                                    20.heightBox,
-                                    ListView.builder(
-                                      shrinkWrap: true,
-                                      physics: ClampingScrollPhysics(),
-                                      itemCount: kHomeController.addFieldsModelList.length,
-                                      itemBuilder: (context, index) {
-                                        return ListTile(
-                                          leading: Container(
-                                            height: 50,
-                                            width: 50,
-                                            padding: EdgeInsets.all(12),
-                                            decoration: BoxDecoration(
-                                                color: colorPrimary, borderRadius: BorderRadius.circular(100)),
-                                            child: Image(
-                                              image: kHomeController.socialMediaList[index].logo,
-                                              color: colorWhite,
+                        StreamBuilder(
+                            stream:
+                                FirebaseFirestore.instance.doc('users/${kAuthenticationController.userId}').snapshots(),
+                            builder: (context, snapshot) {
+                              // if (snapshot.hasError) {
+                              //   return Text('Something went wrong');
+                              // }
+                              // if (snapshot.connectionState == ConnectionState.waiting) {
+                              //   return (Text('Loading...'));
+                              // }
+                              currentUserData = snapshot.requireData;
+                              kHomeController.addFieldsModelList.clear();
+                              currentUserData['fields'].forEach((element) {
+                                kHomeController.addFieldsModelList.add(
+                                    {'data': element['data'], 'label': element['label'], 'title': element['title']});
+                              });
+
+                              return currentUserData['fields'].isNotEmpty
+                                  ? Padding(
+                                      padding: const EdgeInsets.only(top: 20),
+                                      child: Column(
+                                        children: [
+                                          Center(
+                                            child: Container(
+                                              padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                                              decoration: BoxDecoration(
+                                                  color: colorGrey.withOpacity(0.2),
+                                                  borderRadius: BorderRadius.circular(5)),
+                                              child: Text(
+                                                'Tap a field below to add it +',
+                                                style: FontStyleUtility.blackInter16W500,
+                                              ),
                                             ),
                                           ),
-                                          title: Text(
-                                            kHomeController.addFieldsModelList[index]['data'],
-                                            style: FontStyleUtility.blackInter16W500,
+                                          20.heightBox,
+                                          ListView.builder(
+                                            shrinkWrap: true,
+                                            physics: ClampingScrollPhysics(),
+                                            itemCount: currentUserData['fields'].length ?? 0,
+                                            itemBuilder: (context, index) {
+                                              return ListTile(
+                                                leading: Container(
+                                                  height: 50,
+                                                  width: 50,
+                                                  padding: EdgeInsets.all(12),
+                                                  decoration: BoxDecoration(
+                                                      color: colorPrimary, borderRadius: BorderRadius.circular(100)),
+                                                  child: Image(
+                                                    image: getImage(
+                                                        index: index,
+                                                        fieldName: currentUserData['fields'][index]['title']),
+                                                    color: colorWhite,
+                                                  ),
+                                                ),
+                                                title: Text(
+                                                  currentUserData['fields'][index]['data'],
+                                                  style: FontStyleUtility.blackInter16W500,
+                                                ),
+                                                subtitle: Text(
+                                                  currentUserData['fields'][index]['label'],
+                                                  style: FontStyleUtility.greyInter14W400,
+                                                ),
+                                                trailing: IconButton(
+                                                    onPressed: () {
+                                                      showAlertDialog(
+                                                          title: 'Delete?',
+                                                          msg:
+                                                              'Are you sure you want to delete this field from social profile list?',
+                                                          context: context,
+                                                          callback: () async {
+                                                            kHomeController.addFieldsModelList
+                                                                .remove(kHomeController.addFieldsModelList[index]);
+
+                                                            /// remove field and update list
+                                                            var userRef = FirebaseFirestore.instance
+                                                                .doc('users/${kAuthenticationController.userId}');
+                                                            userRef.update({
+                                                              'fields': kHomeController.addFieldsModelList
+                                                            }).whenComplete(() {
+                                                              showLog('Remove data successfully...');
+                                                            });
+                                                          });
+                                                    },
+                                                    icon: Icon(
+                                                      Icons.close,
+                                                      color: colorGrey,
+                                                      size: 22,
+                                                    )),
+                                              );
+                                            },
                                           ),
-                                          subtitle: Text(
-                                            kHomeController.addFieldsModelList[index]['label'],
-                                            style: FontStyleUtility.greyInter14W400,
-                                          ),
-                                          trailing: IconButton(
-                                              onPressed: () {
-                                                showAlertDialog(
-                                                    title: 'Delete?',
-                                                    msg:
-                                                        'Are you sure you want to delete this field from social profile list?',
-                                                    context: context,
-                                                    callback: () {
-                                                      kHomeController.addFieldsModelList
-                                                          .remove(kHomeController.addFieldsModelList[index]);
-                                                    });
-                                              },
-                                              icon: Icon(
-                                                Icons.close,
-                                                color: colorGrey,
-                                                size: 22,
-                                              )),
-                                        );
-                                      },
+                                        ],
+                                      ),
                                     )
-                                  ],
-                                ),
-                              )
-                            : SizedBox.shrink(),
+                                  : SizedBox.shrink();
+                            }),
                         20.heightBox,
                         Center(
                           child: Container(
@@ -411,9 +443,8 @@ class _EditScreenState extends State<EditScreen> {
   void addNewCard(Function callBack) async {
     if (formKey.currentState!.validate()) {
       try {
-        var ref = FirebaseFirestore.instance.collection('users');
-
-        ref.add({
+        var userRef = FirebaseFirestore.instance.collection('users');
+        userRef.add({
           'first_name': firstNameController.text,
           'last_name': lastNameController.text,
           'jon_title': jobTitleController.text,
@@ -424,8 +455,8 @@ class _EditScreenState extends State<EditScreen> {
           'profile_pic': '',
           'fields': {'data': 'data1....', 'label': 'label1', 'title': 'title1'}
         }).whenComplete(() async {
-          showLog('====== ${ref.id}');
-          showLog('====== ${ref.doc().id}');
+          showLog('====== ${userRef.id}');
+          showLog('====== ${userRef.doc().id}');
           showLog('Data added successfully...');
         });
 
@@ -434,7 +465,7 @@ class _EditScreenState extends State<EditScreen> {
               filePath: kAuthenticationController.selectedImage.value,
               isProfile: true,
               callBack: () async {
-                await ref.doc().update({'profile_pic': profilePicUrl});
+                await userRef.doc().update({'profile_pic': profilePicUrl});
               });
         }
         if (isLogoChanged.value) {
@@ -442,7 +473,7 @@ class _EditScreenState extends State<EditScreen> {
               filePath: kAuthenticationController.selectedCompanyLogo.value,
               isProfile: false,
               callBack: () async {
-                await ref.doc().update({'company_logo': profilePicUrl});
+                await userRef.doc().update({'company_logo': profilePicUrl});
               });
         }
         callBack();
@@ -451,6 +482,50 @@ class _EditScreenState extends State<EditScreen> {
       }
     }
   }
+}
+
+ExactAssetImage getImage({required int index, required String fieldName}) {
+  return fieldName == 'Phone Number'
+      ? phoneCall
+      : fieldName == 'Email'
+          ? email
+          : fieldName == 'Link'
+              ? link
+              : fieldName == 'Location'
+                  ? location
+                  : fieldName == 'Company Website'
+                      ? website
+                      : fieldName == 'LinkedIn'
+                          ? linkedin
+                          : fieldName == 'Instagram'
+                              ? instagram
+                              : fieldName == 'Twitter'
+                                  ? twitter
+                                  : fieldName == 'Facebook'
+                                      ? facebook
+                                      : fieldName == 'Snapchat'
+                                          ? snapchat
+                                          : fieldName == 'Tiktok'
+                                              ? tiktok
+                                              : fieldName == 'YouTube'
+                                                  ? youtube
+                                                  : fieldName == 'Github'
+                                                      ? github
+                                                      : fieldName == 'Yelp'
+                                                          ? yelp
+                                                          : fieldName == 'Paypal'
+                                                              ? paypal
+                                                              : fieldName == 'Discord'
+                                                                  ? discord
+                                                                  : fieldName == 'Signal'
+                                                                      ? signal
+                                                                      : fieldName == 'Skype'
+                                                                          ? skype
+                                                                          : fieldName == 'Telegram'
+                                                                              ? telegram
+                                                                              : fieldName == 'Twitch'
+                                                                                  ? twitch
+                                                                                  : whatsapp;
 }
 
 Widget commonSwitchRow({required String title, required RxBool enable}) {

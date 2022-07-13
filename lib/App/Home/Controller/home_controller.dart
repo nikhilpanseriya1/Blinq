@@ -5,7 +5,7 @@ import '../../../Utility/utility_export.dart';
 
 class HomeController extends GetxController {
   // RxList<AddFieldsModel> addFieldsModelList = <AddFieldsModel>[].obs;
-  List<Map<String, dynamic>> addFieldsModelList = [];
+  RxList<Map<String, dynamic>> addFieldsModelList = <Map<String, dynamic>>[].obs;
 
   RxList<SocialMediaModel> socialMediaList = [
     SocialMediaModel(

@@ -1,5 +1,6 @@
 import 'package:blinq/App/Home/Model/social_media_model.dart';
 import 'package:blinq/Utility/utility_export.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:velocity_x/velocity_x.dart';
@@ -17,7 +18,7 @@ class AddFieldScreen extends StatefulWidget {
 
 class _AddFieldScreenState extends State<AddFieldScreen> {
   TextEditingController mainController = TextEditingController();
-  TextEditingController titleController = TextEditingController();
+  TextEditingController labelController = TextEditingController();
   RxString title = ''.obs;
   GlobalKey<FormState> formKey = GlobalKey();
   String selectedCountryCode = '+91';
@@ -36,8 +37,14 @@ class _AddFieldScreenState extends State<AddFieldScreen> {
                 'data': kHomeController.socialMediaList[widget.index].type == typePhone
                     ? '$selectedCountryCode ${mainController.text}'
                     : mainController.text,
-                'label': titleController.text,
+                'label': labelController.text,
                 'title': kHomeController.socialMediaList[widget.index].name
+              });
+
+              /// Add field and update list
+              var userRef = FirebaseFirestore.instance.doc('users/${kAuthenticationController.userId}');
+              userRef.update({'fields': kHomeController.addFieldsModelList}).whenComplete(() async {
+                showLog('Data added successfully...');
               });
 
               // kHomeController.addFieldsModelList.add(AddFieldsModel(
@@ -99,7 +106,7 @@ class _AddFieldScreenState extends State<AddFieldScreen> {
                         ),
                       )
                     : null,
-                hintText: 'WhatsApp Phone Number',
+                hintText: kHomeController.socialMediaList[widget.index].hint,
                 keyboardType: TextInputType.number,
                 textEditingController: mainController,
                 validationFunction: (val) {
@@ -114,7 +121,7 @@ class _AddFieldScreenState extends State<AddFieldScreen> {
             20.heightBox,
             commonTextField(
               hintText: 'Title (Optional)',
-              textEditingController: titleController,
+              textEditingController: labelController,
               onChangedFunction: (val) {
                 title.value = val;
               },
@@ -131,7 +138,7 @@ class _AddFieldScreenState extends State<AddFieldScreen> {
                         splashColor: colorWhite,
                         highlightColor: colorWhite,
                         onTap: () {
-                          titleController.text = element;
+                          labelController.text = element;
                           title.value = element;
                         },
                         child: Obx(
