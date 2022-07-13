@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:blinq/App/Home/add_field_screen.dart';
 import 'package:blinq/Utility/constants.dart';
 import 'package:blinq/Utility/utility_export.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -171,13 +172,42 @@ class _EditScreenState extends State<EditScreen> {
                                       ]),
                                       child: ClipRRect(
                                         borderRadius: BorderRadius.circular(15),
-                                        child: Image(
-                                          fit: BoxFit.cover,
-                                          image: kAuthenticationController.selectedCompanyLogo.value.isNotEmpty
-                                              ? FileImage(File(kAuthenticationController.selectedCompanyLogo.value))
-                                                  as ImageProvider
-                                              : bgPlaceholder,
-                                        ),
+                                        child: widget.isFromEdit
+                                            ? CachedNetworkImage(
+                                                fit: BoxFit.cover,
+                                                imageUrl: userData['company_logo'],
+                                                placeholder: (context, url) => Image(
+                                                  fit: BoxFit.cover,
+                                                  image: kAuthenticationController.selectedCompanyLogo.value.isNotEmpty
+                                                      ? FileImage(
+                                                              File(kAuthenticationController.selectedCompanyLogo.value))
+                                                          as ImageProvider
+                                                      : bgPlaceholder,
+                                                ),
+                                                errorWidget: (context, url, error) => Image(
+                                                  fit: BoxFit.cover,
+                                                  image: kAuthenticationController.selectedCompanyLogo.value.isNotEmpty
+                                                      ? FileImage(
+                                                              File(kAuthenticationController.selectedCompanyLogo.value))
+                                                          as ImageProvider
+                                                      : bgPlaceholder,
+                                                ),
+                                              )
+                                            : Image(
+                                                fit: BoxFit.cover,
+                                                image: kAuthenticationController.selectedCompanyLogo.value.isNotEmpty
+                                                    ? FileImage(
+                                                            File(kAuthenticationController.selectedCompanyLogo.value))
+                                                        as ImageProvider
+                                                    : bgPlaceholder,
+                                              ),
+                                        // child: Image(
+                                        // fit: BoxFit.cover,
+                                        // image: kAuthenticationController.selectedCompanyLogo.value.isNotEmpty
+                                        //     ? FileImage(File(kAuthenticationController.selectedCompanyLogo.value))
+                                        // as ImageProvider
+                                        //     : bgPlaceholder,
+                                        // ),
                                         // backgroundImage: userProfile2,
                                       ),
                                     ),
@@ -218,15 +248,49 @@ class _EditScreenState extends State<EditScreen> {
                                           ]),
                                       child: ClipRRect(
                                         borderRadius: BorderRadius.circular(100),
-                                        child: Image(
-                                          height: 100,
-                                          width: 100,
-                                          fit: BoxFit.cover,
-                                          image: kAuthenticationController.selectedImage.value.isNotEmpty
-                                              ? FileImage(File(kAuthenticationController.selectedImage.value))
-                                                  as ImageProvider
-                                              : profilePlaceholder,
-                                        ),
+                                        child: widget.isFromEdit
+                                            ? CachedNetworkImage(
+                                                height: 100,
+                                                width: 100,
+                                                fit: BoxFit.cover,
+                                                imageUrl: userData['profile_pic'],
+                                                placeholder: (context, url) => Image(
+                                                  height: 100,
+                                                  width: 100,
+                                                  fit: BoxFit.cover,
+                                                  image: kAuthenticationController.selectedImage.value.isNotEmpty
+                                                      ? FileImage(File(kAuthenticationController.selectedImage.value))
+                                                          as ImageProvider
+                                                      : profilePlaceholder,
+                                                ),
+                                                errorWidget: (context, url, error) => Image(
+                                                  height: 100,
+                                                  width: 100,
+                                                  fit: BoxFit.cover,
+                                                  image: kAuthenticationController.selectedImage.value.isNotEmpty
+                                                      ? FileImage(File(kAuthenticationController.selectedImage.value))
+                                                          as ImageProvider
+                                                      : profilePlaceholder,
+                                                ),
+                                              )
+                                            : Image(
+                                                height: 100,
+                                                width: 100,
+                                                fit: BoxFit.cover,
+                                                image: kAuthenticationController.selectedImage.value.isNotEmpty
+                                                    ? FileImage(File(kAuthenticationController.selectedImage.value))
+                                                        as ImageProvider
+                                                    : profilePlaceholder,
+                                              ),
+                                        // child: Image(
+                                        //   height: 100,
+                                        //   width: 100,
+                                        //   fit: BoxFit.cover,
+                                        //   image: kAuthenticationController.selectedImage.value.isNotEmpty
+                                        //       ? FileImage(File(kAuthenticationController.selectedImage.value))
+                                        //           as ImageProvider
+                                        //       : profilePlaceholder,
+                                        // ),
                                         // backgroundImage: userProfile2,
                                       ),
                                     ),

@@ -1,11 +1,13 @@
 import 'dart:io';
 
 import 'package:blinq/Utility/utility_export.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:velocity_x/velocity_x.dart';
 
 import '../../Utility/constants.dart';
@@ -23,6 +25,8 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final auth = FirebaseAuth.instance;
+
+  // final GlobalKey globalKey = GlobalKey();
 
   // final Stream users = FirebaseFirestore.instance.collection('users').snapshots();
   final users = FirebaseFirestore.instance.collection('users');
@@ -116,58 +120,112 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                   20.heightBox,
-                  Obx(
-                    () => SizedBox(
-                      height: getScreenHeight(context) * 0.30,
-                      child: Stack(
-                        children: [
-                          Container(
-                            height: getScreenHeight(context) * 0.25,
-                            width: getScreenWidth(context),
-                            decoration: BoxDecoration(borderRadius: BorderRadius.circular(25), boxShadow: [
-                              BoxShadow(
-                                  color: colorGrey.withOpacity(0.5), offset: const Offset(0.0, 3.0), blurRadius: 10)
+                  /*Obx(
+                    () =>*/
+                  SizedBox(
+                    height: getScreenHeight(context) * 0.30,
+                    child: Stack(
+                      children: [
+                        Container(
+                          height: getScreenHeight(context) * 0.25,
+                          width: getScreenWidth(context),
+                          decoration: BoxDecoration(borderRadius: BorderRadius.circular(25), boxShadow: [
+                            BoxShadow(color: colorGrey.withOpacity(0.5), offset: const Offset(0.0, 3.0), blurRadius: 10)
+                          ]),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(15),
+                            child: CachedNetworkImage(
+                              fit: BoxFit.cover,
+                              imageUrl: userData['company_logo'],
+                              placeholder: (context, url) => Image(
+                                image: bgPlaceholder,
+                                fit: BoxFit.cover,
+                              ),
+                              errorWidget: (context, url, error) => Image(
+                                image: bgPlaceholder,
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                            // child: Image(
+                            //   fit: BoxFit.cover,
+                            //   image: kAuthenticationController.selectedCompanyLogo.value.isNotEmpty
+                            //       ? FileImage(File(kAuthenticationController.selectedCompanyLogo.value))
+                            //           as ImageProvider
+                            //       : bgPlaceholder,
+                            // ),
+                            // backgroundImage: userProfile2,
+                          ),
+                        ),
+                        Align(
+                          alignment: Alignment.bottomRight,
+                          child: Container(
+                            height: 100,
+                            width: 100,
+                            margin: const EdgeInsets.only(right: 15),
+                            decoration: BoxDecoration(borderRadius: BorderRadius.circular(100), boxShadow: const [
+                              BoxShadow(color: colorGrey, offset: Offset(0.0, 3.0), blurRadius: 10)
                             ]),
                             child: ClipRRect(
-                              borderRadius: BorderRadius.circular(15),
-                              child: Image(
+                              borderRadius: BorderRadius.circular(100),
+                              child: CachedNetworkImage(
+                                height: 100,
+                                width: 100,
                                 fit: BoxFit.cover,
-                                image: kAuthenticationController.selectedCompanyLogo.value.isNotEmpty
-                                    ? FileImage(File(kAuthenticationController.selectedCompanyLogo.value))
-                                        as ImageProvider
-                                    : bgPlaceholder,
+                                imageUrl: userData['profile_pic'],
+                                placeholder: (context, url) => Image(
+                                  image: profilePlaceholder,
+                                  fit: BoxFit.cover,
+                                ),
+                                errorWidget: (context, url, error) => Image(
+                                  image: profilePlaceholder,
+                                  fit: BoxFit.cover,
+                                ),
                               ),
+                              // child: Image(
+                              //   height: 100,
+                              //   width: 100,
+                              //   fit: BoxFit.cover,
+                              //   image: kAuthenticationController.selectedImage.value.isNotEmpty
+                              //       ? FileImage(File(kAuthenticationController.selectedImage.value)) as ImageProvider
+                              //       : profilePlaceholder,
+                              // ),
                               // backgroundImage: userProfile2,
                             ),
                           ),
-                          Align(
-                            alignment: Alignment.bottomRight,
-                            child: Container(
-                              height: 100,
-                              width: 100,
-                              margin: const EdgeInsets.only(right: 15),
-                              decoration: BoxDecoration(borderRadius: BorderRadius.circular(100), boxShadow: const [
-                                BoxShadow(color: colorGrey, offset: Offset(0.0, 3.0), blurRadius: 10)
-                              ]),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(100),
-                                child: Image(
-                                  height: 100,
-                                  width: 100,
-                                  fit: BoxFit.cover,
-                                  image: kAuthenticationController.selectedImage.value.isNotEmpty
-                                      ? FileImage(File(kAuthenticationController.selectedImage.value)) as ImageProvider
-                                      : profilePlaceholder,
-                                ),
-                                // backgroundImage: userProfile2,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
+                  /*),*/
                   10.heightBox,
+                  ListView.builder(
+                    shrinkWrap: true,
+                    physics: ClampingScrollPhysics(),
+                    itemCount: userData['fields'].length ?? 0,
+                    itemBuilder: (context, index) {
+                      return ListTile(
+                        leading: Container(
+                          height: 50,
+                          width: 50,
+                          padding: EdgeInsets.all(12),
+                          decoration: BoxDecoration(color: colorPrimary, borderRadius: BorderRadius.circular(100)),
+                          child: Image(
+                            image: getImage(index: index, fieldName: userData['fields'][index]['title']),
+                            color: colorWhite,
+                          ),
+                        ),
+                        title: Text(
+                          userData['fields'][index]['data'],
+                          style: FontStyleUtility.blackInter16W500,
+                        ),
+                        subtitle: Text(
+                          userData['fields'][index]['label'],
+                          style: FontStyleUtility.greyInter14W400,
+                        ),
+                      );
+                    },
+                  ),
+                  20.heightBox,
                   Text('Developer', style: FontStyleUtility.blackInter22W400),
                   10.heightBox,
                   Text('IT Department', style: FontStyleUtility.blackInter22W400),
@@ -175,6 +233,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   Text('Google', style: FontStyleUtility.blackInter22W400),
 
                   Text('Hello, i\'m ${userData['first_name']} ${userData['last_name']}'),
+                  50.heightBox,
 
                   // StreamBuilder(
                   //     stream: FirebaseAuth.instance.authStateChanges(),
@@ -219,7 +278,86 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         floatingButton: FloatingActionButton.extended(
           backgroundColor: colorPrimary,
-          onPressed: () {},
+          onPressed: () {
+            showModalBottomSheet(
+                isScrollControlled: true,
+                shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.only(topRight: Radius.circular(20), topLeft: Radius.circular(20))),
+                context: context,
+                builder: (context) {
+                  return Container(
+                    height: getScreenHeight(context) * 0.9,
+                    decoration: const BoxDecoration(
+                        borderRadius: BorderRadius.only(topRight: Radius.circular(20), topLeft: Radius.circular(20)),
+                        color: colorPrimary),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 15),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: <Widget>[
+                          Container(
+                            margin: const EdgeInsets.symmetric(vertical: 20),
+                            height: 5,
+                            width: 100,
+                            decoration: BoxDecoration(color: colorWhite, borderRadius: BorderRadius.circular(100)),
+                          ),
+                          20.heightBox,
+                          Expanded(
+                            child: SingleChildScrollView(
+                              physics: ClampingScrollPhysics(),
+                              child: Column(
+                                children: [
+                                  ClipRRect(
+                                      borderRadius: BorderRadius.circular(20),
+                                      child: Image(image: bgPlaceholder, height: 200, width: 200)),
+                                  20.heightBox,
+                                  Text(
+                                    'Point your camera at the QR\ncode to receive the card',
+                                    style: FontStyleUtility.blackInter22W700.copyWith(color: colorWhite),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                  20.heightBox,
+                                  commonSheetRow(callBack: () {}, icon: Icons.copy, name: 'Copy link'),
+                                  commonSheetRow(callBack: () {}, icon: Icons.message, name: 'Text your card'),
+                                  commonSheetRow(callBack: () {}, icon: Icons.email, name: 'Mail your card'),
+                                  commonSheetRow(
+                                      callBack: () {},
+                                      iconWidget: Image(image: whatsappShare, height: 25, width: 25),
+                                      name: 'Send via WhatsApp'),
+                                  commonSheetRow(
+                                      callBack: () {},
+                                      iconWidget: Image(image: linkedinShare, height: 25, width: 25),
+                                      name: 'Send via LinkedIn'),
+                                  commonSheetRow(callBack: () async {
+                                    print('hello here click detected');
+                                    await Share.share('asjkdbhasgaijsdijudv  udhvahshasdhnv');
+                                  }, icon: Icons.more_horiz, name: 'Send another way'),
+                                  Divider(color: colorWhite.withOpacity(0.5)),
+                                  commonSheetRow(
+                                      callBack: () {},
+                                      iconWidget: Image(image: linkedinShare, height: 25, width: 25),
+                                      name: 'Post to LinkedIn'),
+                                  commonSheetRow(
+                                      callBack: () {},
+                                      iconWidget: Image(image: facebookShare, height: 25, width: 25),
+                                      name: 'Post to Facebook'),
+                                  Divider(color: colorWhite.withOpacity(0.5)),
+                                  commonSheetRow(
+                                      callBack: () {},
+                                      iconWidget: Image(image: photos, height: 25, width: 25),
+                                      name: 'Save QR code to photos'),
+                                  commonSheetRow(callBack: () {}, icon: Icons.send, name: 'Send QR code'),
+                                  10.heightBox,
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                });
+          },
           label: Text(
             'SEND',
             style: FontStyleUtility.blackInter16W500.copyWith(color: colorWhite),
@@ -227,4 +365,69 @@ class _HomeScreenState extends State<HomeScreen> {
           icon: const Icon(Icons.send),
         ));
   }
+
+  Widget commonSheetRow({required Function() callBack, IconData? icon, required String name, Widget? iconWidget}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 5),
+      child: InkWell(
+        splashColor: colorWhite,
+        highlightColor: colorWhite,
+        onTap: () {
+          callBack();
+        },
+        child: Container(
+          height: 50,
+          decoration: BoxDecoration(color: colorBlack.withOpacity(0.2), borderRadius: BorderRadius.circular(10)),
+          child: Row(
+            children: [
+              15.widthBox,
+              iconWidget ??
+                  Icon(
+                    icon,
+                    color: colorWhite,
+                  ),
+              15.widthBox,
+              Text(
+                name,
+                style: FontStyleUtility.blackInter16W500.copyWith(color: colorWhite),
+              )
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+// Future<void> _captureAndSharePng() async {
+//   try {
+//     RenderRepaintBoundary boundary =
+//     globalKey.currentContext.findRenderObject();
+//     var image = await boundary.toImage();
+//     ByteData byteData = await image.toByteData(format: ImageByteFormat.png);
+//     Uint8List pngBytes = byteData.buffer.asUint8List();
+//
+//     final tempDir = await getTemporaryDirectory();
+//     final file = await new File('${tempDir.path}/image.png').create();
+//     await file.writeAsBytes(pngBytes);
+//
+//     await Share.file(_dataString, '$_dataString.png', pngBytes, 'image/png');
+//   } catch (e) {
+//     print(e.toString());
+//   }
+// }
+
+// Future<Uint8List> _getWidgetImage() async {
+//   try {
+//     RenderRepaintBoundary boundary =
+//     _renderObjectKey.currentContext.findRenderObject();
+//     ui.Image image = await boundary.toImage(pixelRatio: 3.0);
+//     ByteData byteData =
+//     await image.toByteData(format: ui.ImageByteFormat.png);
+//     var pngBytes = byteData.buffer.asUint8List();
+//     var bs64 = base64Encode(pngBytes);
+//     debugPrint(bs64.length.toString());
+//     return pngBytes;
+//   } catch (exception) {}
+// }
+
 }

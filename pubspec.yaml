@@ -50,13 +50,13 @@ dependencies:
   velocity_x: ^3.5.1
   validators: ^3.0.0
   qr_flutter: ^4.0.0
+  share_plus: ^4.0.10
 
   ## firebase
   firebase_core: ^1.19.1
 #  firebase_database: ^9.0.18
   firebase_storage: ^10.3.1
   firebase_auth: ^3.4.1
-#  cloud_firestore: ^3.1.17
   cloud_firestore: ^3.2.1
 
 

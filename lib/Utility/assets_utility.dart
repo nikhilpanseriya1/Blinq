@@ -5,9 +5,6 @@ ExactAssetImage appIcon = const ExactAssetImage('assets/icons/app_icon.jpg', sca
 ExactAssetImage profilePlaceholder = const ExactAssetImage('assets/images/profile_placeholder.png', scale: 4);
 ExactAssetImage bgPlaceholder = const ExactAssetImage('assets/images/bg_placeholder.png', scale: 4);
 
-
-
-
 /// Icons
 ExactAssetImage phoneCall = const ExactAssetImage('assets/icons/phone_call.png', scale: 4);
 ExactAssetImage email = const ExactAssetImage('assets/icons/email.png', scale: 4);
@@ -31,3 +28,7 @@ ExactAssetImage telegram = const ExactAssetImage('assets/icons/telegram.png', sc
 ExactAssetImage twitch = const ExactAssetImage('assets/icons/twitch.png', scale: 4);
 ExactAssetImage whatsapp = const ExactAssetImage('assets/icons/whatsapp.png', scale: 4);
 
+ExactAssetImage whatsappShare = const ExactAssetImage('assets/icons/whatsapp_share.png', scale: 4);
+ExactAssetImage linkedinShare = const ExactAssetImage('assets/icons/linkedin_share.png', scale: 4);
+ExactAssetImage facebookShare = const ExactAssetImage('assets/icons/facebook_share.png', scale: 4);
+ExactAssetImage photos = const ExactAssetImage('assets/icons/photos.png', scale: 4);
