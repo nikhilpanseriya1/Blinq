@@ -211,7 +211,7 @@ dateFormatter(String? dateTime, {String? myFormat}) {
 // }
 
 emptyFieldValidation(value, {String? msg}) {
-  return value.toString().isEmpty ? msg ?? notEmptyFieldMessage : null;
+  return value != null && value.toString().isEmpty ? msg ?? notEmptyFieldMessage : null;
 }
 
 urlOrLinkValidation(value, {String? msg}) {

@@ -9,8 +9,9 @@ import '../../Utility/constants.dart';
 
 class AddFieldScreen extends StatefulWidget {
   int index;
+  bool isFromEdit;
 
-  AddFieldScreen({Key? key, required this.index}) : super(key: key);
+  AddFieldScreen({Key? key, required this.index, required this.isFromEdit}) : super(key: key);
 
   @override
   State<AddFieldScreen> createState() => _AddFieldScreenState();
@@ -41,11 +42,13 @@ class _AddFieldScreenState extends State<AddFieldScreen> {
                 'title': kHomeController.socialMediaList[widget.index].name
               });
 
-              /// Add field and update list
-              var userRef = FirebaseFirestore.instance.doc('users/${kAuthenticationController.userId}');
-              userRef.update({'fields': kHomeController.addFieldsModelList}).whenComplete(() async {
-                showLog('Data added successfully...');
-              });
+              if (widget.isFromEdit) {
+                /// Add field and update list
+                var userRef = FirebaseFirestore.instance.doc('users/${kAuthenticationController.userId}');
+                userRef.update({'fields': kHomeController.addFieldsModelList}).whenComplete(() async {
+                  showLog('Data added successfully...');
+                });
+              }
 
               // kHomeController.addFieldsModelList.add(AddFieldsModel(
               //     data: kHomeController.socialMediaList[widget.index].type == typePhone
