@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:blinq/Utility/constants.dart';
 import 'package:blinq/Utility/utility_export.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -29,6 +30,8 @@ class _StepperScreenState extends State<StepperScreen> {
   PageController pageController = PageController();
 
   RxBool isShowLocation = false.obs;
+  RxBool isProfileChanged = false.obs;
+  RxBool isLogoChanged = false.obs;
   final auth = FirebaseAuth.instance;
 
   TextEditingController nameController = TextEditingController();
@@ -38,6 +41,7 @@ class _StepperScreenState extends State<StepperScreen> {
   TextEditingController phoneController = TextEditingController();
   TextEditingController companyNameController = TextEditingController();
   TextEditingController jobTitleController = TextEditingController();
+  TextEditingController departmentNameController = TextEditingController();
   TextEditingController companyWebsiteController = TextEditingController();
 
   GlobalKey<FormState> formKey = GlobalKey();
@@ -76,7 +80,7 @@ class _StepperScreenState extends State<StepperScreen> {
                   ),
                   Expanded(
                     child: PageView(
-                      physics: const ClampingScrollPhysics(),
+                      physics: const NeverScrollableScrollPhysics(),
                       onPageChanged: (index) {
                         selectedStep.value = index;
                       },
@@ -116,12 +120,13 @@ class _StepperScreenState extends State<StepperScreen> {
                         duration: const Duration(milliseconds: 400), curve: Curves.bounceInOut);
                   }).catchError((e) {
                     showLog(e.message);
-
                     showBottomSnackBar(context: context, message: e.message);
                     // showSnackBar(message: e.message);
                   });
                 } else if (selectedStep.value == 8) {
-                  Get.offAll(() => const HomeScreen());
+                  addNewCard(() {
+                    Get.offAll(() => const HomeScreen());
+                  });
                 } else {
                   pageController.animateToPage(++selectedStep.value,
                       duration: const Duration(milliseconds: 400), curve: Curves.bounceInOut);
@@ -159,6 +164,57 @@ class _StepperScreenState extends State<StepperScreen> {
         ),
       ),
     );
+  }
+
+  void addNewCard(Function callBack) async {
+    try {
+      String profilePic = '';
+      String companyLogo = '';
+      List<String> cards = [];
+      kHomeController.addFieldsModelList.clear();
+      var ref = FirebaseFirestore.instance.collection('users');
+
+      if (isProfileChanged.value) {
+        profilePic = await uploadFile(
+          filePath: kAuthenticationController.selectedImage.value,
+          isProfile: true,
+        );
+      }
+      if (isLogoChanged.value) {
+        companyLogo = await uploadFile(
+          filePath: kAuthenticationController.selectedCompanyLogo.value,
+          isProfile: false,
+        );
+      }
+
+      String newCardId = getObject(PrefConstants.userId);
+
+      cards.add(newCardId);
+
+      ref.doc(newCardId).set({
+        'first_name': nameController.text,
+        'last_name': lastNameController.text,
+        'contact_number': phoneController.text,
+        'job_title': jobTitleController.text,
+        'email': emailController.text,
+        'department': departmentNameController.text,
+        'company_name': companyNameController.text,
+        'company_website': companyWebsiteController.text,
+        'headline': '',
+        'location': '',
+        'company_logo': companyLogo,
+        'profile_pic': profilePic,
+        'cards': cards,
+        'fields': kHomeController.addFieldsModelList
+      }).whenComplete(() {
+        showLog('======= ${newCardId}');
+
+        showLog('Data added successfully...');
+        callBack();
+      });
+    } catch (e) {
+      showLog(e);
+    }
   }
 
   Widget step1() {
@@ -254,6 +310,12 @@ class _StepperScreenState extends State<StepperScreen> {
             validationFunction: (val) {
               return emptyFieldValidation(val);
             }),
+        commonTextField(
+            hintText: 'Enter your department name',
+            textEditingController: departmentNameController,
+            validationFunction: (val) {
+              return emptyFieldValidation(val);
+            }),
       ],
     );
   }
@@ -324,7 +386,11 @@ class _StepperScreenState extends State<StepperScreen> {
                       tapOnButton: () {
                         kAuthenticationController.selectedImage.value.isNotEmpty
                             ? kAuthenticationController.selectedImage.value = ''
-                            : picImageFromGallery(isProfile: true);
+                            : picImageFromGallery(
+                                isProfile: true,
+                                callBack: () {
+                                  isProfileChanged.value = true;
+                                });
                       },
                       width: getScreenWidth(context) * 0.6),
                 ),
@@ -379,7 +445,11 @@ class _StepperScreenState extends State<StepperScreen> {
                           ? '+  Replace Logo'
                           : '+  Add Logo',
                       tapOnButton: () {
-                        picImageFromGallery(isProfile: false);
+                        picImageFromGallery(
+                            isProfile: false,
+                            callBack: () {
+                              isLogoChanged.value = true;
+                            });
                       },
                       width: getScreenWidth(context) * 0.6),
                 ),

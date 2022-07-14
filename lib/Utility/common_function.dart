@@ -1,6 +1,8 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:blinq/Utility/utility_export.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -322,4 +324,25 @@ bool isImage(String filePath) {
       ext.endsWith(".svg") ||
       ext.endsWith(".gif") ||
       ext.endsWith(".bmp");
+}
+
+Future uploadFile({required String filePath, required bool isProfile}) async {
+  File file = File(filePath);
+
+  final fileName = DateTime.now();
+  final destination;
+  isProfile ? destination = 'UserProfile/profilePic$fileName' : destination = 'UserProfile/companyLogo$fileName';
+  // task = FirebaseApi.uploadFile(destination, file!);
+  // setState(() {});
+  try {
+    final ref = FirebaseStorage.instance.ref(destination);
+    final snapshot = await ref.putFile(file);
+    final urlDownload = await snapshot.ref.getDownloadURL();
+    // callBack();
+    print('Download-Link: $urlDownload');
+    return /*isProfile ? companyLogoUrl = urlDownload : profilePicUrl =*/ urlDownload;
+  } on FirebaseException catch (e) {
+    showLog(e);
+    return '';
+  }
 }

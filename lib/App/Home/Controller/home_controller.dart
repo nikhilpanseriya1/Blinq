@@ -4,6 +4,9 @@ import 'package:get/get.dart';
 import '../../../Utility/utility_export.dart';
 
 class HomeController extends GetxController {
+  RxList<String> cardId = <String>[].obs;
+  bool getSubCards = true;
+
   // RxList<AddFieldsModel> addFieldsModelList = <AddFieldsModel>[].obs;
   RxList<Map<String, dynamic>> addFieldsModelList = <Map<String, dynamic>>[].obs;
 

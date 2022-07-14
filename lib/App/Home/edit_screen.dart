@@ -17,8 +17,9 @@ String temporaryUid = 'o0kTb1NmrIMwih3joqUW';
 
 class EditScreen extends StatefulWidget {
   bool isFromEdit;
+  String cardId;
 
-  EditScreen({Key? key, required this.isFromEdit}) : super(key: key);
+  EditScreen({Key? key, required this.isFromEdit, required this.cardId}) : super(key: key);
 
   @override
   State<EditScreen> createState() => _EditScreenState();
@@ -45,10 +46,9 @@ class _EditScreenState extends State<EditScreen> {
 
   /// saved used data
   var currentUserData;
-  var userRef = FirebaseFirestore.instance.doc('users/${kAuthenticationController.userId}');
+  var userRef;
 
-  Future uploadFile({required String filePath, required bool isProfile /*, required Function() callBack*/
-      }) async {
+  Future uploadFile({required String filePath, required bool isProfile}) async {
     File file = File(filePath);
 
     final fileName = DateTime.now();
@@ -74,10 +74,16 @@ class _EditScreenState extends State<EditScreen> {
     // TODO: implement initState
     super.initState();
 
+    // if (widget.cardId.isNotEmpty) {
+      userRef = FirebaseFirestore.instance.doc('users/${widget.cardId}');
+    // } else {
+    //   userRef = FirebaseFirestore.instance.doc('users');
+    // }
+
     if (widget.isFromEdit) {
       firstNameController.text = userData['first_name'];
       lastNameController.text = userData['last_name'];
-      jobTitleController.text = userData['jon_title'];
+      jobTitleController.text = userData['job_title'];
       departmentNameController.text = userData['department'];
       companyNameController.text = userData['company_name'];
       headlineController.text = userData['headline'];
@@ -100,7 +106,7 @@ class _EditScreenState extends State<EditScreen> {
                     userRef.update({
                       'first_name': firstNameController.text,
                       'last_name': lastNameController.text,
-                      'jon_title': jobTitleController.text,
+                      'job_title': jobTitleController.text,
                       'department': departmentNameController.text,
                       'company_name': companyNameController.text,
                       'headline': headlineController.text,
@@ -564,7 +570,7 @@ class _EditScreenState extends State<EditScreen> {
       ref.doc(newCardId).set({
         'first_name': firstNameController.text,
         'last_name': lastNameController.text,
-        'jon_title': jobTitleController.text,
+        'job_title': jobTitleController.text,
         'department': departmentNameController.text,
         'company_name': companyNameController.text,
         'headline': headlineController.text,
@@ -583,10 +589,10 @@ class _EditScreenState extends State<EditScreen> {
 
         if (cards.isNotEmpty) {
           userRef.update({'cards': cards}).whenComplete(() async {
+            kHomeController.getSubCards = true;
             showLog('Card added successfully...');
           });
         }
-
         showLog('Data added successfully...');
       });
       callBack();

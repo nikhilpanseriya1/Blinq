@@ -25,33 +25,36 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final auth = FirebaseAuth.instance;
+  RxInt currentIndex = 0.obs;
+
+  RxList<String> cards = [''].obs;
 
   // final GlobalKey globalKey = GlobalKey();
 
   // final Stream users = FirebaseFirestore.instance.collection('users').snapshots();
   final users = FirebaseFirestore.instance.collection('users');
 
-  // Future getUserList() async {
-  //   try {
-  //     List mainList = [];
-  //     await userData.get().then((value) {
-  //       showLog(value);
-  //     });
-  //   } catch (e) {
-  //     showLog(e);
-  //     return null;
-  //   }
-  // }
+  var currentUserSnap = FirebaseFirestore.instance.collection('users').doc(getObject(PrefConstants.userId)).snapshots();
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+
     kAuthenticationController.userId = getObject(PrefConstants.userId);
     setIsLogin(isLogin: true);
-    // getUserList();
-    // userSetup();
-    // getData();
+
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      cards.clear();
+      cards.add(kAuthenticationController.userId);
+      //
+      // showLog(cards.length.toString());
+      // showLog('=asjmdkloams=== ${cards[0]}');
+
+      // getUserList();
+      // userSetup();
+      // getData();
+    });
   }
 
   @override
@@ -61,7 +64,10 @@ class _HomeScreenState extends State<HomeScreen> {
         appBar: commonAppBar(title: 'Work', actionWidgets: [
           IconButton(
               onPressed: () {
-                Get.to(() => EditScreen(isFromEdit: false));
+                Get.to(() => EditScreen(
+                      isFromEdit: false,
+                      cardId: '',
+                    ));
               },
               icon: const Icon(
                 Icons.add,
@@ -70,7 +76,7 @@ class _HomeScreenState extends State<HomeScreen> {
               )),
           IconButton(
               onPressed: () {
-                Get.to(() => EditScreen(isFromEdit: true));
+                Get.to(() => EditScreen(isFromEdit: true, cardId: cards[currentIndex.value]));
               },
               icon: const Icon(
                 Icons.edit,
@@ -93,204 +99,227 @@ class _HomeScreenState extends State<HomeScreen> {
                 size: 22,
               ))
         ]),
-        child: SingleChildScrollView(
-          physics: const ClampingScrollPhysics(),
-          child: StreamBuilder(
-            stream: FirebaseFirestore.instance.collection('users').doc(kAuthenticationController.userId).snapshots(),
-            builder: (context, snapshot) {
-              if (snapshot.hasError) {
-                return Text('Something went wrong');
-              }
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return (Text('Loading...'));
-              }
+        child: PageView.builder(
+          physics: ClampingScrollPhysics(),
+          itemCount: cards.length,
+          onPageChanged: (index) {
+            currentIndex.value = index;
 
-              userData = snapshot.requireData;
+            currentUserSnap = FirebaseFirestore.instance.collection('users').doc(cards[currentIndex.value]).snapshots();
 
-              // final userDoc = await usersCollection.doc(userId).get();
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  30.heightBox,
-                  Center(
-                    child: QrImage(
-                      data: "Jevalino 1234567890",
-                      version: QrVersions.auto,
-                      size: 200.0,
-                    ),
-                  ),
-                  20.heightBox,
-                  /*Obx(
-                    () =>*/
-                  SizedBox(
-                    height: getScreenHeight(context) * 0.30,
-                    child: Stack(
-                      children: [
-                        Container(
-                          height: getScreenHeight(context) * 0.25,
-                          width: getScreenWidth(context),
-                          decoration: BoxDecoration(borderRadius: BorderRadius.circular(25), boxShadow: [
-                            BoxShadow(color: colorGrey.withOpacity(0.5), offset: const Offset(0.0, 3.0), blurRadius: 10)
-                          ]),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(15),
-                            child: CachedNetworkImage(
-                              fit: BoxFit.cover,
-                              imageUrl: userData['company_logo'],
-                              placeholder: (context, url) => Image(
-                                image: bgPlaceholder,
-                                fit: BoxFit.cover,
-                              ),
-                              errorWidget: (context, url, error) => Image(
-                                image: bgPlaceholder,
-                                fit: BoxFit.cover,
+            // setState(() {});
+            print('asdhahsdiuasiudas $index');
+          },
+          itemBuilder: (BuildContext context, int index) {
+            return SingleChildScrollView(
+              physics: const ClampingScrollPhysics(),
+              child: StreamBuilder(
+                stream: currentUserSnap,
+                builder: (context, snapshot) {
+                  if (snapshot.hasError) {
+                    return Center(child: Text('Something went wrong'));
+                  }
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(child: (Text('Loading...')));
+                  }
+
+                  userData = snapshot.requireData;
+
+                  if (kHomeController.getSubCards) {
+                    cards.clear();
+                    if (userData['cards'].isNotEmpty) {
+                      userData['cards'].forEach((element) {
+                        cards.add(element);
+                      });
+                      showLog('~~~~~~~ $cards');
+                      kHomeController.getSubCards = false;
+                    }
+                  }
+
+                  // final userDoc = await usersCollection.doc(userId).get();
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      30.heightBox,
+                      Center(
+                        child: QrImage(
+                          data: "Jevalino 1234567890",
+                          version: QrVersions.auto,
+                          size: 200.0,
+                        ),
+                      ),
+                      20.heightBox,
+                      SizedBox(
+                        height: getScreenHeight(context) * 0.30,
+                        child: Stack(
+                          children: [
+                            Container(
+                              height: getScreenHeight(context) * 0.25,
+                              width: getScreenWidth(context),
+                              decoration: BoxDecoration(borderRadius: BorderRadius.circular(25), boxShadow: [
+                                BoxShadow(
+                                    color: colorGrey.withOpacity(0.5), offset: const Offset(0.0, 3.0), blurRadius: 10)
+                              ]),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(15),
+                                child: CachedNetworkImage(
+                                  fit: BoxFit.cover,
+                                  imageUrl: userData['company_logo'],
+                                  placeholder: (context, url) => Image(
+                                    image: bgPlaceholder,
+                                    fit: BoxFit.cover,
+                                  ),
+                                  errorWidget: (context, url, error) => Image(
+                                    image: bgPlaceholder,
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                                // child: Image(
+                                //   fit: BoxFit.cover,
+                                //   image: kAuthenticationController.selectedCompanyLogo.value.isNotEmpty
+                                //       ? FileImage(File(kAuthenticationController.selectedCompanyLogo.value))
+                                //           as ImageProvider
+                                //       : bgPlaceholder,
+                                // ),
+                                // backgroundImage: userProfile2,
                               ),
                             ),
-                            // child: Image(
-                            //   fit: BoxFit.cover,
-                            //   image: kAuthenticationController.selectedCompanyLogo.value.isNotEmpty
-                            //       ? FileImage(File(kAuthenticationController.selectedCompanyLogo.value))
-                            //           as ImageProvider
-                            //       : bgPlaceholder,
-                            // ),
-                            // backgroundImage: userProfile2,
-                          ),
-                        ),
-                        Align(
-                          alignment: Alignment.bottomRight,
-                          child: Container(
-                            height: 100,
-                            width: 100,
-                            margin: const EdgeInsets.only(right: 15),
-                            decoration: BoxDecoration(borderRadius: BorderRadius.circular(100), boxShadow: const [
-                              BoxShadow(color: colorGrey, offset: Offset(0.0, 3.0), blurRadius: 10)
-                            ]),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(100),
-                              child: CachedNetworkImage(
+                            Align(
+                              alignment: Alignment.bottomRight,
+                              child: Container(
                                 height: 100,
                                 width: 100,
-                                fit: BoxFit.cover,
-                                imageUrl: userData['profile_pic'],
-                                placeholder: (context, url) => Image(
-                                  image: profilePlaceholder,
-                                  fit: BoxFit.cover,
-                                ),
-                                errorWidget: (context, url, error) => Image(
-                                  image: profilePlaceholder,
-                                  fit: BoxFit.cover,
+                                margin: const EdgeInsets.only(right: 15),
+                                decoration: BoxDecoration(borderRadius: BorderRadius.circular(100), boxShadow: const [
+                                  BoxShadow(color: colorGrey, offset: Offset(0.0, 3.0), blurRadius: 10)
+                                ]),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(100),
+                                  child: CachedNetworkImage(
+                                    height: 100,
+                                    width: 100,
+                                    fit: BoxFit.cover,
+                                    imageUrl: userData['profile_pic'],
+                                    placeholder: (context, url) => Image(
+                                      image: profilePlaceholder,
+                                      fit: BoxFit.cover,
+                                    ),
+                                    errorWidget: (context, url, error) => Image(
+                                      image: profilePlaceholder,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                  // child: Image(
+                                  //   height: 100,
+                                  //   width: 100,
+                                  //   fit: BoxFit.cover,
+                                  //   image: kAuthenticationController.selectedImage.value.isNotEmpty
+                                  //       ? FileImage(File(kAuthenticationController.selectedImage.value)) as ImageProvider
+                                  //       : profilePlaceholder,
+                                  // ),
+                                  // backgroundImage: userProfile2,
                                 ),
                               ),
-                              // child: Image(
-                              //   height: 100,
-                              //   width: 100,
-                              //   fit: BoxFit.cover,
-                              //   image: kAuthenticationController.selectedImage.value.isNotEmpty
-                              //       ? FileImage(File(kAuthenticationController.selectedImage.value)) as ImageProvider
-                              //       : profilePlaceholder,
-                              // ),
-                              // backgroundImage: userProfile2,
                             ),
-                          ),
+                          ],
                         ),
-                      ],
-                    ),
-                  ),
-                  /*),*/
-                  10.heightBox,
+                      ),
 
-                  Text(
-                    '${userData['first_name']} ${userData['last_name']}',
-                    style: FontStyleUtility.blackInter16W600.copyWith(fontSize: 30),
-                  ),
-                  10.heightBox,
-                  Text(userData['jon_title'], style: FontStyleUtility.blackInter22W400),
-                  10.heightBox,
-                  Text(userData['department'], style: FontStyleUtility.blackInter22W400),
-                  10.heightBox,
-                  Text(userData['company_name'], style: FontStyleUtility.blackInter22W400),
+                      10.heightBox,
 
-                  userData['headline'].isNotEmpty
-                      ? Container(
-                          margin: EdgeInsets.only(top: 10),
-                          child: Text(userData['headline'], style: FontStyleUtility.greyInter16W400))
-                      : SizedBox.shrink(),
+                      Text(
+                        '${userData['first_name']} ${userData['last_name']}',
+                        style: FontStyleUtility.blackInter16W600.copyWith(fontSize: 30),
+                      ),
+                      10.heightBox,
+                      Text(userData['job_title'], style: FontStyleUtility.blackInter22W400),
+                      10.heightBox,
+                      Text(userData['department'], style: FontStyleUtility.blackInter22W400),
+                      10.heightBox,
+                      Text(userData['company_name'], style: FontStyleUtility.blackInter22W400),
 
-                  10.heightBox,
-                  Divider(),
+                      userData['headline'].isNotEmpty
+                          ? Container(
+                              margin: EdgeInsets.only(top: 10),
+                              child: Text(userData['headline'], style: FontStyleUtility.greyInter16W400))
+                          : SizedBox.shrink(),
 
-                  ListView.builder(
-                    shrinkWrap: true,
-                    physics: ClampingScrollPhysics(),
-                    itemCount: userData['fields'].length ?? 0,
-                    itemBuilder: (context, index) {
-                      return ListTile(
-                        contentPadding: EdgeInsets.zero,
-                        leading: Container(
-                          height: 50,
-                          width: 50,
-                          padding: EdgeInsets.all(12),
-                          decoration: BoxDecoration(color: colorPrimary, borderRadius: BorderRadius.circular(100)),
-                          child: Image(
-                            image: getImage(index: index, fieldName: userData['fields'][index]['title']),
-                            color: colorWhite,
-                          ),
-                        ),
-                        title: Text(
-                          userData['fields'][index]['data'],
-                          style: FontStyleUtility.blackInter16W500,
-                        ),
-                        subtitle: Text(
-                          userData['fields'][index]['label'],
-                          style: FontStyleUtility.greyInter14W400,
-                        ),
-                      );
-                    },
-                  ),
-                  20.heightBox,
+                      10.heightBox,
+                      Divider(),
 
-                  50.heightBox,
+                      ListView.builder(
+                        shrinkWrap: true,
+                        physics: ClampingScrollPhysics(),
+                        itemCount: userData['fields'].length ?? 0,
+                        itemBuilder: (context, index) {
+                          return ListTile(
+                            contentPadding: EdgeInsets.zero,
+                            leading: Container(
+                              height: 50,
+                              width: 50,
+                              padding: EdgeInsets.all(12),
+                              decoration: BoxDecoration(color: colorPrimary, borderRadius: BorderRadius.circular(100)),
+                              child: Image(
+                                image: getImage(index: index, fieldName: userData['fields'][index]['title']),
+                                color: colorWhite,
+                              ),
+                            ),
+                            title: Text(
+                              userData['fields'][index]['data'],
+                              style: FontStyleUtility.blackInter16W500,
+                            ),
+                            subtitle: Text(
+                              userData['fields'][index]['label'],
+                              style: FontStyleUtility.greyInter14W400,
+                            ),
+                          );
+                        },
+                      ),
 
-                  // StreamBuilder(
-                  //     stream: FirebaseAuth.instance.authStateChanges(),
-                  //     builder: (context, snapshot) {
-                  //       if (snapshot.connectionState != ConnectionState.active) {
-                  //         return Center(child: CircularProgressIndicator()); // 👈 user is loading
-                  //       }
-                  //       final user = snapshot.data;
-                  //       // final uid = user.uid; // 👈 get the UID
-                  //       if (user != null) {
-                  //         print(user);
-                  //
-                  //         CollectionReference users = FirebaseFirestore.instance.collection('users');
-                  //
-                  //         return FutureBuilder<DocumentSnapshot>(
-                  //           future: users.doc(kAuthenticationController.userId).get(),
-                  //           builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
-                  //             if (snapshot.hasError) {
-                  //               return Text("Something went wrong");
-                  //             }
-                  //
-                  //             if (snapshot.hasData && !snapshot.data!.exists) {
-                  //               return Text("Document does not exist");
-                  //             }
-                  //
-                  //             if (snapshot.connectionState == ConnectionState.done) {
-                  //               Map<String, dynamic> data = snapshot.data!.data() as Map<String, dynamic>;
-                  //               return Text("Hello, ${data['first_name']} ${data['last_name']}");
-                  //             }
-                  //
-                  //             return Text("loading");
-                  //           },
-                  //         );
-                  //       } else {
-                  //         return Text("user is not logged in");
-                  //       }
-                  //     }),
-                ],
-              );
-            },
-          ),
+                      50.heightBox,
+
+                      // StreamBuilder(
+                      //     stream: FirebaseAuth.instance.authStateChanges(),
+                      //     builder: (context, snapshot) {
+                      //       if (snapshot.connectionState != ConnectionState.active) {
+                      //         return Center(child: CircularProgressIndicator()); // 👈 user is loading
+                      //       }
+                      //       final user = snapshot.data;
+                      //       // final uid = user.uid; // 👈 get the UID
+                      //       if (user != null) {
+                      //         print(user);
+                      //
+                      //         CollectionReference users = FirebaseFirestore.instance.collection('users');
+                      //
+                      //         return FutureBuilder<DocumentSnapshot>(
+                      //           future: users.doc(kAuthenticationController.userId).get(),
+                      //           builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+                      //             if (snapshot.hasError) {
+                      //               return Text("Something went wrong");
+                      //             }
+                      //
+                      //             if (snapshot.hasData && !snapshot.data!.exists) {
+                      //               return Text("Document does not exist");
+                      //             }
+                      //
+                      //             if (snapshot.connectionState == ConnectionState.done) {
+                      //               Map<String, dynamic> data = snapshot.data!.data() as Map<String, dynamic>;
+                      //               return Text("Hello, ${data['first_name']} ${data['last_name']}");
+                      //             }
+                      //
+                      //             return Text("loading");
+                      //           },
+                      //         );
+                      //       } else {
+                      //         return Text("user is not logged in");
+                      //       }
+                      //     }),
+                    ],
+                  );
+                },
+              ),
+            );
+          },
         ),
         floatingButton: FloatingActionButton.extended(
           backgroundColor: colorPrimary,
