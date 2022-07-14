@@ -110,7 +110,12 @@ class _AddFieldScreenState extends State<AddFieldScreen> {
                       )
                     : null,
                 hintText: kHomeController.socialMediaList[widget.index].hint,
-                keyboardType: TextInputType.number,
+                maxLength: kHomeController.socialMediaList[widget.index].type == typePhone ? 14 : 500,
+                keyboardType: kHomeController.socialMediaList[widget.index].type == typePhone
+                    ? TextInputType.number
+                    : kHomeController.socialMediaList[widget.index].type == typeEmail
+                        ? TextInputType.emailAddress
+                        : TextInputType.text,
                 textEditingController: mainController,
                 validationFunction: (val) {
                   return kHomeController.socialMediaList[widget.index].type == typePhone

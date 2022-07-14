@@ -51,6 +51,9 @@ dependencies:
   validators: ^3.0.0
   qr_flutter: ^4.0.0
   share_plus: ^4.0.10
+  flutter_image_compress: ^1.1.0
+  path_provider: ^2.0.11
+
 
   ## firebase
   firebase_core: ^1.19.1

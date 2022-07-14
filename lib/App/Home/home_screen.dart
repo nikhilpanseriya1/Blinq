@@ -198,12 +198,34 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   /*),*/
                   10.heightBox,
+
+                  Text(
+                    '${userData['first_name']} ${userData['last_name']}',
+                    style: FontStyleUtility.blackInter16W600.copyWith(fontSize: 30),
+                  ),
+                  10.heightBox,
+                  Text(userData['jon_title'], style: FontStyleUtility.blackInter22W400),
+                  10.heightBox,
+                  Text(userData['department'], style: FontStyleUtility.blackInter22W400),
+                  10.heightBox,
+                  Text(userData['company_name'], style: FontStyleUtility.blackInter22W400),
+
+                  userData['headline'].isNotEmpty
+                      ? Container(
+                          margin: EdgeInsets.only(top: 10),
+                          child: Text(userData['headline'], style: FontStyleUtility.greyInter16W400))
+                      : SizedBox.shrink(),
+
+                  10.heightBox,
+                  Divider(),
+
                   ListView.builder(
                     shrinkWrap: true,
                     physics: ClampingScrollPhysics(),
                     itemCount: userData['fields'].length ?? 0,
                     itemBuilder: (context, index) {
                       return ListTile(
+                        contentPadding: EdgeInsets.zero,
                         leading: Container(
                           height: 50,
                           width: 50,
@@ -226,13 +248,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     },
                   ),
                   20.heightBox,
-                  Text('Developer', style: FontStyleUtility.blackInter22W400),
-                  10.heightBox,
-                  Text('IT Department', style: FontStyleUtility.blackInter22W400),
-                  10.heightBox,
-                  Text('Google', style: FontStyleUtility.blackInter22W400),
 
-                  Text('Hello, i\'m ${userData['first_name']} ${userData['last_name']}'),
                   50.heightBox,
 
                   // StreamBuilder(
@@ -328,10 +344,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                       callBack: () {},
                                       iconWidget: Image(image: linkedinShare, height: 25, width: 25),
                                       name: 'Send via LinkedIn'),
-                                  commonSheetRow(callBack: () async {
-                                    print('hello here click detected');
-                                    await Share.share('asjkdbhasgaijsdijudv  udhvahshasdhnv');
-                                  }, icon: Icons.more_horiz, name: 'Send another way'),
+                                  commonSheetRow(
+                                      callBack: () async {
+                                        print('hello here click detected');
+                                        await Share.share('asjkdbhasgaijsdijudv  udhvahshasdhnv');
+                                      },
+                                      icon: Icons.more_horiz,
+                                      name: 'Send another way'),
                                   Divider(color: colorWhite.withOpacity(0.5)),
                                   commonSheetRow(
                                       callBack: () {},

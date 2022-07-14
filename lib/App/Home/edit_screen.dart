@@ -358,184 +358,111 @@ class _EditScreenState extends State<EditScreen> {
                         commonSwitchRow(enable: branding, title: 'Display $appName branding on card'),
                         commonSwitchRow(enable: logoToQr, title: 'Add Logo to Qe Code'),
                         commonSwitchRow(enable: metField, title: '\'Where We Met\' field'),
-                        widget.isFromEdit
-                            ? StreamBuilder(
-                                stream: userRef.snapshots(),
-                                builder: (context, snapshot) {
-                                  // if (snapshot.hasError) {
-                                  //   return Text('Something went wrong');
-                                  // }
-                                  // if (snapshot.connectionState == ConnectionState.waiting) {
-                                  //   return (Text('Loading...'));
-                                  // }
-                                  currentUserData = snapshot.requireData;
-                                  kHomeController.addFieldsModelList.clear();
-                                  currentUserData['fields'].forEach((element) {
-                                    kHomeController.addFieldsModelList.add({
-                                      'data': element['data'],
-                                      'label': element['label'],
-                                      'title': element['title']
-                                    });
-                                  });
-                                  return currentUserData['fields'].isNotEmpty
-                                      ? Padding(
-                                          padding: const EdgeInsets.only(top: 20),
-                                          child: Column(
-                                            children: [
-                                              Center(
-                                                child: Container(
-                                                  padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-                                                  decoration: BoxDecoration(
-                                                      color: colorGrey.withOpacity(0.2),
-                                                      borderRadius: BorderRadius.circular(5)),
-                                                  child: Text(
-                                                    'Tap a field below to add it +',
-                                                    style: FontStyleUtility.blackInter16W500,
-                                                  ),
-                                                ),
-                                              ),
-                                              20.heightBox,
-                                              ListView.builder(
-                                                shrinkWrap: true,
-                                                physics: ClampingScrollPhysics(),
-                                                itemCount: currentUserData['fields'].length ?? 0,
-                                                itemBuilder: (context, index) {
-                                                  return ListTile(
-                                                    leading: Container(
-                                                      height: 50,
-                                                      width: 50,
-                                                      padding: EdgeInsets.all(12),
-                                                      decoration: BoxDecoration(
-                                                          color: colorPrimary,
-                                                          borderRadius: BorderRadius.circular(100)),
-                                                      child: Image(
-                                                        image: getImage(
-                                                            index: index,
-                                                            fieldName: currentUserData['fields'][index]['title']),
-                                                        color: colorWhite,
-                                                      ),
-                                                    ),
-                                                    title: Text(
-                                                      currentUserData['fields'][index]['data'],
-                                                      style: FontStyleUtility.blackInter16W500,
-                                                    ),
-                                                    subtitle: Text(
-                                                      currentUserData['fields'][index]['label'],
-                                                      style: FontStyleUtility.greyInter14W400,
-                                                    ),
-                                                    trailing: IconButton(
-                                                        onPressed: () {
-                                                          showAlertDialog(
-                                                              title: 'Delete?',
-                                                              msg:
-                                                                  'Are you sure you want to delete this field from social profile list?',
-                                                              context: context,
-                                                              callback: () async {
-                                                                kHomeController.addFieldsModelList
-                                                                    .remove(kHomeController.addFieldsModelList[index]);
-
-                                                                /// remove field and update list
-                                                                // var userRef = FirebaseFirestore.instance
-                                                                //     .doc('users/${kAuthenticationController.userId}');
-                                                                userRef.update({
-                                                                  'fields': kHomeController.addFieldsModelList
-                                                                }).whenComplete(() {
-                                                                  showLog('Remove data successfully...');
-                                                                });
-                                                              });
-                                                        },
-                                                        icon: Icon(
-                                                          Icons.close,
-                                                          color: colorGrey,
-                                                          size: 22,
-                                                        )),
-                                                  );
-                                                },
-                                              ),
-                                            ],
-                                          ),
-                                        )
-                                      : SizedBox.shrink();
-                                })
-                            : kHomeController.addFieldsModelList.isNotEmpty
-                                ? Padding(
-                                    padding: const EdgeInsets.only(top: 20),
-                                    child: Column(
-                                      children: [
-                                        Center(
-                                          child: Container(
-                                            padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-                                            decoration: BoxDecoration(
-                                                color: colorGrey.withOpacity(0.2),
-                                                borderRadius: BorderRadius.circular(5)),
-                                            child: Text(
-                                              'Tap a field below to add it +',
-                                              style: FontStyleUtility.blackInter16W500,
-                                            ),
-                                          ),
-                                        ),
-                                        20.heightBox,
-                                        ListView.builder(
-                                          shrinkWrap: true,
-                                          physics: ClampingScrollPhysics(),
-                                          itemCount: kHomeController.addFieldsModelList.length,
-                                          itemBuilder: (context, index) {
-                                            return ListTile(
-                                              leading: Container(
-                                                height: 50,
-                                                width: 50,
-                                                padding: EdgeInsets.all(12),
-                                                decoration: BoxDecoration(
-                                                    color: colorPrimary, borderRadius: BorderRadius.circular(100)),
-                                                child: Image(
-                                                  image: getImage(
-                                                      index: index,
-                                                      fieldName: kHomeController.addFieldsModelList[index]['title']),
-                                                  color: colorWhite,
-                                                ),
-                                              ),
-                                              title: Text(
-                                                kHomeController.addFieldsModelList[index]['data'],
+                        StreamBuilder(
+                            stream: userRef.snapshots(),
+                            builder: (context, snapshot) {
+                              // if (snapshot.hasError) {
+                              //   return Text('Something went wrong');
+                              // }
+                              // if (snapshot.connectionState == ConnectionState.waiting) {
+                              //   return (Text('Loading...'));
+                              // }
+                              currentUserData = snapshot.requireData;
+                              if (widget.isFromEdit) {
+                                kHomeController.addFieldsModelList.clear();
+                                currentUserData['fields'].forEach((element) {
+                                  kHomeController.addFieldsModelList.add(
+                                      {'data': element['data'], 'label': element['label'], 'title': element['title']});
+                                });
+                              }
+                              return (widget.isFromEdit && currentUserData['fields'].isNotEmpty) ||
+                                      (!widget.isFromEdit && kHomeController.addFieldsModelList.isNotEmpty)
+                                  ? Padding(
+                                      padding: const EdgeInsets.only(top: 20),
+                                      child: Column(
+                                        children: [
+                                          Center(
+                                            child: Container(
+                                              margin: EdgeInsets.only(bottom: 20),
+                                              padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                                              decoration: BoxDecoration(
+                                                  color: colorGrey.withOpacity(0.2),
+                                                  borderRadius: BorderRadius.circular(5)),
+                                              child: Text(
+                                                '- Your Fields -',
                                                 style: FontStyleUtility.blackInter16W500,
                                               ),
-                                              subtitle: Text(
-                                                kHomeController.addFieldsModelList[index]['label'],
-                                                style: FontStyleUtility.greyInter14W400,
-                                              ),
-                                              trailing: IconButton(
-                                                  onPressed: () {
-                                                    showAlertDialog(
-                                                        title: 'Delete?',
-                                                        msg:
-                                                            'Are you sure you want to delete this field from social profile list?',
-                                                        context: context,
-                                                        callback: () async {
-                                                          /**/
-                                                          kHomeController.addFieldsModelList
-                                                              .remove(kHomeController.addFieldsModelList[index]);
+                                            ),
+                                          ),
+                                          ListView.builder(
+                                            shrinkWrap: true,
+                                            physics: ClampingScrollPhysics(),
+                                            itemCount: widget.isFromEdit
+                                                ? (currentUserData['fields'].length ?? 0)
+                                                : (kHomeController.addFieldsModelList.length),
+                                            itemBuilder: (context, index) {
+                                              return ListTile(
+                                                leading: Container(
+                                                  height: 50,
+                                                  width: 50,
+                                                  padding: EdgeInsets.all(12),
+                                                  decoration: BoxDecoration(
+                                                      color: colorPrimary, borderRadius: BorderRadius.circular(100)),
+                                                  child: Image(
+                                                    image: getImage(
+                                                        index: index,
+                                                        fieldName: widget.isFromEdit
+                                                            ? currentUserData['fields'][index]['title']
+                                                            : kHomeController.addFieldsModelList[index]['title']),
+                                                    color: colorWhite,
+                                                  ),
+                                                ),
+                                                title: Text(
+                                                  widget.isFromEdit
+                                                      ? currentUserData['fields'][index]['data']
+                                                      : kHomeController.addFieldsModelList[index]['data'],
+                                                  style: FontStyleUtility.blackInter16W500,
+                                                ),
+                                                subtitle: Text(
+                                                  widget.isFromEdit
+                                                      ? currentUserData['fields'][index]['label']
+                                                      : kHomeController.addFieldsModelList[index]['label'],
+                                                  style: FontStyleUtility.greyInter14W400,
+                                                ),
+                                                trailing: IconButton(
+                                                    onPressed: () {
+                                                      showAlertDialog(
+                                                          title: 'Delete?',
+                                                          msg:
+                                                              'Are you sure you want to delete this field from social profile list?',
+                                                          context: context,
+                                                          callback: () async {
+                                                            kHomeController.addFieldsModelList
+                                                                .remove(kHomeController.addFieldsModelList[index]);
 
-                                                          // /// change user id to new card id
-                                                          // var userRef = FirebaseFirestore.instance
-                                                          //     .doc('users/${kAuthenticationController.userId}');
-                                                          // userRef.update({
-                                                          //   'fields': kHomeController.addFieldsModelList
-                                                          // }).whenComplete(() {
-                                                          //   showLog('Remove data successfully...');
-                                                          // });
-                                                        });
-                                                  },
-                                                  icon: Icon(
-                                                    Icons.close,
-                                                    color: colorGrey,
-                                                    size: 22,
-                                                  )),
-                                            );
-                                          },
-                                        ),
-                                      ],
-                                    ),
-                                  )
-                                : SizedBox.shrink(),
+                                                            /// remove field and update list
+                                                            // var userRef = FirebaseFirestore.instance
+                                                            //     .doc('users/${kAuthenticationController.userId}');
+                                                            userRef.update({
+                                                              'fields': kHomeController.addFieldsModelList
+                                                            }).whenComplete(() {
+                                                              showLog('Remove data successfully...');
+                                                            });
+                                                          });
+                                                    },
+                                                    icon: Icon(
+                                                      Icons.close,
+                                                      color: colorGrey,
+                                                      size: 22,
+                                                    )),
+                                              );
+                                            },
+                                          ),
+                                        ],
+                                      ),
+                                    )
+                                  : SizedBox.shrink();
+                            }),
                         20.heightBox,
                         Center(
                           child: Container(
@@ -604,7 +531,7 @@ class _EditScreenState extends State<EditScreen> {
     try {
       String profilePic = '';
       String companyLogo = '';
-      var userRef = FirebaseFirestore.instance.collection('users');
+      var ref = FirebaseFirestore.instance.collection('users');
 
       if (isProfileChanged.value) {
         profilePic = await uploadFile(
@@ -631,7 +558,10 @@ class _EditScreenState extends State<EditScreen> {
         // }
       }
 
-      userRef.add({
+      String newCardId = ref.doc().id;
+      List<String> cards = [];
+
+      ref.doc(newCardId).set({
         'first_name': firstNameController.text,
         'last_name': lastNameController.text,
         'jon_title': jobTitleController.text,
@@ -641,12 +571,24 @@ class _EditScreenState extends State<EditScreen> {
         'company_logo': companyLogo,
         'profile_pic': profilePic,
         'fields': kHomeController.addFieldsModelList
-      }).then((val) {
-        showLog('======= ${userRef.id}');
-        showLog('======= ${userRef.doc().id}');
+      }).whenComplete(() {
+        showLog('======= ${newCardId}');
+
+        if (currentUserData['cards'].isNotEmpty) {
+          currentUserData['cards'].forEach((element) {
+            cards.add(element);
+          });
+        }
+        cards.add(newCardId);
+
+        if (cards.isNotEmpty) {
+          userRef.update({'cards': cards}).whenComplete(() async {
+            showLog('Card added successfully...');
+          });
+        }
+
         showLog('Data added successfully...');
       });
-
       callBack();
     } catch (e) {
       showLog(e);

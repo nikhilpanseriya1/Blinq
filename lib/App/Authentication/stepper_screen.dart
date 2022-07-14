@@ -1,15 +1,16 @@
 import 'dart:io';
+import 'dart:typed_data';
 
-import 'package:blinq/App/Authentication/start_screen.dart';
-import 'package:blinq/Utility/common_function.dart';
 import 'package:blinq/Utility/constants.dart';
 import 'package:blinq/Utility/utility_export.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:step_progress_indicator/step_progress_indicator.dart';
 import 'package:velocity_x/velocity_x.dart';
@@ -503,7 +504,49 @@ Future<void> picImageFromGallery({required bool isProfile, Function? callBack}) 
     try {
       final image = await ImagePicker().pickImage(source: ImageSource.gallery);
       if (image != null) {
-        final imageTemporary = File(image.path);
+        File imageTemporary = File(image.path);
+
+        // final bytes = imageTemporary.readAsBytesSync().lengthInBytes;
+        // final kb = bytes / 1024;
+        // final mb = kb / 1024;
+        //
+        // showLog('==== $kb');
+        // showLog('==== $mb');
+        //
+        // String tempDir = (await getTemporaryDirectory()).path;
+        //
+        // File tempFile = File(tempDir);
+        //
+        // var result = await FlutterImageCompress.compressWithFile(
+        //   imageTemporary.absolute.path,
+        //   minWidth: 720,
+        //   minHeight: 380,
+        //   quality: 94,
+        //   rotate: 90,
+        // );
+        //
+        // // 2. compress file and get file.
+        // // var result = await FlutterImageCompress.compressAndGetFile(
+        // //   imageTemporary.absolute.path,
+        // //   tempDir.path,
+        // //   quality: 88,
+        // //   rotate: 180,
+        // // );
+        // //
+        // print('---- ${imageTemporary.lengthSync()}');
+        // print('---- ${result?.length}');
+        //
+        // tempFile.writeAsBytesSync(result!);
+        //
+        // final bytess = imageTemporary.readAsBytesSync().lengthInBytes;
+        // final kbb = bytess / 1024;
+        // final mbb = kbb / 1024;
+        //
+        // showLog('==== New $kbb');
+        // showLog('==== New $mbb');
+
+        // child: Image.memory(headedBitmap)
+
         isProfile
             ? kAuthenticationController.selectedImage.value = imageTemporary.path
             : kAuthenticationController.selectedCompanyLogo.value = imageTemporary.path;
