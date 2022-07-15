@@ -63,6 +63,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       .then((val) {
                     /// save userId
                     setObject(PrefConstants.userId, val.user?.uid);
+                    kAuthenticationController.userId = getObject(PrefConstants.userId);
                     Get.offAll(() => const HomeScreen());
                   }).catchError((e) {
                     showBottomSnackBar(context: context, message: e.message);

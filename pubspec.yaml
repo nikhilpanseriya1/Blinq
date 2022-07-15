@@ -54,6 +54,7 @@ dependencies:
   flutter_image_compress: ^1.1.0
   path_provider: ^2.0.11
   carousel_slider: ^4.1.1
+  receive_sharing_intent: ^1.4.5
 
 
   ## firebase

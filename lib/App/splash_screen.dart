@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:blinq/App/Home/home_screen.dart';
+import 'package:blinq/Utility/constants.dart';
 import 'package:blinq/Utility/utility_export.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -21,9 +22,12 @@ class _SplashScreenState extends State<SplashScreen> {
     // TODO: implement initState
     super.initState();
 
-    getIsLogin()
-        ? Timer(const Duration(seconds: 2), () => Get.to(() => const HomeScreen()))
-        : Timer(const Duration(seconds: 2), () => Get.to(() => const StartScreen()));
+    if (getIsLogin()) {
+      kAuthenticationController.userId = getObject(PrefConstants.userId);
+      Timer(const Duration(seconds: 2), () => Get.to(() => const HomeScreen()));
+    } else {
+      Timer(const Duration(seconds: 2), () => Get.to(() => const StartScreen()));
+    }
   }
 
   @override
@@ -47,8 +51,7 @@ class _SplashScreenState extends State<SplashScreen> {
               20.heightBox,
               Text(
                 'Welcome to Blinq',
-                style: FontStyleUtility.blackDMSerifDisplay24W700
-                    .copyWith(color: colorWhite, letterSpacing: 1.5),
+                style: FontStyleUtility.blackDMSerifDisplay24W700.copyWith(color: colorWhite, letterSpacing: 1.5),
               )
             ],
           ),

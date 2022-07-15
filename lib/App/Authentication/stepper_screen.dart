@@ -125,6 +125,7 @@ class _StepperScreenState extends State<StepperScreen> {
                   });
                 } else if (selectedStep.value == 8) {
                   addNewCard(() {
+                    kAuthenticationController.userId = getObject(PrefConstants.userId);
                     Get.offAll(() => const HomeScreen());
                   });
                 } else {

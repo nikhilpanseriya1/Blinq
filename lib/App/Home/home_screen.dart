@@ -34,20 +34,21 @@ class _HomeScreenState extends State<HomeScreen> {
   // final Stream users = FirebaseFirestore.instance.collection('users').snapshots();
   final users = FirebaseFirestore.instance.collection('users');
 
-  var currentUserSnap = FirebaseFirestore.instance.collection('users').doc(getObject(PrefConstants.userId)).snapshots();
+  var currentUserSnap =
+      FirebaseFirestore.instance.collection('users').doc(kAuthenticationController.userId).snapshots();
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
 
-    kAuthenticationController.userId = getObject(PrefConstants.userId);
+    // kAuthenticationController.userId = getObject(PrefConstants.userId);
     setIsLogin(isLogin: true);
 
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       cards.clear();
       cards.add(kAuthenticationController.userId);
-      //
+
       // showLog(cards.length.toString());
       // showLog('=asjmdkloams=== ${cards[0]}');
 
@@ -66,7 +67,7 @@ class _HomeScreenState extends State<HomeScreen> {
               onPressed: () {
                 Get.to(() => EditScreen(
                       isFromEdit: false,
-                      cardId: '',
+                      cardId: kAuthenticationController.userId,
                     ));
               },
               icon: const Icon(
@@ -106,8 +107,7 @@ class _HomeScreenState extends State<HomeScreen> {
             currentIndex.value = index;
 
             currentUserSnap = FirebaseFirestore.instance.collection('users').doc(cards[currentIndex.value]).snapshots();
-
-            // setState(() {});
+            setState(() {});
             print('asdhahsdiuasiudas $index');
           },
           itemBuilder: (BuildContext context, int index) {
@@ -376,7 +376,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                   commonSheetRow(
                                       callBack: () async {
                                         print('hello here click detected');
-                                        await Share.share('asjkdbhasgaijsdijudv  udhvahshasdhnv');
+
+                                        await Share.share(cards[currentIndex.value],
+                                            subject: 'Chintu Patel\'s Blinq card');
                                       },
                                       icon: Icons.more_horiz,
                                       name: 'Send another way'),

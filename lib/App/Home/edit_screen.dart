@@ -74,9 +74,10 @@ class _EditScreenState extends State<EditScreen> {
     // TODO: implement initState
     super.initState();
 
-    // if (widget.cardId.isNotEmpty) {
-      userRef = FirebaseFirestore.instance.doc('users/${widget.cardId}');
-    // } else {
+    // if (widget.isFromEdit) {
+    userRef = FirebaseFirestore.instance.doc('users/${widget.cardId}');
+    // }
+    // else {
     //   userRef = FirebaseFirestore.instance.doc('users');
     // }
 
@@ -117,7 +118,7 @@ class _EditScreenState extends State<EditScreen> {
 
                     if (isProfileChanged.value) {
                       String profilePic =
-                          await uploadFile(filePath: kAuthenticationController.selectedImage.value, isProfile: true);
+                      await uploadFile(filePath: kAuthenticationController.selectedImage.value, isProfile: true);
                       if (profilePic.isNotEmpty) {
                         userRef.update({'profile_pic': profilePic}).whenComplete(() {
                           showLog('Profile Pic Uploaded...');
@@ -151,383 +152,399 @@ class _EditScreenState extends State<EditScreen> {
           child: SingleChildScrollView(
             physics: ClampingScrollPhysics(),
             child: Obx(
-              () => Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        20.heightBox,
-                        SizedBox(
-                          height: getScreenHeight(context) * 0.28,
-                          child: Stack(
-                            children: [
-                              Align(
-                                alignment: Alignment.topCenter,
-                                child: Stack(
-                                  children: [
-                                    Container(
-                                      height: getScreenHeight(context) * 0.22,
-                                      width: getScreenWidth(context) * 0.9,
-                                      decoration: BoxDecoration(borderRadius: BorderRadius.circular(15), boxShadow: [
-                                        BoxShadow(
-                                            color: colorGrey.withOpacity(0.5),
-                                            offset: const Offset(0.0, 3.0),
-                                            blurRadius: 10)
-                                      ]),
-                                      child: ClipRRect(
-                                        borderRadius: BorderRadius.circular(15),
-                                        child: widget.isFromEdit
-                                            ? CachedNetworkImage(
-                                                fit: BoxFit.cover,
-                                                imageUrl: userData['company_logo'],
-                                                placeholder: (context, url) => Image(
-                                                  fit: BoxFit.cover,
-                                                  image: kAuthenticationController.selectedCompanyLogo.value.isNotEmpty
-                                                      ? FileImage(
-                                                              File(kAuthenticationController.selectedCompanyLogo.value))
-                                                          as ImageProvider
-                                                      : bgPlaceholder,
-                                                ),
-                                                errorWidget: (context, url, error) => Image(
-                                                  fit: BoxFit.cover,
-                                                  image: kAuthenticationController.selectedCompanyLogo.value.isNotEmpty
-                                                      ? FileImage(
-                                                              File(kAuthenticationController.selectedCompanyLogo.value))
-                                                          as ImageProvider
-                                                      : bgPlaceholder,
-                                                ),
-                                              )
-                                            : Image(
-                                                fit: BoxFit.cover,
-                                                image: kAuthenticationController.selectedCompanyLogo.value.isNotEmpty
-                                                    ? FileImage(
-                                                            File(kAuthenticationController.selectedCompanyLogo.value))
-                                                        as ImageProvider
-                                                    : bgPlaceholder,
-                                              ),
-                                        // child: Image(
-                                        // fit: BoxFit.cover,
-                                        // image: kAuthenticationController.selectedCompanyLogo.value.isNotEmpty
-                                        //     ? FileImage(File(kAuthenticationController.selectedCompanyLogo.value))
-                                        // as ImageProvider
-                                        //     : bgPlaceholder,
-                                        // ),
-                                        // backgroundImage: userProfile2,
-                                      ),
-                                    ),
-                                    Container(
-                                      height: getScreenHeight(context) * 0.22,
-                                      width: getScreenWidth(context) * 0.9,
-                                      decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(15), color: colorBlack.withOpacity(0.15)),
-                                      child: Center(
-                                          child: commonButtonView(
-                                              title: 'Upload Company Logo',
-                                              tapOnButton: () {
-                                                picImageFromGallery(
-                                                    isProfile: false,
-                                                    callBack: () {
-                                                      isLogoChanged.value = true;
-                                                    });
-                                              },
-                                              height: 45,
-                                              textStyle: FontStyleUtility.greyInter14W400,
-                                              width: getScreenWidth(context) * 0.5)),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Align(
-                                alignment: Alignment.bottomRight,
-                                child: Stack(
-                                  children: [
-                                    Container(
-                                      height: 100,
-                                      width: 100,
-                                      margin: const EdgeInsets.only(right: 30),
-                                      decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(100),
-                                          boxShadow: const [
-                                            BoxShadow(color: colorGrey, offset: Offset(0.0, 3.0), blurRadius: 10)
+                  () =>
+                  Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            20.heightBox,
+                            SizedBox(
+                              height: getScreenHeight(context) * 0.28,
+                              child: Stack(
+                                children: [
+                                  Align(
+                                    alignment: Alignment.topCenter,
+                                    child: Stack(
+                                      children: [
+                                        Container(
+                                          height: getScreenHeight(context) * 0.22,
+                                          width: getScreenWidth(context) * 0.9,
+                                          decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.circular(15), boxShadow: [
+                                            BoxShadow(
+                                                color: colorGrey.withOpacity(0.5),
+                                                offset: const Offset(0.0, 3.0),
+                                                blurRadius: 10)
                                           ]),
-                                      child: ClipRRect(
-                                        borderRadius: BorderRadius.circular(100),
-                                        child: widget.isFromEdit
-                                            ? CachedNetworkImage(
-                                                height: 100,
-                                                width: 100,
-                                                fit: BoxFit.cover,
-                                                imageUrl: userData['profile_pic'],
-                                                placeholder: (context, url) => Image(
-                                                  height: 100,
-                                                  width: 100,
-                                                  fit: BoxFit.cover,
-                                                  image: kAuthenticationController.selectedImage.value.isNotEmpty
-                                                      ? FileImage(File(kAuthenticationController.selectedImage.value))
-                                                          as ImageProvider
-                                                      : profilePlaceholder,
-                                                ),
-                                                errorWidget: (context, url, error) => Image(
-                                                  height: 100,
-                                                  width: 100,
-                                                  fit: BoxFit.cover,
-                                                  image: kAuthenticationController.selectedImage.value.isNotEmpty
-                                                      ? FileImage(File(kAuthenticationController.selectedImage.value))
-                                                          as ImageProvider
-                                                      : profilePlaceholder,
-                                                ),
-                                              )
-                                            : Image(
-                                                height: 100,
-                                                width: 100,
-                                                fit: BoxFit.cover,
-                                                image: kAuthenticationController.selectedImage.value.isNotEmpty
-                                                    ? FileImage(File(kAuthenticationController.selectedImage.value))
-                                                        as ImageProvider
-                                                    : profilePlaceholder,
-                                              ),
-                                        // child: Image(
-                                        //   height: 100,
-                                        //   width: 100,
-                                        //   fit: BoxFit.cover,
-                                        //   image: kAuthenticationController.selectedImage.value.isNotEmpty
-                                        //       ? FileImage(File(kAuthenticationController.selectedImage.value))
-                                        //           as ImageProvider
-                                        //       : profilePlaceholder,
-                                        // ),
-                                        // backgroundImage: userProfile2,
-                                      ),
-                                    ),
-                                    InkWell(
-                                      onTap: () {
-                                        picImageFromGallery(
-                                            isProfile: true,
-                                            callBack: () {
-                                              isProfileChanged.value = true;
-                                            });
-                                      },
-                                      child: Container(
-                                        height: 100,
-                                        width: 100,
-                                        margin: const EdgeInsets.only(right: 30),
-                                        decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(100),
-                                            color: colorBlack.withOpacity(0.15)),
-                                        child: Icon(
-                                          Icons.camera_alt_outlined,
-                                          color: colorWhite,
+                                          child: ClipRRect(
+                                            borderRadius: BorderRadius.circular(15),
+                                            child: widget.isFromEdit
+                                                ? CachedNetworkImage(
+                                              fit: BoxFit.cover,
+                                              imageUrl: userData['company_logo'],
+                                              placeholder: (context, url) =>
+                                                  Image(
+                                                    fit: BoxFit.cover,
+                                                    image: kAuthenticationController.selectedCompanyLogo.value
+                                                        .isNotEmpty
+                                                        ? FileImage(
+                                                        File(kAuthenticationController.selectedCompanyLogo.value))
+                                                    as ImageProvider
+                                                        : bgPlaceholder,
+                                                  ),
+                                              errorWidget: (context, url, error) =>
+                                                  Image(
+                                                    fit: BoxFit.cover,
+                                                    image: kAuthenticationController.selectedCompanyLogo.value
+                                                        .isNotEmpty
+                                                        ? FileImage(
+                                                        File(kAuthenticationController.selectedCompanyLogo.value))
+                                                    as ImageProvider
+                                                        : bgPlaceholder,
+                                                  ),
+                                            )
+                                                : Image(
+                                              fit: BoxFit.cover,
+                                              image: kAuthenticationController.selectedCompanyLogo.value.isNotEmpty
+                                                  ? FileImage(
+                                                  File(kAuthenticationController.selectedCompanyLogo.value))
+                                              as ImageProvider
+                                                  : bgPlaceholder,
+                                            ),
+                                            // child: Image(
+                                            // fit: BoxFit.cover,
+                                            // image: kAuthenticationController.selectedCompanyLogo.value.isNotEmpty
+                                            //     ? FileImage(File(kAuthenticationController.selectedCompanyLogo.value))
+                                            // as ImageProvider
+                                            //     : bgPlaceholder,
+                                            // ),
+                                            // backgroundImage: userProfile2,
+                                          ),
                                         ),
-                                      ),
+                                        Container(
+                                          height: getScreenHeight(context) * 0.22,
+                                          width: getScreenWidth(context) * 0.9,
+                                          decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.circular(15),
+                                              color: colorBlack.withOpacity(0.15)),
+                                          child: Center(
+                                              child: commonButtonView(
+                                                  title: 'Upload Company Logo',
+                                                  tapOnButton: () {
+                                                    picImageFromGallery(
+                                                        isProfile: false,
+                                                        callBack: () {
+                                                          isLogoChanged.value = true;
+                                                        });
+                                                  },
+                                                  height: 45,
+                                                  textStyle: FontStyleUtility.greyInter14W400,
+                                                  width: getScreenWidth(context) * 0.5)),
+                                        ),
+                                      ],
                                     ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        20.heightBox,
-                        commonTextField(
-                            hintText: 'Enter your first name',
-                            textEditingController: firstNameController,
-                            validationFunction: (value) {
-                              return emptyFieldValidation(value);
-                            }),
-                        commonTextField(
-                            hintText: 'Enter your last name',
-                            textEditingController: lastNameController,
-                            validationFunction: (value) {
-                              return emptyFieldValidation(value);
-                            }),
-                        commonTextField(
-                            hintText: 'Enter your job title',
-                            textEditingController: jobTitleController,
-                            validationFunction: (value) {
-                              return emptyFieldValidation(value);
-                            }),
-                        commonTextField(
-                            hintText: 'Enter your department name',
-                            textEditingController: departmentNameController,
-                            validationFunction: (value) {
-                              return emptyFieldValidation(value);
-                            }),
-                        commonTextField(
-                            hintText: 'Enter your company name',
-                            textEditingController: companyNameController,
-                            validationFunction: (value) {
-                              return emptyFieldValidation(value);
-                            }),
-                        commonTextField(
-                            hintText: 'Enter your headline (Optional)', textEditingController: headlineController),
-                        20.heightBox,
-                        commonSwitchRow(enable: branding, title: 'Display $appName branding on card'),
-                        commonSwitchRow(enable: logoToQr, title: 'Add Logo to Qe Code'),
-                        commonSwitchRow(enable: metField, title: '\'Where We Met\' field'),
-                        StreamBuilder(
-                            stream: userRef.snapshots(),
-                            builder: (context, snapshot) {
-                              // if (snapshot.hasError) {
-                              //   return Text('Something went wrong');
-                              // }
-                              // if (snapshot.connectionState == ConnectionState.waiting) {
-                              //   return (Text('Loading...'));
-                              // }
-                              currentUserData = snapshot.requireData;
-                              if (widget.isFromEdit) {
-                                kHomeController.addFieldsModelList.clear();
-                                currentUserData['fields'].forEach((element) {
-                                  kHomeController.addFieldsModelList.add(
-                                      {'data': element['data'], 'label': element['label'], 'title': element['title']});
-                                });
-                              }
-                              return (widget.isFromEdit && currentUserData['fields'].isNotEmpty) ||
-                                      (!widget.isFromEdit && kHomeController.addFieldsModelList.isNotEmpty)
-                                  ? Padding(
-                                      padding: const EdgeInsets.only(top: 20),
-                                      child: Column(
-                                        children: [
-                                          Center(
-                                            child: Container(
-                                              margin: EdgeInsets.only(bottom: 20),
-                                              padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-                                              decoration: BoxDecoration(
-                                                  color: colorGrey.withOpacity(0.2),
-                                                  borderRadius: BorderRadius.circular(5)),
-                                              child: Text(
-                                                '- Your Fields -',
-                                                style: FontStyleUtility.blackInter16W500,
-                                              ),
+                                  ),
+                                  Align(
+                                    alignment: Alignment.bottomRight,
+                                    child: Stack(
+                                      children: [
+                                        Container(
+                                          height: 100,
+                                          width: 100,
+                                          margin: const EdgeInsets.only(right: 30),
+                                          decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.circular(100),
+                                              boxShadow: const [
+                                                BoxShadow(color: colorGrey, offset: Offset(0.0, 3.0), blurRadius: 10)
+                                              ]),
+                                          child: ClipRRect(
+                                            borderRadius: BorderRadius.circular(100),
+                                            child: widget.isFromEdit
+                                                ? CachedNetworkImage(
+                                              height: 100,
+                                              width: 100,
+                                              fit: BoxFit.cover,
+                                              imageUrl: userData['profile_pic'],
+                                              placeholder: (context, url) =>
+                                                  Image(
+                                                    height: 100,
+                                                    width: 100,
+                                                    fit: BoxFit.cover,
+                                                    image: kAuthenticationController.selectedImage.value.isNotEmpty
+                                                        ? FileImage(File(kAuthenticationController.selectedImage.value))
+                                                    as ImageProvider
+                                                        : profilePlaceholder,
+                                                  ),
+                                              errorWidget: (context, url, error) =>
+                                                  Image(
+                                                    height: 100,
+                                                    width: 100,
+                                                    fit: BoxFit.cover,
+                                                    image: kAuthenticationController.selectedImage.value.isNotEmpty
+                                                        ? FileImage(File(kAuthenticationController.selectedImage.value))
+                                                    as ImageProvider
+                                                        : profilePlaceholder,
+                                                  ),
+                                            )
+                                                : Image(
+                                              height: 100,
+                                              width: 100,
+                                              fit: BoxFit.cover,
+                                              image: kAuthenticationController.selectedImage.value.isNotEmpty
+                                                  ? FileImage(File(kAuthenticationController.selectedImage.value))
+                                              as ImageProvider
+                                                  : profilePlaceholder,
+                                            ),
+                                            // child: Image(
+                                            //   height: 100,
+                                            //   width: 100,
+                                            //   fit: BoxFit.cover,
+                                            //   image: kAuthenticationController.selectedImage.value.isNotEmpty
+                                            //       ? FileImage(File(kAuthenticationController.selectedImage.value))
+                                            //           as ImageProvider
+                                            //       : profilePlaceholder,
+                                            // ),
+                                            // backgroundImage: userProfile2,
+                                          ),
+                                        ),
+                                        InkWell(
+                                          onTap: () {
+                                            picImageFromGallery(
+                                                isProfile: true,
+                                                callBack: () {
+                                                  isProfileChanged.value = true;
+                                                });
+                                          },
+                                          child: Container(
+                                            height: 100,
+                                            width: 100,
+                                            margin: const EdgeInsets.only(right: 30),
+                                            decoration: BoxDecoration(
+                                                borderRadius: BorderRadius.circular(100),
+                                                color: colorBlack.withOpacity(0.15)),
+                                            child: Icon(
+                                              Icons.camera_alt_outlined,
+                                              color: colorWhite,
                                             ),
                                           ),
-                                          ListView.builder(
-                                            shrinkWrap: true,
-                                            physics: ClampingScrollPhysics(),
-                                            itemCount: widget.isFromEdit
-                                                ? (currentUserData['fields'].length ?? 0)
-                                                : (kHomeController.addFieldsModelList.length),
-                                            itemBuilder: (context, index) {
-                                              return ListTile(
-                                                leading: Container(
-                                                  height: 50,
-                                                  width: 50,
-                                                  padding: EdgeInsets.all(12),
-                                                  decoration: BoxDecoration(
-                                                      color: colorPrimary, borderRadius: BorderRadius.circular(100)),
-                                                  child: Image(
-                                                    image: getImage(
-                                                        index: index,
-                                                        fieldName: widget.isFromEdit
-                                                            ? currentUserData['fields'][index]['title']
-                                                            : kHomeController.addFieldsModelList[index]['title']),
-                                                    color: colorWhite,
-                                                  ),
-                                                ),
-                                                title: Text(
-                                                  widget.isFromEdit
-                                                      ? currentUserData['fields'][index]['data']
-                                                      : kHomeController.addFieldsModelList[index]['data'],
-                                                  style: FontStyleUtility.blackInter16W500,
-                                                ),
-                                                subtitle: Text(
-                                                  widget.isFromEdit
-                                                      ? currentUserData['fields'][index]['label']
-                                                      : kHomeController.addFieldsModelList[index]['label'],
-                                                  style: FontStyleUtility.greyInter14W400,
-                                                ),
-                                                trailing: IconButton(
-                                                    onPressed: () {
-                                                      showAlertDialog(
-                                                          title: 'Delete?',
-                                                          msg:
-                                                              'Are you sure you want to delete this field from social profile list?',
-                                                          context: context,
-                                                          callback: () async {
-                                                            kHomeController.addFieldsModelList
-                                                                .remove(kHomeController.addFieldsModelList[index]);
-
-                                                            /// remove field and update list
-                                                            // var userRef = FirebaseFirestore.instance
-                                                            //     .doc('users/${kAuthenticationController.userId}');
-                                                            userRef.update({
-                                                              'fields': kHomeController.addFieldsModelList
-                                                            }).whenComplete(() {
-                                                              showLog('Remove data successfully...');
-                                                            });
-                                                          });
-                                                    },
-                                                    icon: Icon(
-                                                      Icons.close,
-                                                      color: colorGrey,
-                                                      size: 22,
-                                                    )),
-                                              );
-                                            },
-                                          ),
-                                        ],
-                                      ),
-                                    )
-                                  : SizedBox.shrink();
-                            }),
-                        20.heightBox,
-                        Center(
-                          child: Container(
-                            padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-                            decoration: BoxDecoration(
-                                color: colorGrey.withOpacity(0.2), borderRadius: BorderRadius.circular(5)),
-                            child: Text(
-                              'Tap a field below to add it +',
-                              style: FontStyleUtility.blackInter16W500,
-                            ),
-                          ),
-                        ),
-                        20.heightBox,
-                      ],
-                    ),
-                  ),
-                  Container(
-                    padding: EdgeInsets.only(top: 10, bottom: 10),
-                    decoration: BoxDecoration(
-                        color: colorPrimary.withOpacity(0.15),
-                        borderRadius: BorderRadius.only(topRight: Radius.circular(20), topLeft: Radius.circular(20))),
-                    child: GridView.builder(
-                        physics: NeverScrollableScrollPhysics(),
-                        shrinkWrap: true,
-                        itemCount: kHomeController.socialMediaList.length,
-                        gridDelegate:
-                            SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, childAspectRatio: 1.2),
-                        itemBuilder: (BuildContext context, int index) {
-                          return InkWell(
-                            highlightColor: colorWhite,
-                            splashColor: colorWhite,
-                            onTap: () {
-                              Get.to(() => AddFieldScreen(index: index, isFromEdit: widget.isFromEdit));
-                            },
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                Container(
-                                  height: 60,
-                                  width: 60,
-                                  padding: EdgeInsets.all(15),
-                                  decoration:
-                                      BoxDecoration(color: colorPrimary, borderRadius: BorderRadius.circular(100)),
-                                  child: Image(
-                                    image: kHomeController.socialMediaList[index].logo,
-                                    color: colorWhite,
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                                Text(
-                                  kHomeController.socialMediaList[index].name,
-                                  style: FontStyleUtility.blackInter14W500.copyWith(color: colorPrimary),
-                                )
-                              ],
+                                ],
+                              ),
                             ),
-                          );
-                        }),
-                  )
-                ],
-              ),
+                            20.heightBox,
+                            commonTextField(
+                                hintText: 'Enter your first name',
+                                textEditingController: firstNameController,
+                                validationFunction: (value) {
+                                  return emptyFieldValidation(value);
+                                }),
+                            commonTextField(
+                                hintText: 'Enter your last name',
+                                textEditingController: lastNameController,
+                                validationFunction: (value) {
+                                  return emptyFieldValidation(value);
+                                }),
+                            commonTextField(
+                                hintText: 'Enter your job title',
+                                textEditingController: jobTitleController,
+                                validationFunction: (value) {
+                                  return emptyFieldValidation(value);
+                                }),
+                            commonTextField(
+                                hintText: 'Enter your department name',
+                                textEditingController: departmentNameController,
+                                validationFunction: (value) {
+                                  return emptyFieldValidation(value);
+                                }),
+                            commonTextField(
+                                hintText: 'Enter your company name',
+                                textEditingController: companyNameController,
+                                validationFunction: (value) {
+                                  return emptyFieldValidation(value);
+                                }),
+                            commonTextField(
+                                hintText: 'Enter your headline (Optional)', textEditingController: headlineController),
+                            20.heightBox,
+                            commonSwitchRow(enable: branding, title: 'Display $appName branding on card'),
+                            commonSwitchRow(enable: logoToQr, title: 'Add Logo to Qe Code'),
+                            commonSwitchRow(enable: metField, title: '\'Where We Met\' field'),
+                            // widget.isFromEdit
+                            //     ? getEditFields()
+                            //     : getNewFields()
+                            StreamBuilder(
+                                stream: userRef.snapshots(),
+                                builder: (context, snapshot) {
+                                  // if (snapshot.hasError) {
+                                  //   return Text('Something went wrong');
+                                  // }
+                                  // if (snapshot.connectionState == ConnectionState.waiting) {
+                                  //   return (Text('Loading...'));
+                                  // }
+                                  currentUserData = snapshot.requireData;
+                                  if (widget.isFromEdit) {
+                                    kHomeController.addFieldsModelList.clear();
+                                    currentUserData['fields'].forEach((element) {
+                                      kHomeController.addFieldsModelList
+                                          .add({
+                                        'data': element['data'],
+                                        'label': element['label'],
+                                        'title': element['title']
+                                      });
+                                    });
+                                  }
+                                  return (widget.isFromEdit && currentUserData['fields'].isNotEmpty) ||
+                                      (!widget.isFromEdit && kHomeController.addFieldsModelList.isNotEmpty)
+                                      ? Padding(
+                                    padding: const EdgeInsets.only(top: 20),
+                                    child: Column(
+                                      children: [
+                                        Center(
+                                          child: Container(
+                                            margin: EdgeInsets.only(bottom: 20),
+                                            padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                                            decoration:
+                                            BoxDecoration(color: colorGrey.withOpacity(0.2),
+                                                borderRadius: BorderRadius.circular(5)),
+                                            child: Text(
+                                              '- Your Fields -',
+                                              style: FontStyleUtility.blackInter16W500,
+                                            ),
+                                          ),
+                                        ),
+                                        ListView.builder(
+                                          shrinkWrap: true,
+                                          physics: ClampingScrollPhysics(),
+                                          itemCount: widget.isFromEdit
+                                              ? (currentUserData['fields'].length ?? 0)
+                                              : (kHomeController.addFieldsModelList.length),
+                                          itemBuilder: (context, index) {
+                                            return ListTile(
+                                              leading: Container(
+                                                height: 50,
+                                                width: 50,
+                                                padding: EdgeInsets.all(12),
+                                                decoration: BoxDecoration(
+                                                    color: colorPrimary, borderRadius: BorderRadius.circular(100)),
+                                                child: Image(
+                                                  image: getImage(
+                                                      index: index,
+                                                      fieldName: widget.isFromEdit
+                                                          ? currentUserData['fields'][index]['title']
+                                                          : kHomeController.addFieldsModelList[index]['title']),
+                                                  color: colorWhite,
+                                                ),
+                                              ),
+                                              title: Text(
+                                                widget.isFromEdit
+                                                    ? currentUserData['fields'][index]['data']
+                                                    : kHomeController.addFieldsModelList[index]['data'],
+                                                style: FontStyleUtility.blackInter16W500,
+                                              ),
+                                              subtitle: Text(
+                                                widget.isFromEdit
+                                                    ? currentUserData['fields'][index]['label']
+                                                    : kHomeController.addFieldsModelList[index]['label'],
+                                                style: FontStyleUtility.greyInter14W400,
+                                              ),
+                                              trailing: IconButton(
+                                                  onPressed: () {
+                                                    showAlertDialog(
+                                                        title: 'Delete?',
+                                                        msg: 'Are you sure you want to delete this field from social profile list?',
+                                                        context: context,
+                                                        callback: () async {
+                                                          kHomeController.addFieldsModelList
+                                                              .remove(kHomeController.addFieldsModelList[index]);
+
+                                                          /// remove field and update list
+                                                          // var userRef = FirebaseFirestore.instance
+                                                          //     .doc('users/${kAuthenticationController.userId}');
+                                                          userRef.update({'fields': kHomeController.addFieldsModelList})
+                                                              .whenComplete(() {
+                                                            showLog('Remove data successfully...');
+                                                          });
+                                                        });
+                                                  },
+                                                  icon: Icon(
+                                                    Icons.close,
+                                                    color: colorGrey,
+                                                    size: 22,
+                                                  )),
+                                            );
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                  )
+                                      : SizedBox.shrink();
+                                })
+                            ,
+                            20.heightBox,
+                            Center(
+                              child: Container(
+                                padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                                decoration: BoxDecoration(
+                                    color: colorGrey.withOpacity(0.2), borderRadius: BorderRadius.circular(5)),
+                                child: Text(
+                                  'Tap a field below to add it +',
+                                  style: FontStyleUtility.blackInter16W500,
+                                ),
+                              ),
+                            ),
+                            20.heightBox,
+                          ],
+                        ),
+                      ),
+                      Container(
+                        padding: EdgeInsets.only(top: 10, bottom: 10),
+                        decoration: BoxDecoration(
+                            color: colorPrimary.withOpacity(0.15),
+                            borderRadius: BorderRadius.only(
+                                topRight: Radius.circular(20), topLeft: Radius.circular(20))),
+                        child: GridView.builder(
+                            physics: NeverScrollableScrollPhysics(),
+                            shrinkWrap: true,
+                            itemCount: kHomeController.socialMediaList.length,
+                            gridDelegate:
+                            SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, childAspectRatio: 1.2),
+                            itemBuilder: (BuildContext context, int index) {
+                              return InkWell(
+                                highlightColor: colorWhite,
+                                splashColor: colorWhite,
+                                onTap: () {
+                                  Get.to(() => AddFieldScreen(index: index, isFromEdit: widget.isFromEdit));
+                                },
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                  children: [
+                                    Container(
+                                      height: 60,
+                                      width: 60,
+                                      padding: EdgeInsets.all(15),
+                                      decoration:
+                                      BoxDecoration(color: colorPrimary, borderRadius: BorderRadius.circular(100)),
+                                      child: Image(
+                                        image: kHomeController.socialMediaList[index].logo,
+                                        color: colorWhite,
+                                      ),
+                                    ),
+                                    Text(
+                                      kHomeController.socialMediaList[index].name,
+                                      style: FontStyleUtility.blackInter14W500.copyWith(color: colorPrimary),
+                                    )
+                                  ],
+                                ),
+                              );
+                            }),
+                      )
+                    ],
+                  ),
             ),
           ),
         ));
@@ -564,7 +581,9 @@ class _EditScreenState extends State<EditScreen> {
         // }
       }
 
-      String newCardId = ref.doc().id;
+      String newCardId = ref
+          .doc()
+          .id;
       List<String> cards = [];
 
       ref.doc(newCardId).set({
@@ -600,50 +619,226 @@ class _EditScreenState extends State<EditScreen> {
       showLog(e);
     }
   }
+
+  Widget getEditFields() {
+    return StreamBuilder(
+        stream: userRef.snapshots(),
+        builder: (context, snapshot) {
+          // if (snapshot.hasError) {
+          //   return Text('Something went wrong');
+          // }
+          // if (snapshot.connectionState == ConnectionState.waiting) {
+          //   return (Text('Loading...'));
+          // }
+          currentUserData = snapshot.requireData;
+          if (widget.isFromEdit) {
+            kHomeController.addFieldsModelList.clear();
+            currentUserData['fields'].forEach((element) {
+              kHomeController.addFieldsModelList
+                  .add({'data': element['data'], 'label': element['label'], 'title': element['title']});
+            });
+          }
+          return (widget.isFromEdit && currentUserData['fields'].isNotEmpty) ||
+              (!widget.isFromEdit && kHomeController.addFieldsModelList.isNotEmpty)
+              ? Padding(
+            padding: const EdgeInsets.only(top: 20),
+            child: Column(
+              children: [
+                Center(
+                  child: Container(
+                    margin: EdgeInsets.only(bottom: 20),
+                    padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                    decoration:
+                    BoxDecoration(color: colorGrey.withOpacity(0.2), borderRadius: BorderRadius.circular(5)),
+                    child: Text(
+                      '- Your Fields -',
+                      style: FontStyleUtility.blackInter16W500,
+                    ),
+                  ),
+                ),
+                ListView.builder(
+                  shrinkWrap: true,
+                  physics: ClampingScrollPhysics(),
+                  itemCount: widget.isFromEdit
+                      ? (currentUserData['fields'].length ?? 0)
+                      : (kHomeController.addFieldsModelList.length),
+                  itemBuilder: (context, index) {
+                    return ListTile(
+                      leading: Container(
+                        height: 50,
+                        width: 50,
+                        padding: EdgeInsets.all(12),
+                        decoration: BoxDecoration(color: colorPrimary, borderRadius: BorderRadius.circular(100)),
+                        child: Image(
+                          image: getImage(
+                              index: index,
+                              fieldName: widget.isFromEdit
+                                  ? currentUserData['fields'][index]['title']
+                                  : kHomeController.addFieldsModelList[index]['title']),
+                          color: colorWhite,
+                        ),
+                      ),
+                      title: Text(
+                        widget.isFromEdit
+                            ? currentUserData['fields'][index]['data']
+                            : kHomeController.addFieldsModelList[index]['data'],
+                        style: FontStyleUtility.blackInter16W500,
+                      ),
+                      subtitle: Text(
+                        widget.isFromEdit
+                            ? currentUserData['fields'][index]['label']
+                            : kHomeController.addFieldsModelList[index]['label'],
+                        style: FontStyleUtility.greyInter14W400,
+                      ),
+                      trailing: IconButton(
+                          onPressed: () {
+                            showAlertDialog(
+                                title: 'Delete?',
+                                msg: 'Are you sure you want to delete this field from social profile list?',
+                                context: context,
+                                callback: () async {
+                                  kHomeController.addFieldsModelList
+                                      .remove(kHomeController.addFieldsModelList[index]);
+
+                                  /// remove field and update list
+                                  // var userRef = FirebaseFirestore.instance
+                                  //     .doc('users/${kAuthenticationController.userId}');
+                                  userRef.update({'fields': kHomeController.addFieldsModelList}).whenComplete(() {
+                                    showLog('Remove data successfully...');
+                                  });
+                                });
+                          },
+                          icon: Icon(
+                            Icons.close,
+                            color: colorGrey,
+                            size: 22,
+                          )),
+                    );
+                  },
+                ),
+              ],
+            ),
+          )
+              : SizedBox.shrink();
+        });
+  }
+
+
+  Widget getNewFields() {
+    return kHomeController.addFieldsModelList.isNotEmpty
+        ? Padding(
+      padding: const EdgeInsets.only(top: 20),
+      child: Column(
+        children: [
+          Center(
+            child: Container(
+              margin: EdgeInsets.only(bottom: 20),
+              padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+              decoration: BoxDecoration(
+                  color: colorGrey.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(5)),
+              child: Text(
+                '- Your Fields -',
+                style: FontStyleUtility.blackInter16W500,
+              ),
+            ),
+          ),
+          ListView.builder(
+            shrinkWrap: true,
+            physics: ClampingScrollPhysics(),
+            itemCount: kHomeController.addFieldsModelList.length,
+            itemBuilder: (context, index) {
+              return ListTile(
+                leading: Container(
+                  height: 50,
+                  width: 50,
+                  padding: EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                      color: colorPrimary, borderRadius: BorderRadius.circular(100)),
+                  child: Image(
+                    image: getImage(
+                        index: index,
+                        fieldName: kHomeController.addFieldsModelList[index]['title']),
+                    color: colorWhite,
+                  ),
+                ),
+                title: Text(
+                  kHomeController.addFieldsModelList[index]['data'],
+                  style: FontStyleUtility.blackInter16W500,
+                ),
+                subtitle: Text(
+                  kHomeController.addFieldsModelList[index]['label'],
+                  style: FontStyleUtility.greyInter14W400,
+                ),
+                trailing: IconButton(
+                    onPressed: () {
+                      showAlertDialog(
+                          title: 'Delete?',
+                          msg:
+                          'Are you sure you want to delete this field from social profile list?',
+                          context: context,
+                          callback: () async {
+                            kHomeController.addFieldsModelList
+                                .remove(kHomeController.addFieldsModelList[index]);
+                          });
+                    },
+                    icon: Icon(
+                      Icons.close,
+                      color: colorGrey,
+                      size: 22,
+                    )),
+              );
+            },
+          ),
+        ],
+      ),
+    )
+        : SizedBox.shrink();
+  }
 }
 
 ExactAssetImage getImage({required int index, required String fieldName}) {
   return fieldName == 'Phone Number'
       ? phoneCall
       : fieldName == 'Email'
-          ? email
-          : fieldName == 'Link'
-              ? link
-              : fieldName == 'Location'
-                  ? location
-                  : fieldName == 'Company Website'
-                      ? website
-                      : fieldName == 'LinkedIn'
-                          ? linkedin
-                          : fieldName == 'Instagram'
-                              ? instagram
-                              : fieldName == 'Twitter'
-                                  ? twitter
-                                  : fieldName == 'Facebook'
-                                      ? facebook
-                                      : fieldName == 'Snapchat'
-                                          ? snapchat
-                                          : fieldName == 'Tiktok'
-                                              ? tiktok
-                                              : fieldName == 'YouTube'
-                                                  ? youtube
-                                                  : fieldName == 'Github'
-                                                      ? github
-                                                      : fieldName == 'Yelp'
-                                                          ? yelp
-                                                          : fieldName == 'Paypal'
-                                                              ? paypal
-                                                              : fieldName == 'Discord'
-                                                                  ? discord
-                                                                  : fieldName == 'Signal'
-                                                                      ? signal
-                                                                      : fieldName == 'Skype'
-                                                                          ? skype
-                                                                          : fieldName == 'Telegram'
-                                                                              ? telegram
-                                                                              : fieldName == 'Twitch'
-                                                                                  ? twitch
-                                                                                  : whatsapp;
+      ? email
+      : fieldName == 'Link'
+      ? link
+      : fieldName == 'Location'
+      ? location
+      : fieldName == 'Company Website'
+      ? website
+      : fieldName == 'LinkedIn'
+      ? linkedin
+      : fieldName == 'Instagram'
+      ? instagram
+      : fieldName == 'Twitter'
+      ? twitter
+      : fieldName == 'Facebook'
+      ? facebook
+      : fieldName == 'Snapchat'
+      ? snapchat
+      : fieldName == 'Tiktok'
+      ? tiktok
+      : fieldName == 'YouTube'
+      ? youtube
+      : fieldName == 'Github'
+      ? github
+      : fieldName == 'Yelp'
+      ? yelp
+      : fieldName == 'Paypal'
+      ? paypal
+      : fieldName == 'Discord'
+      ? discord
+      : fieldName == 'Signal'
+      ? signal
+      : fieldName == 'Skype'
+      ? skype
+      : fieldName == 'Telegram'
+      ? telegram
+      : fieldName == 'Twitch'
+      ? twitch
+      : whatsapp;
 }
 
 Widget commonSwitchRow({required String title, required RxBool enable}) {
