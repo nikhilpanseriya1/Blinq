@@ -47,9 +47,9 @@ class _SplashScreenState extends State<SplashScreen> {
 
     if (getIsLogin()) {
       kAuthenticationController.userId = getObject(PrefConstants.userId);
-      Timer(const Duration(seconds: 2), () => Get.to(() => const HomeScreen()));
+      Timer(const Duration(seconds: 2), () => Get.offAll(() => const HomeScreen()));
     } else {
-      Timer(const Duration(seconds: 2), () => Get.to(() => const StartScreen()));
+      Timer(const Duration(seconds: 2), () => Get.offAll(() => const StartScreen()));
     }
   }
 

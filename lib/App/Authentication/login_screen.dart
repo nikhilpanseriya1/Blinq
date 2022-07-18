@@ -14,7 +14,7 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final auth = FirebaseAuth.instance;
+  // final auth = FirebaseAuth.instance;
 
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
@@ -58,7 +58,7 @@ class _LoginScreenState extends State<LoginScreen> {
               title: 'Login',
               tapOnButton: () {
                 if (formKey.currentState!.validate()) {
-                  auth
+                  kAuthenticationController.userAuthentication
                       .signInWithEmailAndPassword(email: emailController.text, password: passwordController.text)
                       .then((val) {
                     /// save userId

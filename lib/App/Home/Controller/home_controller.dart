@@ -1,11 +1,16 @@
 import 'package:blinq/App/Home/Model/social_media_model.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
 
+import '../../../Utility/constants.dart';
 import '../../../Utility/utility_export.dart';
 
 class HomeController extends GetxController {
   RxList<String> cardId = <String>[].obs;
   bool getSubCards = true;
+  var userRef = FirebaseFirestore.instance.doc('users/${kAuthenticationController.userId}');
+  var mainUserData;
+  RxList<String> userContacts = <String>[].obs;
 
   // RxList<AddFieldsModel> addFieldsModelList = <AddFieldsModel>[].obs;
   RxList<Map<String, dynamic>> addFieldsModelList = <Map<String, dynamic>>[].obs;

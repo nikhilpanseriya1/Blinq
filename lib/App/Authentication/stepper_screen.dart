@@ -32,7 +32,8 @@ class _StepperScreenState extends State<StepperScreen> {
   RxBool isShowLocation = false.obs;
   RxBool isProfileChanged = false.obs;
   RxBool isLogoChanged = false.obs;
-  final auth = FirebaseAuth.instance;
+
+  // final auth = FirebaseAuth.instance;
 
   TextEditingController nameController = TextEditingController();
   TextEditingController lastNameController = TextEditingController();
@@ -110,7 +111,7 @@ class _StepperScreenState extends State<StepperScreen> {
               ///
               if (formKey.currentState!.validate()) {
                 if (selectedStep.value == 0) {
-                  auth
+                  kAuthenticationController.userAuthentication
                       .createUserWithEmailAndPassword(email: emailController.text, password: passwordController.text)
                       .then((value) {
                     // Get.offAll(() => const HomeScreen());
@@ -205,6 +206,7 @@ class _StepperScreenState extends State<StepperScreen> {
         'location': '',
         'company_logo': companyLogo,
         'profile_pic': profilePic,
+        'contacts': [],
         'cards': cards,
         'fields': kHomeController.addFieldsModelList
       }).whenComplete(() {
