@@ -42,6 +42,7 @@ class _SplashScreenState extends State<SplashScreen> {
           _sharedText = text;
           showLog('shred text CLOSE ====>>>  $_sharedText');
         });
+
       }
     });
 
