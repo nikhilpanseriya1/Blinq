@@ -12,6 +12,7 @@ class HomeController extends GetxController {
   var mainUserData;
   RxList<String> userContacts = <String>[].obs;
 
+
   // RxList<AddFieldsModel> addFieldsModelList = <AddFieldsModel>[].obs;
   RxList<Map<String, dynamic>> addFieldsModelList = <Map<String, dynamic>>[].obs;
 
