@@ -10,8 +10,10 @@ class HomeController extends GetxController {
   bool getSubCards = true;
   var userRef = FirebaseFirestore.instance.doc('users/${kAuthenticationController.userId}');
   var mainUserData;
-  RxList<String> userContacts = <String>[].obs;
+  bool getContacts = true;
+  // RxList<String> userContactsIds = <String>[].obs;
 
+  RxList<Map<String, dynamic>> userContacts = <Map<String, dynamic>>[].obs;
 
   // RxList<AddFieldsModel> addFieldsModelList = <AddFieldsModel>[].obs;
   RxList<Map<String, dynamic>> addFieldsModelList = <Map<String, dynamic>>[].obs;

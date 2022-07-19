@@ -117,8 +117,8 @@ class _YourCardScreenState extends State<YourCardScreen> {
                           cards.clear();
                           userData['cards'].forEach((element) {
                             cards.add(element);
-                            cards.refresh();
                           });
+                          cards.refresh();
                           showLog('~~~~~~~ $cards');
                           kHomeController.getSubCards = false;
                         }
@@ -382,7 +382,7 @@ class _YourCardScreenState extends State<YourCardScreen> {
                                 Divider(color: colorWhite.withOpacity(0.5)),
                                 commonSheetRow(
                                     callBack: () {
-                                      SaveQRImage(isDownloadImage: true);
+                                      SaveQRImage(isDownloadImage: true, globalKey: globalKey);
                                     },
                                     iconWidget: Image(image: photos, height: 25, width: 25),
                                     name: 'Save QR code to photos'),
@@ -439,44 +439,46 @@ class _YourCardScreenState extends State<YourCardScreen> {
     );
   }
 
-  openMail({required emailAddress}) async {
-    try {
-      launch("mailto:<$emailAddress>");
-    } catch (e) {
-      showLog('====---- $e');
+
+}
+
+openMail({required emailAddress}) async {
+  try {
+    launch("mailto:<$emailAddress>");
+  } catch (e) {
+    showLog('====---- $e');
+  }
+}
+
+void SaveQRImage({required bool isDownloadImage, required GlobalKey globalKey}) async {
+  try {
+    // final RenderRepaintBoundary boundary = globalKey.currentContext?.findRenderObject();
+    RenderRepaintBoundary? boundary = globalKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
+    final ui.Image? image = await boundary?.toImage();
+    final ByteData? byteData = await image?.toByteData(format: ui.ImageByteFormat.png);
+    final Uint8List pngBytes = byteData!.buffer.asUint8List();
+
+    // print(pngBytes);
+
+    final tempDir = await getApplicationDocumentsDirectory();
+    final file = await File('${tempDir.path}/${DateTime.now()}.png').create();
+    File file1 = await file.writeAsBytes(pngBytes);
+    if (isDownloadImage) {
+      myToast(message: 'Image Saved Successfully!', bgColor: colorWhite);
+    } else {
+      await Share.shareFiles([file1.path]);
     }
+  } catch (e) {
+    print(e);
   }
+}
 
-  String getFieldType({required String fileTitle}) {
-    return fileTitle == 'Phone Number' || fileTitle == 'Signal' || fileTitle == 'WhatsApp'
-        ? typePhone
-        : fileTitle == 'Email'
-            ? typeEmail
-            : fileTitle == 'Location' || fileTitle == 'Skype'
-                ? typeString
-                : typeLink;
-  }
-
-  void SaveQRImage({required bool isDownloadImage}) async {
-    try {
-      // final RenderRepaintBoundary boundary = globalKey.currentContext?.findRenderObject();
-      RenderRepaintBoundary? boundary = globalKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
-      final ui.Image? image = await boundary?.toImage();
-      final ByteData? byteData = await image?.toByteData(format: ui.ImageByteFormat.png);
-      final Uint8List pngBytes = byteData!.buffer.asUint8List();
-
-      // print(pngBytes);
-
-      final tempDir = await getApplicationDocumentsDirectory();
-      final file = await File('${tempDir.path}/${DateTime.now()}.png').create();
-      File file1 = await file.writeAsBytes(pngBytes);
-      if (isDownloadImage) {
-        myToast(message: 'Image Saved Successfully!', bgColor: colorWhite);
-      } else {
-        await Share.shareFiles([file1.path]);
-      }
-    } catch (e) {
-      print(e);
-    }
-  }
+String getFieldType({required String fileTitle}) {
+  return fileTitle == 'Phone Number' || fileTitle == 'Signal' || fileTitle == 'WhatsApp'
+      ? typePhone
+      : fileTitle == 'Email'
+          ? typeEmail
+          : fileTitle == 'Location' || fileTitle == 'Skype'
+              ? typeString
+              : typeLink;
 }

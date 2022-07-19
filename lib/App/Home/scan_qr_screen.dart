@@ -3,8 +3,10 @@ import 'dart:io';
 
 import 'package:blinq/Utility/utility_export.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 
@@ -22,6 +24,11 @@ class _ScanQrScreenState extends State<ScanQrScreen> {
   QRViewController? controller;
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
   bool isValidQr = true;
+  var userContactData;
+
+  var addNewContact;
+
+  RxBool addUserCall = false.obs;
 
   // In order to get hot reload to work we need to pause the camera if the platform
   // is android, or resume the camera if the platform is iOS.
@@ -99,10 +106,13 @@ class _ScanQrScreenState extends State<ScanQrScreen> {
                           child: FutureBuilder(
                             future: controller?.getCameraInfo(),
                             builder: (context, snapshot) {
-                              return Icon(
-                                Icons.switch_camera,
-                                size: 20,
-                              );
+                              if (snapshot.data != null)
+                                return Icon(
+                                  Icons.switch_camera,
+                                  size: 20,
+                                );
+                              else
+                                return SizedBox();
                               // if (snapshot.data != null) {
                               //   return Text(
                               //       'Camera facing ${describeEnum(snapshot.data!)}');
@@ -165,38 +175,78 @@ class _ScanQrScreenState extends State<ScanQrScreen> {
     // setState(() {
     this.controller = controller;
     // });
-    controller.scannedDataStream.listen((scanData) {
+    List<String> contactsId = [];
+    controller.scannedDataStream.listen((scanData) async {
       result = scanData;
 
       if (result != null) {
         String sharedCardId = result!.code.toString();
+        // String sharedCardId = '2rUK0sPS6PUrHFvByKabWm9RyGv2';
+
+        // userContactData = FirebaseFirestore.instance.doc('users/$sharedCardId');
 
         try {
           if (kHomeController.mainUserData['contacts'].isNotEmpty) {
             kHomeController.userContacts.clear();
             kHomeController.mainUserData['contacts'].forEach((element) {
-              kHomeController.userContacts.add(element);
+              /// for check is already exist or not
+              contactsId.add(element['id']);
+
+              /// add contacts data
+              kHomeController.userContacts.add({
+                'id': element['id'],
+                'profile_pic': element['profile_pic'],
+                'first_name': element['first_name'],
+                'last_name': element['last_name'],
+                'job_title': element['job_title'],
+                'company_name': element['company_name']
+              });
             });
           }
 
           if (isValidQr) {
-            if (kHomeController.userContacts.contains(sharedCardId)) {
-              showSnackBar(message: 'You already added this contact', color: Colors.red);
+            if (contactsId.contains(sharedCardId)) {
+              // showSnackBar(message: 'You already added this contact', color: Colors.red);
+              myToast(
+                  message: 'You already added this contact!',
+                  bgColor: Colors.red,
+                  textColor: colorWhite,
+                  toastLength: Toast.LENGTH_LONG);
               isValidQr = false;
               Get.back();
               return;
             } else {
-              kHomeController.userContacts.add(sharedCardId);
-              if (kHomeController.userContacts.isNotEmpty) {
-                kHomeController.userRef.update({'contacts': kHomeController.userContacts}).whenComplete(() async {
-                  kHomeController.getSubCards = true;
-                  showLog('contact added successfully...');
+              /// Add New Contact
+
+              FirebaseFirestore.instance.collection('users').doc(sharedCardId).get().then((value) {
+                kHomeController.userContacts.add({
+                  'id': sharedCardId,
+                  'profile_pic': value['profile_pic'],
+                  'first_name': value['first_name'],
+                  'last_name': value['last_name'],
+                  'job_title': value['job_title'],
+                  'company_name': value['company_name']
                 });
-              }
+
+                if (kHomeController.userContacts.isNotEmpty) {
+                  kHomeController.userRef.update({'contacts': kHomeController.userContacts}).whenComplete(() async {
+                    kHomeController.getContacts = true;
+
+                    myToast(
+                        message: 'Contact added successfully...',
+                        bgColor: colorGreen,
+                        textColor: colorWhite,
+                        toastLength: Toast.LENGTH_LONG);
+                    isValidQr = false;
+                    Get.back();
+                    showLog('contact added successfully...');
+                    // callBack();
+                  });
+                }
+              });
             }
           }
-
-          Get.back();
+          // Get.back();
           return;
         } catch (e) {
           print(e);
@@ -222,4 +272,68 @@ class _ScanQrScreenState extends State<ScanQrScreen> {
     controller?.dispose();
     super.dispose();
   }
+
+/* Widget addNewContactData({required String cardId, required Function callBack}) {
+    // addNewContact = FirebaseFirestore.instance.collection('users/$cardId').snapshots();
+    return StreamBuilder(
+      stream: FirebaseFirestore.instance.collection('users/$cardId').snapshots(),
+      builder: (context, snapshot) {
+        try {
+          if (snapshot.hasError) {
+            return StreamBuilder<Object>(
+                stream: null,
+                builder: (context, snapshot) {
+                  return Center(child: Text('Something went wrong'));
+                });
+          }
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: (Text('Loading...')));
+          }
+
+          userContactData = snapshot.requireData;
+
+          kHomeController.userContacts.add({
+            'id': result!.code.toString(),
+            'profile_pic': userContactData['profile_pic'],
+            'first_name': userContactData['first_name'],
+            'last_name': userContactData['last_name'],
+            'job_title': userContactData['job_title'],
+            'company_name': userContactData['company_name']
+          });
+
+          // kHomeController.userContacts.add(sharedCardId);
+          if (kHomeController.userContacts.isNotEmpty) {
+            kHomeController.userRef.update({'contacts': kHomeController.userContacts}).whenComplete(() async {
+              kHomeController.getContacts = true;
+              isValidQr = false;
+              myToast(
+                  message: 'Contact added successfully...',
+                  bgColor: colorGreen,
+                  textColor: colorWhite,
+                  toastLength: Toast.LENGTH_LONG);
+              showLog('contact added successfully...');
+              // callBack();
+            });
+          }
+        } catch (e) {
+          showLog(e);
+        }
+
+        // if (kHomeController.getSubCards) {
+        //   if (userData['cards'].isNotEmpty) {
+        //     cards.clear();
+        //     userData['cards'].forEach((element) {
+        //       cards.add(element);
+        //     });
+        //     cards.refresh();
+        //     showLog('~~~~~~~ $cards');
+        //     kHomeController.getSubCards = false;
+        //   }
+        // }
+        return SizedBox();
+
+        // final userDoc = await usersCollection.doc(userId).get();
+      },
+    );
+  }*/
 }

@@ -333,14 +333,14 @@ commonCountryCodePicker({
   });
 }
 
-void myToast({required String message, Color? bgColor, Toast? toastLength}) {
+void myToast({required String message, Color? bgColor, Color? textColor,Toast? toastLength}) {
   Fluttertoast.showToast(
       msg: message,
       toastLength: toastLength ?? Toast.LENGTH_SHORT,
       gravity: ToastGravity.BOTTOM,
       timeInSecForIosWeb: 1,
       backgroundColor: bgColor ?? Colors.grey,
-      textColor: Colors.black,
+      textColor: textColor ?? Colors.black,
       fontSize: 16.0);
 }
 

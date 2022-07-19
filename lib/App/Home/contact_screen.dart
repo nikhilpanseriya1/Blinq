@@ -4,8 +4,10 @@ import 'package:blinq/Utility/utility_export.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:velocity_x/velocity_x.dart';
 
 import 'home_screen.dart';
+import 'view_contact_screen.dart';
 
 class ContactScreen extends StatefulWidget {
   const ContactScreen({Key? key}) : super(key: key);
@@ -16,6 +18,14 @@ class ContactScreen extends StatefulWidget {
 
 class _ContactScreenState extends State<ContactScreen> {
   TextEditingController searchController = TextEditingController();
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+    showLog('Call Contact Screen......');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -50,48 +60,101 @@ class _ContactScreenState extends State<ContactScreen> {
 
                   // userData = snapshot.requireData;
                   kHomeController.mainUserData = snapshot.requireData;
-
-                  // if (kHomeController.mainUserData['contacts'].isNotEmpty) {
-                  //   kHomeController.userContacts.clear();
-                  //   kHomeController.mainUserData['contacts'].forEach((element) {
-                  //     kHomeController.userContacts.add(element);
-                  //     kHomeController.userContacts.refresh();
-                  //   });
-                  //   showLog('~~~~~~~ ${kHomeController.userContacts}');
-                  // }
+                  if (kHomeController.getContacts) {
+                    if (kHomeController.mainUserData['contacts'].isNotEmpty) {
+                      kHomeController.userContacts.clear();
+                      kHomeController.mainUserData['contacts'].forEach((element) {
+                        kHomeController.userContacts.add({
+                          'id': element['id'],
+                          'profile_pic': element['profile_pic'],
+                          'first_name': element['first_name'],
+                          'last_name': element['last_name'],
+                          'job_title': element['job_title'],
+                          'company_name': element['company_name']
+                        });
+                      });
+                      kHomeController.userContacts.refresh();
+                      showLog('~~~~~~~-- ${kHomeController.userContacts}');
+                      kHomeController.getContacts = false;
+                    }
+                  }
 
                   return Expanded(
                     child: ListView.builder(
                       shrinkWrap: true,
                       physics: ClampingScrollPhysics(),
-                      itemCount: 15,
+                      itemCount: kHomeController.userContacts.length,
                       itemBuilder: (context, index) {
                         return Padding(
                           padding: const EdgeInsets.only(top: 10),
-                          child: ListTile(
-                            contentPadding: EdgeInsets.zero,
-                            leading: ClipRRect(
-                              borderRadius: BorderRadius.circular(100),
-                              child: CachedNetworkImage(
-                                height: 55,
-                                width: 55,
-                                fit: BoxFit.cover,
-                                imageUrl: userData['profile_pic'],
-                                placeholder: (context, url) => Image(
-                                  image: profilePlaceholder,
+                          child: InkWell(
+                            highlightColor: colorWhite,
+                            splashColor: colorWhite,
+                            onTap: () {
+                              if (kHomeController.userContacts[index]['id'] != null &&
+                                  kHomeController.userContacts[index]['id'].toString().isNotEmpty) {
+                                Get.to(
+                                    () => ViewContactScreen(contactCardId: kHomeController.userContacts[index]['id']));
+                              }
+                            },
+                            child: ListTile(
+                              contentPadding: EdgeInsets.zero,
+                              leading: ClipRRect(
+                                borderRadius: BorderRadius.circular(100),
+                                child: CachedNetworkImage(
+                                  height: 55,
+                                  width: 55,
                                   fit: BoxFit.cover,
-                                ),
-                                errorWidget: (context, url, error) => Image(
-                                  image: profilePlaceholder,
-                                  fit: BoxFit.cover,
+                                  imageUrl: kHomeController.userContacts[index]['profile_pic'],
+                                  placeholder: (context, url) => Image(
+                                    image: profilePlaceholder,
+                                    fit: BoxFit.cover,
+                                  ),
+                                  errorWidget: (context, url, error) => Image(
+                                    image: profilePlaceholder,
+                                    fit: BoxFit.cover,
+                                  ),
                                 ),
                               ),
-                            ),
-                            title: Text(userData['first_name'] + ' ' + userData['last_name']),
-                            subtitle: Text(userData['job_title'] + ' - ' + userData['company_name']),
-                            trailing: IconButton(
-                              onPressed: () {},
-                              icon: Icon(Icons.more_vert),
+                              title: Text(kHomeController.userContacts[index]['first_name'] +
+                                  ' ' +
+                                  kHomeController.userContacts[index]['last_name']),
+                              subtitle: Text(kHomeController.userContacts[index]['job_title'] +
+                                  ' - ' +
+                                  kHomeController.userContacts[index]['company_name']),
+                              trailing: PopupMenuButton(
+                                icon: Icon(Icons.more_vert),
+                                itemBuilder: (BuildContext context) {
+                                  return [
+                                    PopupMenuItem(
+                                      value: 1,
+                                      child: Row(
+                                        children: [
+                                          Icon(Icons.remove_red_eye),
+                                          10.widthBox,
+                                          Text(
+                                            'View card',
+                                            style: FontStyleUtility.blackInter14W400,
+                                          )
+                                        ],
+                                      ),
+                                    ),
+                                    PopupMenuItem(
+                                      value: 2,
+                                      child: Row(
+                                        children: [
+                                          Icon(Icons.delete),
+                                          10.widthBox,
+                                          Text(
+                                            'Delete contact',
+                                            style: FontStyleUtility.blackInter14W400,
+                                          )
+                                        ],
+                                      ),
+                                    ),
+                                  ];
+                                },
+                              ),
                             ),
                           ),
                         );
