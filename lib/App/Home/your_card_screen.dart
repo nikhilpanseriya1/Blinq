@@ -59,6 +59,7 @@ class _YourCardScreenState extends State<YourCardScreen> {
             )),
         IconButton(
             onPressed: () {
+              showLog('--------- >>> ${cards[currentIndex.value]}');
               Get.to(() => EditScreen(isFromEdit: true, cardId: cards[currentIndex.value]));
             },
             icon: const Icon(

@@ -186,25 +186,31 @@ class _ScanQrScreenState extends State<ScanQrScreen> {
         // userContactData = FirebaseFirestore.instance.doc('users/$sharedCardId');
 
         try {
-          if (kHomeController.mainUserData['contacts'].isNotEmpty) {
-            kHomeController.userContacts.clear();
-            kHomeController.mainUserData['contacts'].forEach((element) {
-              /// for check is already exist or not
-              contactsId.add(element['id']);
-
-              /// add contacts data
-              kHomeController.userContacts.add({
-                'id': element['id'],
-                'profile_pic': element['profile_pic'],
-                'first_name': element['first_name'],
-                'last_name': element['last_name'],
-                'job_title': element['job_title'],
-                'company_name': element['company_name']
-              });
-            });
-          }
-
           if (isValidQr) {
+            if (kHomeController.mainUserData['contacts'].isNotEmpty) {
+              kHomeController.userContacts.clear();
+              kHomeController.mainUserData['contacts'].forEach((element) {
+                /// for check is already exist or not
+                if (!contactsId.contains(element['id'])) {
+                  contactsId.add(element['id']);
+                }
+
+                /// add contacts data
+                kHomeController.userContacts.add({
+                  'id': element['id'],
+                  'profile_pic': element['profile_pic'],
+                  'first_name': element['first_name'],
+                  'last_name': element['last_name'],
+                  'job_title': element['job_title'],
+                  'company_name': element['company_name']
+                });
+              });
+            }
+
+            showLog('=====>>>> ${contactsId.contains(sharedCardId)}');
+            showLog('=====>>>> ${contactsId}');
+            showLog('=====>>>> ${sharedCardId}');
+
             if (contactsId.contains(sharedCardId)) {
               // showSnackBar(message: 'You already added this contact', color: Colors.red);
               myToast(
@@ -217,6 +223,8 @@ class _ScanQrScreenState extends State<ScanQrScreen> {
               return;
             } else {
               /// Add New Contact
+
+              isValidQr = false;
 
               FirebaseFirestore.instance.collection('users').doc(sharedCardId).get().then((value) {
                 kHomeController.userContacts.add({
@@ -231,13 +239,12 @@ class _ScanQrScreenState extends State<ScanQrScreen> {
                 if (kHomeController.userContacts.isNotEmpty) {
                   kHomeController.userRef.update({'contacts': kHomeController.userContacts}).whenComplete(() async {
                     kHomeController.getContacts = true;
-
                     myToast(
                         message: 'Contact added successfully...',
                         bgColor: colorGreen,
                         textColor: colorWhite,
                         toastLength: Toast.LENGTH_LONG);
-                    isValidQr = false;
+                    // isValidQr = false;
                     Get.back();
                     showLog('contact added successfully...');
                     // callBack();

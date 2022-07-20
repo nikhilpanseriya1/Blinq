@@ -380,12 +380,12 @@ class _EditScreenState extends State<EditScreen> {
                             StreamBuilder(
                                 stream: userRef.snapshots(),
                                 builder: (context, snapshot) {
-                                  // if (snapshot.hasError) {
-                                  //   return Text('Something went wrong');
-                                  // }
-                                  // if (snapshot.connectionState == ConnectionState.waiting) {
-                                  //   return (Text('Loading...'));
-                                  // }
+                                  if (snapshot.hasError) {
+                                    return Text('Something went wrong');
+                                  }
+                                  if (snapshot.connectionState == ConnectionState.waiting) {
+                                    return (Text('Loading...'));
+                                  }
                                   currentUserData = snapshot.requireData;
                                   if (widget.isFromEdit) {
                                     kHomeController.addFieldsModelList.clear();
@@ -459,6 +459,7 @@ class _EditScreenState extends State<EditScreen> {
                                                         msg: 'Are you sure you want to delete this field from social profile list?',
                                                         context: context,
                                                         callback: () async {
+
                                                           kHomeController.addFieldsModelList
                                                               .remove(kHomeController.addFieldsModelList[index]);
 

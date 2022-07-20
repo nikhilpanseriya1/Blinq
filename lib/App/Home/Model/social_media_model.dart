@@ -18,3 +18,13 @@ class AddFieldsModel {
 
   AddFieldsModel({required this.data, required this.label, required this.title});
 }
+
+
+class contactList {
+  String name;
+  String companyName;
+  String jobTitle;
+  String profilePic;
+
+  contactList({required this.name, required this.companyName, required this.jobTitle, required this.profilePic});
+}

@@ -2,6 +2,7 @@ import 'package:blinq/App/Home/scan_qr_screen.dart';
 import 'package:blinq/Utility/constants.dart';
 import 'package:blinq/Utility/utility_export.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:velocity_x/velocity_x.dart';
@@ -58,6 +59,7 @@ class _ContactScreenState extends State<ContactScreen> {
                     return Center(child: (Text('Loading...')));
                   }
 
+                  print('recalling....');
                   // userData = snapshot.requireData;
                   kHomeController.mainUserData = snapshot.requireData;
                   if (kHomeController.getContacts) {
@@ -128,6 +130,16 @@ class _ContactScreenState extends State<ContactScreen> {
                                   return [
                                     PopupMenuItem(
                                       value: 1,
+                                      onTap: () {
+                                        print('asdakjdksklfksfg vdfdsfdsdddddddd');
+                                        print(kHomeController.userContacts[index]['id']);
+
+                                        if (kHomeController.userContacts[index]['id'] != null &&
+                                            kHomeController.userContacts[index]['id'].toString().isNotEmpty) {
+                                          Get.to(() => ViewContactScreen(
+                                              contactCardId: kHomeController.userContacts[index]['id']));
+                                        }
+                                      },
                                       child: Row(
                                         children: [
                                           Icon(Icons.remove_red_eye),
@@ -141,6 +153,16 @@ class _ContactScreenState extends State<ContactScreen> {
                                     ),
                                     PopupMenuItem(
                                       value: 2,
+                                      onTap: () {
+                                        showAlertDialog(
+                                            title: 'Delete contact?',
+                                            msg:
+                                                'Are you sure you want to delete this contact?, after delete this contact you can\'t access this contacts details!',
+                                            context: context,
+                                            callback: () {
+                                              deleteContact(index);
+                                            });
+                                      },
                                       child: Row(
                                         children: [
                                           Icon(Icons.delete),
@@ -175,5 +197,30 @@ class _ContactScreenState extends State<ContactScreen> {
           ),
           icon: const Icon(Icons.qr_code_scanner),
         ));
+  }
+
+  void deleteContact(int index) {
+    if (kHomeController.mainUserData['contacts'].isNotEmpty) {
+      kHomeController.userContacts.clear();
+      kHomeController.mainUserData['contacts'].forEach((element) {
+        kHomeController.userContacts.add({
+          'id': element['id'],
+          'profile_pic': element['profile_pic'],
+          'first_name': element['first_name'],
+          'last_name': element['last_name'],
+          'job_title': element['job_title'],
+          'company_name': element['company_name']
+        });
+      });
+      kHomeController.userContacts.refresh();
+      showLog('~~~~~~~-- ${kHomeController.userContacts}');
+      kHomeController.getContacts = true;
+    }
+
+    kHomeController.userContacts.remove(index);
+
+    kHomeController.userRef.update({'contacts': kHomeController.userContacts}).whenComplete(() async {
+      showLog('Delete successfully...');
+    });
   }
 }
