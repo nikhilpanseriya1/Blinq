@@ -36,7 +36,6 @@ class _ViewContactScreenState extends State<ViewContactScreen> {
     try {
       // Get reference to Firestore collection
       var collectionRef = FirebaseFirestore.instance.collection('users');
-
       var doc = await collectionRef.doc(docId).get();
 
       isDocExist.value = doc.exists;
@@ -44,7 +43,6 @@ class _ViewContactScreenState extends State<ViewContactScreen> {
       if (!isDocExist.value) {
         loadingMsg = 'This card has been deleted by creator..!';
       }
-
       return doc.exists;
     } catch (e) {
       throw e;
