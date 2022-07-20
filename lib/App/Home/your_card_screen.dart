@@ -5,12 +5,14 @@ import 'dart:ui' as ui;
 import 'package:blinq/App/Authentication/start_screen.dart';
 import 'package:blinq/App/Home/edit_screen.dart';
 import 'package:blinq/App/Home/home_screen.dart';
+import 'package:blinq/App/Home/share_screen.dart';
 import 'package:blinq/Utility/constants.dart';
 import 'package:blinq/Utility/utility_export.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
@@ -279,7 +281,9 @@ class _YourCardScreenState extends State<YourCardScreen> {
                                         String type = getFieldType(fileTitle: userData['fields'][index]['title']);
 
                                         if (type == typeEmail) {
-                                          openMail(emailAddress: userData['fields'][index]['data']);
+                                          openMail(
+                                            emailAddress: userData['fields'][index]['data'],
+                                          );
                                         } else if (type == typePhone) {
                                           final Uri launchUri = Uri(
                                             scheme: 'tel',
@@ -386,15 +390,32 @@ class _YourCardScreenState extends State<YourCardScreen> {
                                   textAlign: TextAlign.center,
                                 ),
                                 20.heightBox,
-                                commonSheetRow(callBack: () {
+                                commonSheetRow(
+                                    callBack: () {
+                                      Clipboard.setData(ClipboardData(
+                                          text:
+                                              '${userData['first_name']} ${userData['last_name']}\'s $appName card. Copy this id and add card on $appName \n\n ${kHomeController.cards[currentIndex.value]}'));
 
-                                }, icon: Icons.copy, name: 'Copy link'),
-                                commonSheetRow(callBack: () {
-
-                                }, icon: Icons.message, name: 'Text your card'),
-                                commonSheetRow(callBack: () {
-
-                                }, icon: Icons.email, name: 'Mail your card'),
+                                      myToast(message: 'Copy card');
+                                    },
+                                    icon: Icons.copy,
+                                    name: 'Copy link'),
+                                commonSheetRow(
+                                    callBack: () {
+                                      Get.back();
+                                      Get.to(() => ShareScreen(cardId: kHomeController.cards[currentIndex.value]));
+                                    },
+                                    icon: Icons.message,
+                                    name: 'Text your card'),
+                                commonSheetRow(
+                                    callBack: () {
+                                      openMail(
+                                          emailAddress: kHomeController.cards[currentIndex.value],
+                                          msg:
+                                              '${userData['first_name']} ${userData['last_name']}\'s $appName card. Copy this id and add card on $appName \n\n ${kHomeController.cards[currentIndex.value]}');
+                                    },
+                                    icon: Icons.email,
+                                    name: 'Mail your card'),
                                 // commonSheetRow(
                                 //     callBack: () {},
                                 //     iconWidget: Image(image: whatsappShare, height: 25, width: 25),
@@ -485,14 +506,6 @@ class _YourCardScreenState extends State<YourCardScreen> {
   }
 }
 
-openMail({required emailAddress}) async {
-  try {
-    launch("mailto:<$emailAddress>");
-  } catch (e) {
-    showLog('====---- $e');
-  }
-}
-
 void SaveQRImage({required bool isDownloadImage, required GlobalKey globalKey}) async {
   try {
     // final RenderRepaintBoundary boundary = globalKey.currentContext?.findRenderObject();
@@ -509,12 +522,13 @@ void SaveQRImage({required bool isDownloadImage, required GlobalKey globalKey}) 
     if (isDownloadImage) {
       myToast(message: 'Image Saved Successfully!', bgColor: colorWhite);
     } else {
-      await Share.shareFiles([file1.path]);
+      await Share.shareFiles([file1.path], text: 'Connect this card with $appName.');
     }
   } catch (e) {
     print(e);
   }
 }
+
 
 String getFieldType({required String fileTitle}) {
   return fileTitle == 'Phone Number' || fileTitle == 'Signal' || fileTitle == 'WhatsApp'

@@ -5,9 +5,11 @@ import 'package:blinq/Utility/utility_export.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:validators/validators.dart';
 
 import '../main.dart';
@@ -346,3 +348,45 @@ Future uploadFile({required String filePath, required bool isProfile}) async {
     return '';
   }
 }
+
+
+
+openMail({required emailAddress, String? msg}) async {
+  try {
+    // launch('mailto:<$emailAddress>');
+    final Uri emailLaunchUri = Uri(
+      scheme: 'mailto',
+      path: '$emailAddress',
+      query: encodeQueryParameters(<String, String>{
+        'subject': msg ?? '',
+      }),
+    );
+    launchUrl(emailLaunchUri);
+  } catch (e) {
+    showLog('====---- $e');
+  }
+}
+
+String? encodeQueryParameters(Map<String, String> params) {
+  return params.entries
+      .map((MapEntry<String, String> e) =>
+  '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}')
+      .join('&');
+}
+
+sendSms({required String msg, required String contactNumber}) {
+  print("SendSMS");
+  try {
+    final Uri smsLaunchUri = Uri(
+      scheme: 'sms',
+      path: '$contactNumber',
+      queryParameters: <String, String>{
+        'body': msg,
+      },
+    );
+    launchUrl(smsLaunchUri);
+  } on PlatformException catch (e) {
+    print(e.toString());
+  }
+}
+

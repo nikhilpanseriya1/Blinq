@@ -69,8 +69,7 @@ Widget searchCommonRow(
       Row(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          SizedBox(
-              width: 100, child: Text(title, style: titleTextStyle ?? FontStyleUtility.blackInter14W500)),
+          SizedBox(width: 100, child: Text(title, style: titleTextStyle ?? FontStyleUtility.blackInter14W500)),
           suffix,
         ],
       ),
@@ -82,8 +81,7 @@ Widget searchCommonRow(
   );
 }
 
-Widget commonInboxCard(
-    {required String text, required String timeText, Widget? suffixImage, Color? backgroundColor}) {
+Widget commonInboxCard({required String text, required String timeText, Widget? suffixImage, Color? backgroundColor}) {
   return Padding(
     padding: const EdgeInsets.only(top: 10, bottom: 10),
     child: Container(
@@ -127,14 +125,11 @@ Widget introScreenCommonRow({required String text, bool? isSelected}) {
     alignment: Alignment.centerLeft,
     decoration: BoxDecoration(
         color: isSelected ?? false ? colorPrimary.withOpacity(0.1) : colorWhite,
-        border: isSelected ?? false
-            ? Border.all(color: colorPrimary)
-            : Border.all(color: colorBlack.withOpacity(0.1)),
+        border: isSelected ?? false ? Border.all(color: colorPrimary) : Border.all(color: colorBlack.withOpacity(0.1)),
         borderRadius: BorderRadius.circular(5)),
     child: Padding(
       padding: const EdgeInsets.only(left: 10, right: 10),
-      child: Text(
-           text,
+      child: Text(text,
           style: FontStyleUtility.greyInter14W500
               .copyWith(fontWeight: isSelected ?? false ? FontWeight.w600 : FontWeight.w500)),
     ),
@@ -166,8 +161,7 @@ Widget loginFlowCommonBottomBar(
               text: TextSpan(children: [
                 TextSpan(text: textSpanMessage, style: FontStyleUtility.blackInter16W500),
                 TextSpan(
-                    text: " $textSpanClick",
-                    style: FontStyleUtility.blackInter16W500.copyWith(color: colorPrimary))
+                    text: " $textSpanClick", style: FontStyleUtility.blackInter16W500.copyWith(color: colorPrimary))
               ]),
             ),
           ),
@@ -211,10 +205,7 @@ Widget commonProfileRow({required Widget title, Widget? subTitle, required Funct
 }
 
 Future<void> showAlertDialog(
-    {required String title,
-    required String msg,
-    required BuildContext context,
-    required Function() callback}) async {
+    {required String title, required String msg, required BuildContext context, required Function() callback}) async {
   return showDialog<void>(
     context: context,
     barrierDismissible: false, // user must tap button!
@@ -333,13 +324,13 @@ commonCountryCodePicker({
   });
 }
 
-void myToast({required String message, Color? bgColor, Color? textColor,Toast? toastLength}) {
+void myToast({required String message, Color? bgColor, Color? textColor, Toast? toastLength}) {
   Fluttertoast.showToast(
       msg: message,
       toastLength: toastLength ?? Toast.LENGTH_SHORT,
       gravity: ToastGravity.BOTTOM,
       timeInSecForIosWeb: 1,
-      backgroundColor: bgColor ?? Colors.grey,
+      backgroundColor: bgColor ?? Colors.white.withOpacity(0.7),
       textColor: textColor ?? Colors.black,
       fontSize: 16.0);
 }
