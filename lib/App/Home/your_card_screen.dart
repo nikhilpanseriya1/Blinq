@@ -386,9 +386,15 @@ class _YourCardScreenState extends State<YourCardScreen> {
                                   textAlign: TextAlign.center,
                                 ),
                                 20.heightBox,
-                                commonSheetRow(callBack: () {}, icon: Icons.copy, name: 'Copy link'),
-                                commonSheetRow(callBack: () {}, icon: Icons.message, name: 'Text your card'),
-                                commonSheetRow(callBack: () {}, icon: Icons.email, name: 'Mail your card'),
+                                commonSheetRow(callBack: () {
+
+                                }, icon: Icons.copy, name: 'Copy link'),
+                                commonSheetRow(callBack: () {
+
+                                }, icon: Icons.message, name: 'Text your card'),
+                                commonSheetRow(callBack: () {
+
+                                }, icon: Icons.email, name: 'Mail your card'),
                                 // commonSheetRow(
                                 //     callBack: () {},
                                 //     iconWidget: Image(image: whatsappShare, height: 25, width: 25),
