@@ -32,15 +32,18 @@ class _ContactScreenState extends State<ContactScreen> {
   Widget build(BuildContext context) {
     return commonStructure(
         context: context,
-        appBar: commonAppBar(leadingIcon: SizedBox(), title: 'Contacts', actionWidgets: [
-          IconButton(
-              onPressed: () {},
-              icon: const Icon(
-                Icons.error_outline,
-                color: colorPrimary,
-                size: 22,
-              )),
-        ]),
+        appBar: commonAppBar(
+            leadingIcon: SizedBox(),
+            title: 'Contacts',
+            actionWidgets: [
+              IconButton(
+                  onPressed: () {},
+                  icon: const Icon(
+                    Icons.error_outline,
+                    color: colorPrimary,
+                    size: 22,
+                  )),
+            ]),
         child: Column(
           children: [
             commonTextField(
@@ -65,7 +68,8 @@ class _ContactScreenState extends State<ContactScreen> {
                   if (kHomeController.getContacts) {
                     if (kHomeController.mainUserData['contacts'].isNotEmpty) {
                       kHomeController.userContacts.clear();
-                      kHomeController.mainUserData['contacts'].forEach((element) {
+                      kHomeController.mainUserData['contacts']
+                          .forEach((element) {
                         kHomeController.userContacts.add({
                           'id': element['id'],
                           'profile_pic': element['profile_pic'],
@@ -93,88 +97,117 @@ class _ContactScreenState extends State<ContactScreen> {
                             highlightColor: colorWhite,
                             splashColor: colorWhite,
                             onTap: () {
-                              if (kHomeController.userContacts[index]['id'] != null &&
-                                  kHomeController.userContacts[index]['id'].toString().isNotEmpty) {
-                                Get.to(
-                                    () => ViewContactScreen(contactCardId: kHomeController.userContacts[index]['id']));
+                              if (kHomeController.userContacts[index]['id'] !=
+                                      null &&
+                                  kHomeController.userContacts[index]['id']
+                                      .toString()
+                                      .isNotEmpty) {
+                                Get.to(() => ViewContactScreen(
+                                    contactCardId: kHomeController
+                                        .userContacts[index]['id']));
                               }
                             },
                             child: ListTile(
                               contentPadding: EdgeInsets.zero,
                               leading: ClipRRect(
                                 borderRadius: BorderRadius.circular(100),
-                                child: CachedNetworkImage(
-                                  height: 55,
-                                  width: 55,
-                                  fit: BoxFit.cover,
-                                  imageUrl: kHomeController.userContacts[index]['profile_pic'],
-                                  placeholder: (context, url) => Image(
-                                    image: profilePlaceholder,
-                                    fit: BoxFit.cover,
-                                  ),
-                                  errorWidget: (context, url, error) => Image(
-                                    image: profilePlaceholder,
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
+                                child: kHomeController.userContacts[index]
+                                                ['profile_pic'] ==
+                                            null ||
+                                        kHomeController.userContacts[index]
+                                                ['profile_pic']
+                                            .toString()
+                                            .isEmpty
+                                    ? Image(
+                                        image: profilePlaceholder,
+                                        fit: BoxFit.cover,
+                                      )
+                                    : CachedNetworkImage(
+                                        height: 55,
+                                        width: 55,
+                                        fit: BoxFit.cover,
+                                        imageUrl: kHomeController
+                                            .userContacts[index]['profile_pic'],
+                                        placeholder: (context, url) => Image(
+                                          image: profilePlaceholder,
+                                          fit: BoxFit.cover,
+                                        ),
+                                        errorWidget: (context, url, error) =>
+                                            Image(
+                                          image: profilePlaceholder,
+                                          fit: BoxFit.cover,
+                                        ),
+                                      ),
                               ),
-                              title: Text(kHomeController.userContacts[index]['first_name'] +
+                              title: Text(kHomeController.userContacts[index]
+                                      ['first_name'] +
                                   ' ' +
-                                  kHomeController.userContacts[index]['last_name']),
-                              subtitle: Text(kHomeController.userContacts[index]['job_title'] +
+                                  kHomeController.userContacts[index]
+                                      ['last_name']),
+                              subtitle: Text(kHomeController.userContacts[index]
+                                      ['job_title'] +
                                   ' - ' +
-                                  kHomeController.userContacts[index]['company_name']),
+                                  kHomeController.userContacts[index]
+                                      ['company_name']),
                               trailing: PopupMenuButton(
                                 icon: Icon(Icons.more_vert),
                                 itemBuilder: (BuildContext context) {
                                   return [
                                     PopupMenuItem(
                                       value: 1,
-                                      onTap: () {
-                                        print('asdakjdksklfksfg vdfdsfdsdddddddd');
-                                        print(kHomeController.userContacts[index]['id']);
-
-                                        if (kHomeController.userContacts[index]['id'] != null &&
-                                            kHomeController.userContacts[index]['id'].toString().isNotEmpty) {
-                                          Get.to(() => ViewContactScreen(
-                                              contactCardId: kHomeController.userContacts[index]['id']));
-                                        }
-                                      },
+                                      onTap: () {},
                                       child: Row(
                                         children: [
                                           Icon(Icons.remove_red_eye),
                                           10.widthBox,
                                           Text(
                                             'View card',
-                                            style: FontStyleUtility.blackInter14W400,
+                                            style: FontStyleUtility
+                                                .blackInter14W400,
                                           )
                                         ],
                                       ),
                                     ),
                                     PopupMenuItem(
                                       value: 2,
-                                      onTap: () {
-                                        showAlertDialog(
-                                            title: 'Delete contact?',
-                                            msg:
-                                                'Are you sure you want to delete this contact?, after delete this contact you can\'t access this contacts details!',
-                                            context: context,
-                                            callback: () {
-                                              deleteContact(index);
-                                            });
-                                      },
+                                      onTap: () {},
                                       child: Row(
                                         children: [
                                           Icon(Icons.delete),
                                           10.widthBox,
                                           Text(
                                             'Delete contact',
-                                            style: FontStyleUtility.blackInter14W400,
+                                            style: FontStyleUtility
+                                                .blackInter14W400,
                                           )
                                         ],
                                       ),
                                     ),
                                   ];
+                                },
+                                onSelected: (value) {
+                                  if (value == 1) {
+                                    if (kHomeController.userContacts[index]
+                                                ['id'] !=
+                                            null &&
+                                        kHomeController.userContacts[index]
+                                                ['id']
+                                            .toString()
+                                            .isNotEmpty) {
+                                      Get.to(() => ViewContactScreen(
+                                          contactCardId: kHomeController
+                                              .userContacts[index]['id']));
+                                    }
+                                  } else if (value == 2) {
+                                    showAlertDialog(
+                                        title: 'Delete contact?',
+                                        msg:
+                                            'Are you sure you want to delete this contact?, after delete this contact you can\'t access this contacts details!',
+                                        context: context,
+                                        callback: () {
+                                          deleteContact(index);
+                                        });
+                                  }
                                 },
                               ),
                             ),
@@ -193,7 +226,8 @@ class _ContactScreenState extends State<ContactScreen> {
           },
           label: Text(
             'Add',
-            style: FontStyleUtility.blackInter16W500.copyWith(color: colorWhite),
+            style:
+                FontStyleUtility.blackInter16W500.copyWith(color: colorWhite),
           ),
           icon: const Icon(Icons.qr_code_scanner),
         ));
@@ -219,7 +253,8 @@ class _ContactScreenState extends State<ContactScreen> {
 
     kHomeController.userContacts.remove(index);
 
-    kHomeController.userRef.update({'contacts': kHomeController.userContacts}).whenComplete(() async {
+    kHomeController.userRef.update(
+        {'contacts': kHomeController.userContacts}).whenComplete(() async {
       showLog('Delete successfully...');
     });
   }
