@@ -426,8 +426,9 @@ class _YourCardScreenState extends State<YourCardScreen> {
                                 //     name: 'Send via LinkedIn'),
                                 commonSheetRow(
                                     callBack: () async {
-                                      await Share.share(kHomeController.cards[currentIndex.value],
-                                          subject: 'Chintu Patel\'s Blinq card');
+                                      await Share.share(
+                                        '${userData['first_name']} ${userData['last_name']}\'s $appName card. Copy this id and add card on $appName \n\n ${kHomeController.cards[currentIndex.value]}', /* subject: '${userData['first_name']} ${userData['last_name']}\'s $appName card.'*/
+                                      );
                                     },
                                     icon: Icons.more_horiz,
                                     name: 'Send another way'),
@@ -528,7 +529,6 @@ void SaveQRImage({required bool isDownloadImage, required GlobalKey globalKey}) 
     print(e);
   }
 }
-
 
 String getFieldType({required String fileTitle}) {
   return fileTitle == 'Phone Number' || fileTitle == 'Signal' || fileTitle == 'WhatsApp'
