@@ -1,6 +1,7 @@
 import 'package:blinq/App/Home/contact_screen.dart';
 import 'package:blinq/App/Home/your_card_screen.dart';
 import 'package:blinq/Utility/utility_export.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -78,7 +79,4 @@ class _HomeScreenState extends State<HomeScreen> {
           },
         ));
   }
-
-
-
 }

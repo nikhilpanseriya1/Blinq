@@ -27,10 +27,6 @@ class YourCardScreen extends StatefulWidget {
 
 class _YourCardScreenState extends State<YourCardScreen> {
   RxInt currentIndex = 0.obs;
-  RxList<String> cards = [''].obs;
-
-  GlobalKey globalKey = GlobalKey();
-
   var currentUserSnap =
       FirebaseFirestore.instance.collection('users').doc(kAuthenticationController.userId).snapshots();
 
@@ -38,6 +34,35 @@ class _YourCardScreenState extends State<YourCardScreen> {
   void initState() {
     // TODO: implement initState
     super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      if (kHomeController.getSubCards) {
+        getCards();
+      }
+    });
+  }
+
+  getCards() async {
+    try {
+      // Get reference to Firestore collection
+      var collectionRef = FirebaseFirestore.instance.collection('users');
+      var doc = await collectionRef.doc(kAuthenticationController.userId).get();
+
+      showLog('text => ${doc['cards']}');
+
+      if (doc['cards'].length > 0) {
+        kHomeController.cards.clear();
+
+        doc['cards'].forEach((element) {
+          kHomeController.cards.add(element);
+        });
+        kHomeController.getSubCards = false;
+        showLog('===> ${kHomeController.cards}');
+        setState(() {});
+      }
+    } catch (e) {
+      throw e;
+    }
   }
 
   @override
@@ -59,8 +84,8 @@ class _YourCardScreenState extends State<YourCardScreen> {
             )),
         IconButton(
             onPressed: () {
-              showLog('--------- >>> ${cards[currentIndex.value]}');
-              Get.to(() => EditScreen(isFromEdit: true, cardId: cards[currentIndex.value]));
+              showLog('--------- >>> ${kHomeController.cards[currentIndex.value]}');
+              Get.to(() => EditScreen(isFromEdit: true, cardId: kHomeController.cards[currentIndex.value]));
             },
             icon: const Icon(
               Icons.edit,
@@ -86,223 +111,228 @@ class _YourCardScreenState extends State<YourCardScreen> {
       child: StreamBuilder<Object>(
           stream: currentIndex.stream,
           builder: (context, snapshot) {
-            return PageView.builder(
-              physics: ClampingScrollPhysics(),
-              itemCount: cards.length,
-              onPageChanged: (index) {
-                currentIndex.value = index;
+            return kHomeController.cards.length > 0
+                ? PageView.builder(
+                    physics: ClampingScrollPhysics(),
+                    itemCount: kHomeController.cards.length,
+                    onPageChanged: (index) {
+                      currentIndex.value = index;
 
-                currentUserSnap =
-                    FirebaseFirestore.instance.collection('users').doc(cards[currentIndex.value]).snapshots();
-                currentIndex.refresh();
-                // setState(() {});
-                print('asdhahsdiuasiudas $index');
-              },
-              itemBuilder: (BuildContext context, int index) {
-                return SingleChildScrollView(
-                  physics: const ClampingScrollPhysics(),
-                  child: StreamBuilder(
-                    stream: currentUserSnap,
-                    builder: (context, snapshot) {
-                      if (snapshot.hasError) {
-                        return Center(child: Text('Something went wrong'));
-                      }
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return Center(child: (Text('Loading...')));
-                      }
+                      currentUserSnap = FirebaseFirestore.instance
+                          .collection('users')
+                          .doc(kHomeController.cards[currentIndex.value])
+                          .snapshots();
 
-                      userData = snapshot.requireData;
+                      // setState(() {});
+                      print('asdhahsdiuasiudas $index');
+                    },
+                    itemBuilder: (BuildContext context, int index) {
+                      return SingleChildScrollView(
+                        physics: const ClampingScrollPhysics(),
+                        child: StreamBuilder(
+                          stream: currentUserSnap,
+                          builder: (context, snapshot) {
+                            if (snapshot.hasError) {
+                              return Center(child: Text('Something went wrong'));
+                            }
+                            if (snapshot.connectionState == ConnectionState.waiting) {
+                              return Center(child: (Text('Loading...')));
+                            }
 
-                      if (kHomeController.getSubCards) {
-                        if (userData['cards'].isNotEmpty) {
-                          cards.clear();
-                          userData['cards'].forEach((element) {
-                            cards.add(element);
-                          });
-                          cards.refresh();
-                          showLog('~~~~~~~ $cards');
-                          kHomeController.getSubCards = false;
-                        }
-                      }
+                            userData = snapshot.requireData;
 
-                      // final userDoc = await usersCollection.doc(userId).get();
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          30.heightBox,
-                          Center(
-                            child: RepaintBoundary(
-                              key: globalKey,
-                              child: Obx(
-                                () => QrImage(
-                                  data: cards[currentIndex.value],
-                                  backgroundColor: colorWhite,
-                                  version: QrVersions.auto,
-                                  size: 200.0,
-                                ),
-                              ),
-                            ),
-                          ),
-                          20.heightBox,
-                          SizedBox(
-                            height: getScreenHeight(context) * 0.30,
-                            child: Stack(
+                            if (kHomeController.getSubCards) {
+                              if (userData['cards'].isNotEmpty) {
+                                kHomeController.cards.clear();
+                                userData['cards'].forEach((element) {
+                                  kHomeController.cards.add(element);
+                                });
+                                kHomeController.cards.refresh();
+                                showLog('~~~~~~~ ${kHomeController.cards}');
+                                kHomeController.getSubCards = false;
+                              }
+                            }
+                            GlobalKey globalKey = GlobalKey();
+                            // final userDoc = await usersCollection.doc(userId).get();
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Container(
-                                  height: getScreenHeight(context) * 0.25,
-                                  width: getScreenWidth(context),
-                                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(25), boxShadow: [
-                                    BoxShadow(
-                                        color: colorGrey.withOpacity(0.5),
-                                        offset: const Offset(0.0, 3.0),
-                                        blurRadius: 10)
-                                  ]),
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(15),
-                                    child: CachedNetworkImage(
-                                      fit: BoxFit.cover,
-                                      imageUrl: userData['company_logo'],
-                                      placeholder: (context, url) => Image(
-                                        image: bgPlaceholder,
-                                        fit: BoxFit.cover,
-                                      ),
-                                      errorWidget: (context, url, error) => Image(
-                                        image: bgPlaceholder,
-                                        fit: BoxFit.cover,
+                                30.heightBox,
+                                Center(
+                                  child: RepaintBoundary(
+                                    key: globalKey,
+                                    child: Obx(
+                                      () => QrImage(
+                                        data: kHomeController.cards[currentIndex.value],
+                                        backgroundColor: colorWhite,
+                                        version: QrVersions.auto,
+                                        size: 200.0,
                                       ),
                                     ),
-                                    // child: Image(
-                                    //   fit: BoxFit.cover,
-                                    //   image: kAuthenticationController.selectedCompanyLogo.value.isNotEmpty
-                                    //       ? FileImage(File(kAuthenticationController.selectedCompanyLogo.value))
-                                    //           as ImageProvider
-                                    //       : bgPlaceholder,
-                                    // ),
-                                    // backgroundImage: userProfile2,
                                   ),
                                 ),
-                                Align(
-                                  alignment: Alignment.bottomRight,
-                                  child: Container(
-                                    height: 100,
-                                    width: 100,
-                                    margin: const EdgeInsets.only(right: 15),
-                                    decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(100),
-                                        boxShadow: const [
-                                          BoxShadow(color: colorGrey, offset: Offset(0.0, 3.0), blurRadius: 10)
+                                20.heightBox,
+                                SizedBox(
+                                  height: getScreenHeight(context) * 0.30,
+                                  child: Stack(
+                                    children: [
+                                      Container(
+                                        height: getScreenHeight(context) * 0.25,
+                                        width: getScreenWidth(context),
+                                        decoration: BoxDecoration(borderRadius: BorderRadius.circular(25), boxShadow: [
+                                          BoxShadow(
+                                              color: colorGrey.withOpacity(0.5),
+                                              offset: const Offset(0.0, 3.0),
+                                              blurRadius: 10)
                                         ]),
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(100),
-                                      child: CachedNetworkImage(
-                                        height: 100,
-                                        width: 100,
-                                        fit: BoxFit.cover,
-                                        imageUrl: userData['profile_pic'],
-                                        placeholder: (context, url) => Image(
-                                          image: profilePlaceholder,
-                                          fit: BoxFit.cover,
-                                        ),
-                                        errorWidget: (context, url, error) => Image(
-                                          image: profilePlaceholder,
-                                          fit: BoxFit.cover,
+                                        child: ClipRRect(
+                                          borderRadius: BorderRadius.circular(15),
+                                          child: CachedNetworkImage(
+                                            fit: BoxFit.cover,
+                                            imageUrl: userData['company_logo'],
+                                            placeholder: (context, url) => Image(
+                                              image: bgPlaceholder,
+                                              fit: BoxFit.cover,
+                                            ),
+                                            errorWidget: (context, url, error) => Image(
+                                              image: bgPlaceholder,
+                                              fit: BoxFit.cover,
+                                            ),
+                                          ),
+                                          // child: Image(
+                                          //   fit: BoxFit.cover,
+                                          //   image: kAuthenticationController.selectedCompanyLogo.value.isNotEmpty
+                                          //       ? FileImage(File(kAuthenticationController.selectedCompanyLogo.value))
+                                          //           as ImageProvider
+                                          //       : bgPlaceholder,
+                                          // ),
+                                          // backgroundImage: userProfile2,
                                         ),
                                       ),
-                                      // child: Image(
-                                      //   height: 100,
-                                      //   width: 100,
-                                      //   fit: BoxFit.cover,
-                                      //   image: kAuthenticationController.selectedImage.value.isNotEmpty
-                                      //       ? FileImage(File(kAuthenticationController.selectedImage.value)) as ImageProvider
-                                      //       : profilePlaceholder,
-                                      // ),
-                                      // backgroundImage: userProfile2,
-                                    ),
+                                      Align(
+                                        alignment: Alignment.bottomRight,
+                                        child: Container(
+                                          height: 100,
+                                          width: 100,
+                                          margin: const EdgeInsets.only(right: 15),
+                                          decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.circular(100),
+                                              boxShadow: const [
+                                                BoxShadow(color: colorGrey, offset: Offset(0.0, 3.0), blurRadius: 10)
+                                              ]),
+                                          child: ClipRRect(
+                                            borderRadius: BorderRadius.circular(100),
+                                            child: CachedNetworkImage(
+                                              height: 100,
+                                              width: 100,
+                                              fit: BoxFit.cover,
+                                              imageUrl: userData['profile_pic'],
+                                              placeholder: (context, url) => Image(
+                                                image: profilePlaceholder,
+                                                fit: BoxFit.cover,
+                                              ),
+                                              errorWidget: (context, url, error) => Image(
+                                                image: profilePlaceholder,
+                                                fit: BoxFit.cover,
+                                              ),
+                                            ),
+                                            // child: Image(
+                                            //   height: 100,
+                                            //   width: 100,
+                                            //   fit: BoxFit.cover,
+                                            //   image: kAuthenticationController.selectedImage.value.isNotEmpty
+                                            //       ? FileImage(File(kAuthenticationController.selectedImage.value)) as ImageProvider
+                                            //       : profilePlaceholder,
+                                            // ),
+                                            // backgroundImage: userProfile2,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                              ],
-                            ),
-                          ),
-                          10.heightBox,
-                          Text(
-                            '${userData['first_name']} ${userData['last_name']}',
-                            style: FontStyleUtility.blackInter16W600.copyWith(fontSize: 30),
-                          ),
-                          10.heightBox,
-                          Text(userData['job_title'], style: FontStyleUtility.blackInter22W400),
-                          10.heightBox,
-                          Text(userData['department'], style: FontStyleUtility.blackInter22W400),
-                          10.heightBox,
-                          Text(userData['company_name'], style: FontStyleUtility.blackInter22W400),
-                          userData['headline'].isNotEmpty
-                              ? Container(
-                                  margin: EdgeInsets.only(top: 10),
-                                  child: Text(userData['headline'], style: FontStyleUtility.greyInter16W400))
-                              : SizedBox.shrink(),
-                          10.heightBox,
-                          Divider(),
-                          ListView.builder(
-                            shrinkWrap: true,
-                            physics: ClampingScrollPhysics(),
-                            itemCount: userData['fields'].length ?? 0,
-                            itemBuilder: (context, index) {
-                              return ListTile(
-                                onTap: () async {
-                                  String type = getFieldType(fileTitle: userData['fields'][index]['title']);
+                                10.heightBox,
+                                Text(
+                                  '${userData['first_name']} ${userData['last_name']}',
+                                  style: FontStyleUtility.blackInter16W600.copyWith(fontSize: 30),
+                                ),
+                                10.heightBox,
+                                Text(userData['job_title'], style: FontStyleUtility.blackInter22W400),
+                                10.heightBox,
+                                Text(userData['department'], style: FontStyleUtility.blackInter22W400),
+                                10.heightBox,
+                                Text(userData['company_name'], style: FontStyleUtility.blackInter22W400),
+                                userData['headline'].isNotEmpty
+                                    ? Container(
+                                        margin: EdgeInsets.only(top: 10),
+                                        child: Text(userData['headline'], style: FontStyleUtility.greyInter16W400))
+                                    : SizedBox.shrink(),
+                                10.heightBox,
+                                Divider(),
+                                ListView.builder(
+                                  shrinkWrap: true,
+                                  physics: ClampingScrollPhysics(),
+                                  itemCount: userData['fields'].length ?? 0,
+                                  itemBuilder: (context, index) {
+                                    return ListTile(
+                                      onTap: () async {
+                                        String type = getFieldType(fileTitle: userData['fields'][index]['title']);
 
-                                  if (type == typeEmail) {
-                                    openMail(emailAddress: userData['fields'][index]['data']);
-                                  } else if (type == typePhone) {
-                                    final Uri launchUri = Uri(
-                                      scheme: 'tel',
-                                      path: userData['fields'][index]['data'],
+                                        if (type == typeEmail) {
+                                          openMail(emailAddress: userData['fields'][index]['data']);
+                                        } else if (type == typePhone) {
+                                          final Uri launchUri = Uri(
+                                            scheme: 'tel',
+                                            path: userData['fields'][index]['data'],
+                                          );
+                                          await launchUrl(launchUri);
+                                        } else if (type == typeLink) {
+                                          const url = "https://flutter.io";
+                                          if (await canLaunchUrl(Uri.parse(url))) {
+                                            await launchUrl(Uri.parse(url));
+                                          } else {
+                                            // can't launch url, there is some error
+                                            throw "Could not launch $url";
+                                          }
+                                        }
+                                      },
+                                      contentPadding: EdgeInsets.zero,
+                                      leading: Container(
+                                        height: 50,
+                                        width: 50,
+                                        padding: EdgeInsets.all(12),
+                                        decoration: BoxDecoration(
+                                            color: colorPrimary, borderRadius: BorderRadius.circular(100)),
+                                        child: Image(
+                                          image: getImage(index: index, fieldName: userData['fields'][index]['title']),
+                                          color: colorWhite,
+                                        ),
+                                      ),
+                                      title: Text(
+                                        userData['fields'][index]['data'],
+                                        style: FontStyleUtility.blackInter16W500,
+                                      ),
+                                      subtitle: Text(
+                                        userData['fields'][index]['label'],
+                                        style: FontStyleUtility.greyInter14W400,
+                                      ),
                                     );
-                                    await launchUrl(launchUri);
-                                  } else if (type == typeLink) {
-                                    const url = "https://flutter.io";
-                                    if (await canLaunchUrl(Uri.parse(url))) {
-                                      await launchUrl(Uri.parse(url));
-                                    } else {
-                                      // can't launch url, there is some error
-                                      throw "Could not launch $url";
-                                    }
-                                  }
-                                },
-                                contentPadding: EdgeInsets.zero,
-                                leading: Container(
-                                  height: 50,
-                                  width: 50,
-                                  padding: EdgeInsets.all(12),
-                                  decoration:
-                                      BoxDecoration(color: colorPrimary, borderRadius: BorderRadius.circular(100)),
-                                  child: Image(
-                                    image: getImage(index: index, fieldName: userData['fields'][index]['title']),
-                                    color: colorWhite,
-                                  ),
+                                  },
                                 ),
-                                title: Text(
-                                  userData['fields'][index]['data'],
-                                  style: FontStyleUtility.blackInter16W500,
-                                ),
-                                subtitle: Text(
-                                  userData['fields'][index]['label'],
-                                  style: FontStyleUtility.greyInter14W400,
-                                ),
-                              );
-                            },
-                          ),
-                          50.heightBox,
-                        ],
+                                50.heightBox,
+                              ],
+                            );
+                          },
+                        ),
                       );
                     },
-                  ),
-                );
-              },
-            );
+                  )
+                : Center(child: Text('Loading...'));
           }),
       floatingButton: FloatingActionButton.extended(
         backgroundColor: colorPrimary,
         onPressed: () {
+          GlobalKey shareQrKey = GlobalKey();
           showModalBottomSheet(
               isScrollControlled: true,
               shape: const RoundedRectangleBorder(
@@ -337,12 +367,15 @@ class _YourCardScreenState extends State<YourCardScreen> {
                                     height: 225,
                                     width: 225,
                                     decoration: BoxDecoration(borderRadius: BorderRadius.circular(20)),
-                                    child: QrImage(
-                                      backgroundColor: colorWhite,
-                                      foregroundColor: colorBlack,
-                                      data: cards[currentIndex.value],
-                                      version: QrVersions.auto,
-                                      size: 225,
+                                    child: RepaintBoundary(
+                                      key: shareQrKey,
+                                      child: QrImage(
+                                        backgroundColor: colorWhite,
+                                        foregroundColor: colorBlack,
+                                        data: kHomeController.cards[currentIndex.value],
+                                        version: QrVersions.auto,
+                                        size: 225,
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -366,7 +399,7 @@ class _YourCardScreenState extends State<YourCardScreen> {
                                 //     name: 'Send via LinkedIn'),
                                 commonSheetRow(
                                     callBack: () async {
-                                      await Share.share(cards[currentIndex.value],
+                                      await Share.share(kHomeController.cards[currentIndex.value],
                                           subject: 'Chintu Patel\'s Blinq card');
                                     },
                                     icon: Icons.more_horiz,
@@ -383,11 +416,16 @@ class _YourCardScreenState extends State<YourCardScreen> {
                                 Divider(color: colorWhite.withOpacity(0.5)),
                                 commonSheetRow(
                                     callBack: () {
-                                      SaveQRImage(isDownloadImage: true, globalKey: globalKey);
+                                      SaveQRImage(isDownloadImage: true, globalKey: shareQrKey);
                                     },
                                     iconWidget: Image(image: photos, height: 25, width: 25),
                                     name: 'Save QR code to photos'),
-                                commonSheetRow(callBack: () {}, icon: Icons.send, name: 'Send QR code'),
+                                commonSheetRow(
+                                    callBack: () {
+                                      SaveQRImage(isDownloadImage: false, globalKey: shareQrKey);
+                                    },
+                                    icon: Icons.send,
+                                    name: 'Send QR code'),
                                 10.heightBox,
                               ],
                             ),
@@ -439,8 +477,6 @@ class _YourCardScreenState extends State<YourCardScreen> {
       ),
     );
   }
-
-
 }
 
 openMail({required emailAddress}) async {

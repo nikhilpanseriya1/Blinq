@@ -7,6 +7,7 @@ import '../../../Utility/utility_export.dart';
 
 class HomeController extends GetxController {
   RxList<String> cardId = <String>[].obs;
+  RxList<String> cards = <String>[].obs;
   bool getSubCards = true;
   var userRef = FirebaseFirestore.instance.doc('users/${kAuthenticationController.userId}');
   var mainUserData;
