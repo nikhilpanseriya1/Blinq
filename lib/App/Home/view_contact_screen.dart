@@ -57,10 +57,15 @@ class _ViewContactScreenState extends State<ViewContactScreen> {
         appBar: commonAppBar(),
         child: isDocExist.value
             ? StreamBuilder<Object>(
-                stream: FirebaseFirestore.instance.collection('users').doc(widget.contactCardId).snapshots(),
+                stream: FirebaseFirestore.instance
+                    .collection('users')
+                    .doc(widget.contactCardId)
+                    .snapshots(),
                 builder: (context, snapshot) {
                   if (snapshot.hasError) {
-                    return Center(child: Text('Something went wrong, Please try again later...'));
+                    return Center(
+                        child: Text(
+                            'Something went wrong, Please try again later...'));
                   }
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return Center(child: (Text('Loading...')));
@@ -79,24 +84,40 @@ class _ViewContactScreenState extends State<ViewContactScreen> {
                               Container(
                                 height: getScreenHeight(context) * 0.25,
                                 width: getScreenWidth(context),
-                                decoration: BoxDecoration(borderRadius: BorderRadius.circular(25), boxShadow: [
-                                  BoxShadow(
-                                      color: colorGrey.withOpacity(0.5), offset: const Offset(0.0, 3.0), blurRadius: 10)
-                                ]),
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(25),
+                                    boxShadow: [
+                                      BoxShadow(
+                                          color: colorGrey.withOpacity(0.5),
+                                          offset: const Offset(0.0, 3.0),
+                                          blurRadius: 10)
+                                    ]),
                                 child: ClipRRect(
                                   borderRadius: BorderRadius.circular(15),
-                                  child: CachedNetworkImage(
-                                    fit: BoxFit.cover,
-                                    imageUrl: contactCardDetails['company_logo'],
-                                    placeholder: (context, url) => Image(
-                                      image: bgPlaceholder,
-                                      fit: BoxFit.cover,
-                                    ),
-                                    errorWidget: (context, url, error) => Image(
-                                      image: bgPlaceholder,
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
+                                  child: contactCardDetails['profile_pic'] ==
+                                              null ||
+                                          contactCardDetails['profile_pic']
+                                              .toString()
+                                              .isEmpty
+                                      ? Container(
+                                          height: 55,
+                                          width: 55,
+                                          color: colorRed,
+                                        )
+                                      : CachedNetworkImage(
+                                          fit: BoxFit.cover,
+                                          imageUrl: contactCardDetails[
+                                              'company_logo'],
+                                          placeholder: (context, url) => Image(
+                                            image: bgPlaceholder,
+                                            fit: BoxFit.cover,
+                                          ),
+                                          errorWidget: (context, url, error) =>
+                                              Image(
+                                            image: bgPlaceholder,
+                                            fit: BoxFit.cover,
+                                          ),
+                                        ),
                                 ),
                               ),
                               Align(
@@ -105,25 +126,42 @@ class _ViewContactScreenState extends State<ViewContactScreen> {
                                   height: 100,
                                   width: 100,
                                   margin: const EdgeInsets.only(right: 15),
-                                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(100), boxShadow: const [
-                                    BoxShadow(color: colorGrey, offset: Offset(0.0, 3.0), blurRadius: 10)
-                                  ]),
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(100),
+                                      boxShadow: const [
+                                        BoxShadow(
+                                            color: colorGrey,
+                                            offset: Offset(0.0, 3.0),
+                                            blurRadius: 10)
+                                      ]),
                                   child: ClipRRect(
                                     borderRadius: BorderRadius.circular(100),
-                                    child: CachedNetworkImage(
-                                      height: 100,
-                                      width: 100,
-                                      fit: BoxFit.cover,
-                                      imageUrl: contactCardDetails['profile_pic'],
-                                      placeholder: (context, url) => Image(
-                                        image: profilePlaceholder,
-                                        fit: BoxFit.cover,
-                                      ),
-                                      errorWidget: (context, url, error) => Image(
-                                        image: profilePlaceholder,
-                                        fit: BoxFit.cover,
-                                      ),
-                                    ),
+                                    child: contactCardDetails['profile_pic'] ==
+                                                null ||
+                                            contactCardDetails['profile_pic']
+                                                .toString()
+                                                .isEmpty
+                                        ? Image(
+                                            image: profilePlaceholder,
+                                            fit: BoxFit.cover,
+                                          )
+                                        : CachedNetworkImage(
+                                            height: 100,
+                                            width: 100,
+                                            fit: BoxFit.cover,
+                                            imageUrl: contactCardDetails[
+                                                'profile_pic'],
+                                            placeholder: (context, url) =>
+                                                Image(
+                                              image: profilePlaceholder,
+                                              fit: BoxFit.cover,
+                                            ),
+                                            errorWidget:
+                                                (context, url, error) => Image(
+                                              image: profilePlaceholder,
+                                              fit: BoxFit.cover,
+                                            ),
+                                          ),
                                   ),
                                 ),
                               ),
@@ -133,18 +171,23 @@ class _ViewContactScreenState extends State<ViewContactScreen> {
                         10.heightBox,
                         Text(
                           '${contactCardDetails['first_name']} ${contactCardDetails['last_name']}',
-                          style: FontStyleUtility.blackInter16W600.copyWith(fontSize: 24),
+                          style: FontStyleUtility.blackInter16W600
+                              .copyWith(fontSize: 24),
                         ),
                         10.heightBox,
-                        Text(contactCardDetails['job_title'], style: FontStyleUtility.blackInter16W500),
+                        Text(contactCardDetails['job_title'],
+                            style: FontStyleUtility.blackInter16W500),
                         10.heightBox,
-                        Text(contactCardDetails['department'], style: FontStyleUtility.blackInter16W500),
+                        Text(contactCardDetails['department'],
+                            style: FontStyleUtility.blackInter16W500),
                         10.heightBox,
-                        Text(contactCardDetails['company_name'], style: FontStyleUtility.blackInter16W500),
+                        Text(contactCardDetails['company_name'],
+                            style: FontStyleUtility.blackInter16W500),
                         contactCardDetails['headline'].isNotEmpty
                             ? Container(
                                 margin: EdgeInsets.only(top: 10),
-                                child: Text(contactCardDetails['headline'], style: FontStyleUtility.greyInter16W400))
+                                child: Text(contactCardDetails['headline'],
+                                    style: FontStyleUtility.greyInter16W400))
                             : SizedBox.shrink(),
                         10.heightBox,
                         Divider(),
@@ -155,14 +198,19 @@ class _ViewContactScreenState extends State<ViewContactScreen> {
                           itemBuilder: (context, index) {
                             return ListTile(
                               onTap: () async {
-                                String type = getFieldType(fileTitle: contactCardDetails['fields'][index]['title']);
+                                String type = getFieldType(
+                                    fileTitle: contactCardDetails['fields']
+                                        [index]['title']);
 
                                 if (type == typeEmail) {
-                                  openMail(emailAddress: contactCardDetails['fields'][index]['data']);
+                                  openMail(
+                                      emailAddress: contactCardDetails['fields']
+                                          [index]['data']);
                                 } else if (type == typePhone) {
                                   final Uri launchUri = Uri(
                                     scheme: 'tel',
-                                    path: contactCardDetails['fields'][index]['data'],
+                                    path: contactCardDetails['fields'][index]
+                                        ['data'],
                                   );
                                   await launchUrl(launchUri);
                                 } else if (type == typeLink) {
@@ -180,11 +228,14 @@ class _ViewContactScreenState extends State<ViewContactScreen> {
                                 height: 50,
                                 width: 50,
                                 padding: EdgeInsets.all(12),
-                                decoration:
-                                    BoxDecoration(color: colorPrimary, borderRadius: BorderRadius.circular(100)),
+                                decoration: BoxDecoration(
+                                    color: colorPrimary,
+                                    borderRadius: BorderRadius.circular(100)),
                                 child: Image(
-                                  image:
-                                      getImage(index: index, fieldName: contactCardDetails['fields'][index]['title']),
+                                  image: getImage(
+                                      index: index,
+                                      fieldName: contactCardDetails['fields']
+                                          [index]['title']),
                                   color: colorWhite,
                                 ),
                               ),
