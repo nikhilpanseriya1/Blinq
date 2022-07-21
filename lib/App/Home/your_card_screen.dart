@@ -32,6 +32,9 @@ class _YourCardScreenState extends State<YourCardScreen> {
   var currentUserSnap =
       FirebaseFirestore.instance.collection('users').doc(kAuthenticationController.userId).snapshots();
 
+  // var userCards;
+  PageController pageViewController = PageController();
+
   @override
   void initState() {
     // TODO: implement initState
@@ -48,14 +51,15 @@ class _YourCardScreenState extends State<YourCardScreen> {
     try {
       // Get reference to Firestore collection
       var collectionRef = FirebaseFirestore.instance.collection('users');
-      var doc = await collectionRef.doc(kAuthenticationController.userId).get();
+      // var doc = await collectionRef.doc(kAuthenticationController.userId).get();
+      kHomeController.mainUserData = await collectionRef.doc(kAuthenticationController.userId).get();
 
-      showLog('text => ${doc['cards']}');
+      showLog('text => ${kHomeController.mainUserData['cards']}');
 
-      if (doc['cards'].length > 0) {
+      if (kHomeController.mainUserData['cards'].length > 0) {
         kHomeController.cards.clear();
 
-        doc['cards'].forEach((element) {
+        kHomeController.mainUserData['cards'].forEach((element) {
           kHomeController.cards.add(element);
         });
         kHomeController.getSubCards = false;
@@ -71,62 +75,182 @@ class _YourCardScreenState extends State<YourCardScreen> {
   Widget build(BuildContext context) {
     return commonStructure(
       context: context,
-      appBar: commonAppBar(title: 'Your Card', actionWidgets: [
-        IconButton(
+      appBar: commonAppBar(
+          leadingIcon:
+              SizedBox() /*IconButton(
+            icon: Icon(
+              Icons.menu,
+              color: colorPrimary,
+            ),
             onPressed: () {
-              Get.to(() => EditScreen(
-                    isFromEdit: false,
-                    cardId: kAuthenticationController.userId,
-                  ));
+              kHomeController.openDrawer.currentState!.openDrawer();
             },
-            icon: const Icon(
-              Icons.add,
-              color: colorPrimary,
-              size: 22,
-            )),
-        IconButton(
-            onPressed: () {
-              showLog('--------- >>> ${kHomeController.cards[currentIndex.value]}');
-              Get.to(() => EditScreen(isFromEdit: true, cardId: kHomeController.cards[currentIndex.value]));
-            },
-            icon: const Icon(
-              Icons.edit,
-              color: colorPrimary,
-              size: 22,
-            )),
-        IconButton(
-            onPressed: () async {
-              try {
-                setIsLogin(isLogin: false);
-                Get.offAll(() => StartScreen());
-                await kAuthenticationController.userAuthentication.signOut();
-              } catch (error) {
-                print(error.toString());
-              }
-            },
-            icon: const Icon(
-              Icons.logout,
-              color: colorPrimary,
-              size: 22,
-            ))
-      ]),
+          )*/
+          ,
+          title: 'Your Card',
+          actionWidgets: [
+            PopupMenuButton(
+              icon: Icon(
+                Icons.more_vert,
+                color: colorPrimary,
+              ),
+              itemBuilder: (BuildContext context) {
+                return [
+                  PopupMenuItem(
+                    value: 1,
+                    child: Row(
+                      children: [
+                        Icon(Icons.add, color: colorGrey),
+                        10.widthBox,
+                        Text(
+                          'Add card',
+                          style: FontStyleUtility.blackInter14W400,
+                        )
+                      ],
+                    ),
+                  ),
+                  PopupMenuItem(
+                    value: 2,
+                    child: Row(
+                      children: [
+                        Icon(Icons.edit, color: colorGrey),
+                        10.widthBox,
+                        Text(
+                          'Edit card',
+                          style: FontStyleUtility.blackInter14W400,
+                        )
+                      ],
+                    ),
+                  ),
+                  PopupMenuItem(
+                    value: 3,
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.delete,
+                          color: colorGrey,
+                        ),
+                        10.widthBox,
+                        Text(
+                          'Delete card',
+                          style: FontStyleUtility.blackInter14W400,
+                        )
+                      ],
+                    ),
+                  ),
+                  PopupMenuItem(
+                    value: 4,
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.logout,
+                          color: colorGrey,
+                        ),
+                        10.widthBox,
+                        Text(
+                          'Log Out',
+                          style: FontStyleUtility.blackInter14W400,
+                        )
+                      ],
+                    ),
+                  ),
+                ];
+              },
+              onSelected: (value) {
+                if (value == 1) {
+                  Get.to(() => EditScreen(
+                        isFromEdit: false,
+                        cardId: kAuthenticationController.userId,
+                      ));
+                } else if (value == 2) {
+                  showLog('--------- >>> ${kHomeController.cards[currentIndex.value]}');
+                  Get.to(() => EditScreen(isFromEdit: true, cardId: kHomeController.cards[currentIndex.value]));
+                } else if (value == 3) {
+                  showAlertDialog(
+                      title: 'Delete card?',
+                      msg:
+                          'Are you sure you want to delete this card?, after delete this card you and other people can\'t access this card details!',
+                      context: context,
+                      callback: () {
+                        deleteCard(currentIndex.value);
+                      });
+                } else if (value == 4) {
+                  showAlertDialog(
+                      title: 'Log Out?',
+                      msg: 'Are you sure you want to Log Out?',
+                      context: context,
+                      callback: () async {
+                        try {
+                          setIsLogin(isLogin: false);
+                          Get.offAll(() => StartScreen());
+                          await kAuthenticationController.userAuthentication.signOut();
+                        } catch (error) {
+                          print(error.toString());
+                        }
+                      });
+                }
+              },
+            ),
+            // IconButton(
+            //     onPressed: () {
+            //       Get.to(() => EditScreen(
+            //             isFromEdit: false,
+            //             cardId: kAuthenticationController.userId,
+            //           ));
+            //     },
+            //     icon: const Icon(
+            //       Icons.add,
+            //       color: colorPrimary,
+            //       size: 22,
+            //     )),
+            // IconButton(
+            //     onPressed: () {
+            //       showLog('--------- >>> ${kHomeController.cards[currentIndex.value]}');
+            //       Get.to(() => EditScreen(isFromEdit: true, cardId: kHomeController.cards[currentIndex.value]));
+            //     },
+            //     icon: const Icon(
+            //       Icons.edit,
+            //       color: colorPrimary,
+            //       size: 22,
+            //     )),
+            // IconButton(
+            //     onPressed: () async {
+            //       try {
+            //         setIsLogin(isLogin: false);
+            //         Get.offAll(() => StartScreen());
+            //         await kAuthenticationController.userAuthentication.signOut();
+            //       } catch (error) {
+            //         print(error.toString());
+            //       }
+            //     },
+            //     icon: const Icon(
+            //       Icons.logout,
+            //       color: colorPrimary,
+            //       size: 22,
+            //     ))
+          ]),
       child: StreamBuilder<Object>(
           stream: currentIndex.stream,
           builder: (context, snapshot) {
             return kHomeController.cards.length > 0
                 ? PageView.builder(
+                    controller: pageViewController,
                     physics: ClampingScrollPhysics(),
                     itemCount: kHomeController.cards.length,
-                    onPageChanged: (index) {
+                    onPageChanged: (index) async {
                       currentIndex.value = index;
 
+                      // var collectionRef = FirebaseFirestore.instance.collection('users');
+                      // var doc = await collectionRef.doc(kHomeController.cards[currentIndex.value]).get();
+                      // if (doc.exists) {
                       currentUserSnap = FirebaseFirestore.instance
                           .collection('users')
                           .doc(kHomeController.cards[currentIndex.value])
                           .snapshots();
+                      // }
 
                       // setState(() {});
-                      print('asdhahsdiuasiudas $index');
+                      // print('asdhahsdiuasiudas $index');
                     },
                     itemBuilder: (BuildContext context, int index) {
                       return SingleChildScrollView(
@@ -141,12 +265,15 @@ class _YourCardScreenState extends State<YourCardScreen> {
                               return Center(child: (Text('Loading...')));
                             }
 
-                            userData = snapshot.requireData;
+                            currentUserData = snapshot.requireData;
 
-                            if (kHomeController.getSubCards) {
-                              if (userData['cards'].isNotEmpty) {
+                            // showLog('~~~~~~~ ~~~~~~~ ~~~~~~~ ~~~~~~~ ');
+                            if (kHomeController.getSubCards && currentIndex == 0) {
+                              showLog('~~~~~~~ Main data added');
+                              kHomeController.mainUserData = snapshot.requireData;
+                              if (currentUserData['cards'].isNotEmpty) {
                                 kHomeController.cards.clear();
-                                userData['cards'].forEach((element) {
+                                currentUserData['cards'].forEach((element) {
                                   kHomeController.cards.add(element);
                                 });
                                 kHomeController.cards.refresh();
@@ -191,7 +318,7 @@ class _YourCardScreenState extends State<YourCardScreen> {
                                           borderRadius: BorderRadius.circular(15),
                                           child: CachedNetworkImage(
                                             fit: BoxFit.cover,
-                                            imageUrl: userData['company_logo'],
+                                            imageUrl: currentUserData['company_logo'],
                                             placeholder: (context, url) => Image(
                                               image: bgPlaceholder,
                                               fit: BoxFit.cover,
@@ -228,7 +355,7 @@ class _YourCardScreenState extends State<YourCardScreen> {
                                               height: 100,
                                               width: 100,
                                               fit: BoxFit.cover,
-                                              imageUrl: userData['profile_pic'],
+                                              imageUrl: currentUserData['profile_pic'],
                                               placeholder: (context, url) => Image(
                                                 image: profilePlaceholder,
                                                 fit: BoxFit.cover,
@@ -255,39 +382,41 @@ class _YourCardScreenState extends State<YourCardScreen> {
                                 ),
                                 10.heightBox,
                                 Text(
-                                  '${userData['first_name']} ${userData['last_name']}',
+                                  '${currentUserData['first_name']} ${currentUserData['last_name']}',
                                   style: FontStyleUtility.blackInter16W600.copyWith(fontSize: 30),
                                 ),
                                 10.heightBox,
-                                Text(userData['job_title'], style: FontStyleUtility.blackInter22W400),
+                                Text(currentUserData['job_title'], style: FontStyleUtility.blackInter22W400),
                                 10.heightBox,
-                                Text(userData['department'], style: FontStyleUtility.blackInter22W400),
+                                Text(currentUserData['department'], style: FontStyleUtility.blackInter22W400),
                                 10.heightBox,
-                                Text(userData['company_name'], style: FontStyleUtility.blackInter22W400),
-                                userData['headline'].isNotEmpty
+                                Text(currentUserData['company_name'], style: FontStyleUtility.blackInter22W400),
+                                currentUserData['headline'].isNotEmpty
                                     ? Container(
                                         margin: EdgeInsets.only(top: 10),
-                                        child: Text(userData['headline'], style: FontStyleUtility.greyInter16W400))
+                                        child:
+                                            Text(currentUserData['headline'], style: FontStyleUtility.greyInter16W400))
                                     : SizedBox.shrink(),
                                 10.heightBox,
                                 Divider(),
                                 ListView.builder(
                                   shrinkWrap: true,
                                   physics: ClampingScrollPhysics(),
-                                  itemCount: userData['fields'].length ?? 0,
+                                  itemCount: currentUserData['fields'].length ?? 0,
                                   itemBuilder: (context, index) {
                                     return ListTile(
                                       onTap: () async {
-                                        String type = getFieldType(fileTitle: userData['fields'][index]['title']);
+                                        String type =
+                                            getFieldType(fileTitle: currentUserData['fields'][index]['title']);
 
                                         if (type == typeEmail) {
                                           openMail(
-                                            emailAddress: userData['fields'][index]['data'],
+                                            emailAddress: currentUserData['fields'][index]['data'],
                                           );
                                         } else if (type == typePhone) {
                                           final Uri launchUri = Uri(
                                             scheme: 'tel',
-                                            path: userData['fields'][index]['data'],
+                                            path: currentUserData['fields'][index]['data'],
                                           );
                                           await launchUrl(launchUri);
                                         } else if (type == typeLink) {
@@ -308,16 +437,17 @@ class _YourCardScreenState extends State<YourCardScreen> {
                                         decoration: BoxDecoration(
                                             color: colorPrimary, borderRadius: BorderRadius.circular(100)),
                                         child: Image(
-                                          image: getImage(index: index, fieldName: userData['fields'][index]['title']),
+                                          image: getImage(
+                                              index: index, fieldName: currentUserData['fields'][index]['title']),
                                           color: colorWhite,
                                         ),
                                       ),
                                       title: Text(
-                                        userData['fields'][index]['data'],
+                                        currentUserData['fields'][index]['data'],
                                         style: FontStyleUtility.blackInter16W500,
                                       ),
                                       subtitle: Text(
-                                        userData['fields'][index]['label'],
+                                        currentUserData['fields'][index]['label'],
                                         style: FontStyleUtility.greyInter14W400,
                                       ),
                                     );
@@ -394,7 +524,7 @@ class _YourCardScreenState extends State<YourCardScreen> {
                                     callBack: () {
                                       Clipboard.setData(ClipboardData(
                                           text:
-                                              '${userData['first_name']} ${userData['last_name']}\'s $appName card. Copy this id and add card on $appName \n\n ${kHomeController.cards[currentIndex.value]}'));
+                                              '${currentUserData['first_name']} ${currentUserData['last_name']}\'s $appName card. Copy this id and add card on $appName \n\n ${kHomeController.cards[currentIndex.value]}'));
 
                                       myToast(message: 'Copy card');
                                     },
@@ -412,7 +542,7 @@ class _YourCardScreenState extends State<YourCardScreen> {
                                       openMail(
                                           emailAddress: kHomeController.cards[currentIndex.value],
                                           msg:
-                                              '${userData['first_name']} ${userData['last_name']}\'s $appName card. Copy this id and add card on $appName \n\n ${kHomeController.cards[currentIndex.value]}');
+                                              '${currentUserData['first_name']} ${currentUserData['last_name']}\'s $appName card. Copy this id and add card on $appName \n\n ${kHomeController.cards[currentIndex.value]}');
                                     },
                                     icon: Icons.email,
                                     name: 'Mail your card'),
@@ -427,7 +557,7 @@ class _YourCardScreenState extends State<YourCardScreen> {
                                 commonSheetRow(
                                     callBack: () async {
                                       await Share.share(
-                                        '${userData['first_name']} ${userData['last_name']}\'s $appName card. Copy this id and add card on $appName \n\n ${kHomeController.cards[currentIndex.value]}', /* subject: '${userData['first_name']} ${userData['last_name']}\'s $appName card.'*/
+                                        '${currentUserData['first_name']} ${currentUserData['last_name']}\'s $appName card. Copy this id and add card on $appName \n\n ${kHomeController.cards[currentIndex.value]}', /* subject: '${userData['first_name']} ${userData['last_name']}\'s $appName card.'*/
                                       );
                                     },
                                     icon: Icons.more_horiz,
@@ -504,6 +634,66 @@ class _YourCardScreenState extends State<YourCardScreen> {
         ),
       ),
     );
+  }
+
+  void deleteCard(int cardIndex) {
+    showLog('text==? ${kHomeController.mainUserData['cards']}');
+    showLog('text==? index $cardIndex');
+
+    if (cardIndex == 0) {
+      showSnackBar(message: 'You can\'t delete your primary card...', color: colorRed);
+    } else {
+      String? deletedCardId;
+      if (kHomeController.mainUserData['cards'].isNotEmpty) {
+        kHomeController.cards.clear();
+        kHomeController.mainUserData['cards'].forEach((element) {
+          kHomeController.cards.add(element);
+        });
+        deletedCardId = kHomeController.cards[cardIndex];
+        // showLog('~~~~~~~-- 11 ${kHomeController.cards}');
+        kHomeController.getContacts = true;
+      }
+
+      kHomeController.cards.remove(kHomeController.cards[cardIndex]);
+      showLog('~~~~~~~-- ${kHomeController.cards}');
+      kHomeController.cards.refresh();
+
+      /// Change card
+      if ((kHomeController.cards.length - 1) > currentIndex.value) {
+        currentIndex.value++;
+        pageViewController.nextPage(duration: const Duration(milliseconds: 10), curve: Curves.bounceInOut);
+      } else {
+        currentIndex.value--;
+        pageViewController.previousPage(duration: const Duration(milliseconds: 10), curve: Curves.bounceInOut);
+      }
+
+      kHomeController.userRef.update({'cards': kHomeController.cards}).whenComplete(() async {
+        showLog('Delete successfully...');
+
+        // var collectionRef = FirebaseFirestore.instance.collection('users');
+        // var doc = await collectionRef.doc(docId).get();
+
+        // var doc = await FirebaseFirestore.instance.collection('users').doc(deletedCardId).get();
+        //
+        // if (doc.exists) {
+        FirebaseFirestore.instance
+            .collection('users')
+            .doc(deletedCardId)
+            .delete()
+            .whenComplete(() => showSnackBar(message: 'Delete card successfully, please try again later'))
+            .catchError((e) => showSnackBar(message: 'Card deleting failed, please try again later', color: colorRed));
+        // }
+
+        // kHomeController.userRef
+        //     .delete()
+        //     .whenComplete(() => showSnackBar(message: 'Delete card successfully, please try again later'))
+        //     .catchError((e) => showSnackBar(message: 'Card deleting failed, please try again later', color: colorRed));
+
+        // await FirebaseFirestore.instance.runTransaction((Transaction myTransaction) async {
+        //   await myTransaction.delete(snapshot.data.documents[index].reference);
+        // });
+      });
+    }
   }
 }
 

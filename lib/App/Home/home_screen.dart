@@ -1,13 +1,12 @@
 import 'package:blinq/App/Home/contact_screen.dart';
 import 'package:blinq/App/Home/your_card_screen.dart';
 import 'package:blinq/Utility/utility_export.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../Utility/constants.dart';
 
-var userData;
+var currentUserData;
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -50,6 +49,8 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        // key: kHomeController.openDrawer,
+        drawer: Drawer(),
         body: WillPopScope(
           onWillPop: onWillPop,
           child: Center(

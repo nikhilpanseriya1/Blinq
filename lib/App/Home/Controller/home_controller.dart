@@ -1,12 +1,16 @@
 import 'package:blinq/App/Home/Model/social_media_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../Utility/constants.dart';
 import '../../../Utility/utility_export.dart';
 
 class HomeController extends GetxController {
-  RxList<String> cardId = <String>[].obs;
+
+
+  GlobalKey<ScaffoldState> openDrawer = GlobalKey();
+
   RxList<String> cards = <String>[].obs;
   bool getSubCards = true;
   var userRef = FirebaseFirestore.instance.doc('users/${kAuthenticationController.userId}');

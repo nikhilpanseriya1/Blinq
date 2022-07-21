@@ -17,6 +17,7 @@ import 'package:step_progress_indicator/step_progress_indicator.dart';
 import 'package:velocity_x/velocity_x.dart';
 
 import '../Home/home_screen.dart';
+import 'login_screen.dart';
 
 class StepperScreen extends StatefulWidget {
   const StepperScreen({Key? key}) : super(key: key);
@@ -80,23 +81,29 @@ class _StepperScreenState extends State<StepperScreen> {
                     ),
                   ),
                   Expanded(
-                    child: PageView(
-                      physics: const NeverScrollableScrollPhysics(),
-                      onPageChanged: (index) {
-                        selectedStep.value = index;
-                      },
-                      controller: pageController,
-                      children: [
-                        step1(),
-                        step2(),
-                        step3(),
-                        step4(),
-                        step5(),
-                        step6(),
-                        step7(),
-                        // step8(),
-                        step9(),
-                      ],
+                    child: SingleChildScrollView(
+                      physics: ClampingScrollPhysics(),
+                      child: SizedBox(
+                        height: getScreenHeight(context) * 0.9,
+                        child: PageView(
+                          physics: const NeverScrollableScrollPhysics(),
+                          onPageChanged: (index) {
+                            selectedStep.value = index;
+                          },
+                          controller: pageController,
+                          children: [
+                            step1(),
+                            step2(),
+                            step3(),
+                            step4(),
+                            step5(),
+                            step6(),
+                            step7(),
+                            // step8(),
+                            step9(),
+                          ],
+                        ),
+                      ),
                     ),
                   )
                 ],
@@ -110,6 +117,8 @@ class _StepperScreenState extends State<StepperScreen> {
             onPressed: () {
               ///
               if (formKey.currentState!.validate()) {
+                disableFocusScopeNode(context);
+
                 if (selectedStep.value == 0) {
                   kAuthenticationController.userAuthentication
                       .createUserWithEmailAndPassword(email: emailController.text, password: passwordController.text)
@@ -124,7 +133,8 @@ class _StepperScreenState extends State<StepperScreen> {
                     showBottomSnackBar(context: context, message: e.message);
                     // showSnackBar(message: e.message);
                   });
-                } else if (selectedStep.value == 8) {
+                } else if (selectedStep.value == 7) {
+                  showLog('asdddd dddd dddd ddd ddd');
                   addNewCard(() {
                     kAuthenticationController.userId = getObject(PrefConstants.userId);
                     Get.offAll(() => const HomeScreen());
@@ -150,7 +160,7 @@ class _StepperScreenState extends State<StepperScreen> {
                     highlightColor: colorWhite,
                     splashColor: colorWhite,
                     onTap: () {
-                      Get.back();
+                      Get.off(() => const LoginScreen());
                     },
                     child: Container(
                       height: 40,
@@ -173,7 +183,7 @@ class _StepperScreenState extends State<StepperScreen> {
       String profilePic = '';
       String companyLogo = '';
       List<String> cards = [];
-      kHomeController.addFieldsModelList.clear();
+      // kHomeController.addFieldsModelList.clear();
       var ref = FirebaseFirestore.instance.collection('users');
 
       if (isProfileChanged.value) {
@@ -208,15 +218,17 @@ class _StepperScreenState extends State<StepperScreen> {
         'profile_pic': profilePic,
         'contacts': [],
         'cards': cards,
-        'fields': kHomeController.addFieldsModelList
+        'fields': []/*kHomeController.addFieldsModelList*/
       }).whenComplete(() {
         showLog('======= ${newCardId}');
 
         showLog('Data added successfully...');
         callBack();
+
       });
     } catch (e) {
       showLog(e);
+      showLog('something went wrong...');
     }
   }
 
