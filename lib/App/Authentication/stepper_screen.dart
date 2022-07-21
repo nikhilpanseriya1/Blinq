@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -33,6 +34,7 @@ class _StepperScreenState extends State<StepperScreen> {
   RxBool isShowLocation = false.obs;
   RxBool isProfileChanged = false.obs;
   RxBool isLogoChanged = false.obs;
+  RxBool isLoading = false.obs;
 
   // final auth = FirebaseAuth.instance;
 
@@ -111,46 +113,51 @@ class _StepperScreenState extends State<StepperScreen> {
             ),
           ),
         ),
-        floatingButton: Padding(
-          padding: const EdgeInsets.only(right: 10, bottom: 10),
-          child: FloatingActionButton(
-            onPressed: () {
-              ///
-              if (formKey.currentState!.validate()) {
-                disableFocusScopeNode(context);
+        floatingButton: Obx(
+          () => Padding(
+            padding: const EdgeInsets.only(right: 10, bottom: 10),
+            child: isLoading.value
+                ? CircularProgressIndicator()
+                : FloatingActionButton(
+                    onPressed: () {
+                      ///
+                      if (formKey.currentState!.validate()) {
+                        disableFocusScopeNode(context);
 
-                if (selectedStep.value == 0) {
-                  kAuthenticationController.userAuthentication
-                      .createUserWithEmailAndPassword(email: emailController.text, password: passwordController.text)
-                      .then((value) {
-                    // Get.offAll(() => const HomeScreen());
-                    /// save userId
-                    setObject(PrefConstants.userId, value.user?.uid);
-                    pageController.animateToPage(++selectedStep.value,
-                        duration: const Duration(milliseconds: 400), curve: Curves.bounceInOut);
-                  }).catchError((e) {
-                    showLog(e.message);
-                    showBottomSnackBar(context: context, message: e.message);
-                    // showSnackBar(message: e.message);
-                  });
-                } else if (selectedStep.value == 7) {
-                  showLog('asdddd dddd dddd ddd ddd');
-                  addNewCard(() {
-                    kAuthenticationController.userId = getObject(PrefConstants.userId);
-                    Get.offAll(() => const HomeScreen());
-                  });
-                } else {
-                  pageController.animateToPage(++selectedStep.value,
-                      duration: const Duration(milliseconds: 400), curve: Curves.bounceInOut);
-                }
-              }
-            },
-            // jevin.gondaliya@gmail.com
-            backgroundColor: colorPrimary,
-            child: const Icon(
-              Icons.arrow_forward_ios_rounded,
-              color: colorWhite,
-            ),
+                        if (selectedStep.value == 0) {
+                          kAuthenticationController.userAuthentication
+                              .createUserWithEmailAndPassword(
+                                  email: emailController.text, password: passwordController.text)
+                              .then((value) {
+                            // Get.offAll(() => const HomeScreen());
+                            /// save userId
+                            setObject(PrefConstants.userId, value.user?.uid);
+                            pageController.animateToPage(++selectedStep.value,
+                                duration: const Duration(milliseconds: 400), curve: Curves.bounceInOut);
+                          }).catchError((e) {
+                            showLog(e.message);
+                            showBottomSnackBar(context: context, message: e.message);
+                            // showSnackBar(message: e.message);
+                          });
+                        } else if (selectedStep.value == 7) {
+                          showLog('asdddd dddd dddd ddd ddd');
+                          addNewCard(() {
+                            kAuthenticationController.userId = getObject(PrefConstants.userId);
+                            Get.offAll(() => const HomeScreen());
+                          });
+                        } else {
+                          pageController.animateToPage(++selectedStep.value,
+                              duration: const Duration(milliseconds: 400), curve: Curves.bounceInOut);
+                        }
+                      }
+                    },
+                    // jevin.gondaliya@gmail.com
+                    backgroundColor: colorPrimary,
+                    child: const Icon(
+                      Icons.arrow_forward_ios_rounded,
+                      color: colorWhite,
+                    ),
+                  ),
           ),
         ),
         bottomNavigation: Obx(
@@ -218,13 +225,12 @@ class _StepperScreenState extends State<StepperScreen> {
         'profile_pic': profilePic,
         'contacts': [],
         'cards': cards,
-        'fields': []/*kHomeController.addFieldsModelList*/
+        'fields': [] /*kHomeController.addFieldsModelList*/
       }).whenComplete(() {
         showLog('======= ${newCardId}');
 
         showLog('Data added successfully...');
         callBack();
-
       });
     } catch (e) {
       showLog(e);

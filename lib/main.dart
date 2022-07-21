@@ -8,6 +8,7 @@ import 'package:get/get.dart';
 import 'package:responsive_framework/responsive_wrapper.dart';
 import 'package:responsive_framework/utils/scroll_behavior.dart';
 
+import 'App/scan_view.dart';
 import 'Utility/utility_export.dart';
 
 final getPreference = GetStorage();

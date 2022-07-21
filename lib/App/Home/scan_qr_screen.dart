@@ -30,6 +30,14 @@ class _ScanQrScreenState extends State<ScanQrScreen> {
 
   RxBool addUserCall = false.obs;
 
+  @override
+  initState() {
+    // TODO: implement initState
+    super.initState();
+
+    // await controller?.flipCamera();
+  }
+
   // In order to get hot reload to work we need to pause the camera if the platform
   // is android, or resume the camera if the platform is iOS.
   @override
@@ -106,13 +114,15 @@ class _ScanQrScreenState extends State<ScanQrScreen> {
                           child: FutureBuilder(
                             future: controller?.getCameraInfo(),
                             builder: (context, snapshot) {
-                              if (snapshot.data != null)
+                              if (snapshot.data != null) {
                                 return Icon(
                                   Icons.switch_camera,
                                   size: 20,
                                 );
-                              else
+                              } else {
+                                changeCamera();
                                 return SizedBox();
+                              }
                               // if (snapshot.data != null) {
                               //   return Text(
                               //       'Camera facing ${describeEnum(snapshot.data!)}');
@@ -278,6 +288,12 @@ class _ScanQrScreenState extends State<ScanQrScreen> {
   void dispose() {
     controller?.dispose();
     super.dispose();
+  }
+
+  Future<void> changeCamera() async {
+    await controller?.flipCamera();
+    await controller?.flipCamera();
+    setState(() {});
   }
 
 /* Widget addNewContactData({required String cardId, required Function callBack}) {
