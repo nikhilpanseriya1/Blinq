@@ -30,6 +30,8 @@ class StepperScreen extends StatefulWidget {
 class _StepperScreenState extends State<StepperScreen> {
   RxInt selectedStep = 0.obs;
   PageController pageController = PageController();
+  String profilePic = '';
+  String companyLogo = '';
 
   RxBool isShowLocation = false.obs;
   RxBool isProfileChanged = false.obs;
@@ -119,7 +121,7 @@ class _StepperScreenState extends State<StepperScreen> {
             child: isLoading.value
                 ? CircularProgressIndicator()
                 : FloatingActionButton(
-                    onPressed: () {
+                    onPressed: () async {
                       ///
                       if (formKey.currentState!.validate()) {
                         disableFocusScopeNode(context);
@@ -139,6 +141,28 @@ class _StepperScreenState extends State<StepperScreen> {
                             showBottomSnackBar(context: context, message: e.message);
                             // showSnackBar(message: e.message);
                           });
+                        } else if (selectedStep.value == 4) {
+                          if (isProfileChanged.value) {
+                            isLoading.value = true;
+                            profilePic = await uploadFile(
+                              filePath: kAuthenticationController.selectedImage.value,
+                              isProfile: true,
+                            );
+                            pageController.animateToPage(++selectedStep.value,
+                                duration: const Duration(milliseconds: 400), curve: Curves.bounceInOut);
+                            isLoading.value = false;
+                          }
+                        } else if (selectedStep.value == 5) {
+                          if (isLogoChanged.value) {
+                            isLoading.value = true;
+                            companyLogo = await uploadFile(
+                              filePath: kAuthenticationController.selectedCompanyLogo.value,
+                              isProfile: false,
+                            );
+                            pageController.animateToPage(++selectedStep.value,
+                                duration: const Duration(milliseconds: 400), curve: Curves.bounceInOut);
+                            isLoading.value = false;
+                          }
                         } else if (selectedStep.value == 7) {
                           showLog('asdddd dddd dddd ddd ddd');
                           addNewCard(() {
@@ -187,24 +211,9 @@ class _StepperScreenState extends State<StepperScreen> {
 
   void addNewCard(Function callBack) async {
     try {
-      String profilePic = '';
-      String companyLogo = '';
       List<String> cards = [];
       // kHomeController.addFieldsModelList.clear();
       var ref = FirebaseFirestore.instance.collection('users');
-
-      if (isProfileChanged.value) {
-        profilePic = await uploadFile(
-          filePath: kAuthenticationController.selectedImage.value,
-          isProfile: true,
-        );
-      }
-      if (isLogoChanged.value) {
-        companyLogo = await uploadFile(
-          filePath: kAuthenticationController.selectedCompanyLogo.value,
-          isProfile: false,
-        );
-      }
 
       String newCardId = getObject(PrefConstants.userId);
 

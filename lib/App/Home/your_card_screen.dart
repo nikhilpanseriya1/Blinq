@@ -166,14 +166,18 @@ class _YourCardScreenState extends State<YourCardScreen> {
                   showLog('--------- >>> ${kHomeController.cards[currentIndex.value]}');
                   Get.to(() => EditScreen(isFromEdit: true, cardId: kHomeController.cards[currentIndex.value]));
                 } else if (value == 3) {
-                  showAlertDialog(
-                      title: 'Delete card?',
-                      msg:
-                          'Are you sure you want to delete this card?, after delete this card you and other people can\'t access this card details!',
-                      context: context,
-                      callback: () {
-                        deleteCard(currentIndex.value);
-                      });
+                  if (currentIndex.value == 0) {
+                    showSnackBar(message: 'You can\'t delete your primary card...', color: colorRed);
+                  } else {
+                    showAlertDialog(
+                        title: 'Delete card?',
+                        msg:
+                            'Are you sure you want to delete this card?, after delete this card you and other people can\'t access this card details!',
+                        context: context,
+                        callback: () {
+                          deleteCard(currentIndex.value);
+                        });
+                  }
                 } else if (value == 4) {
                   showAlertDialog(
                       title: 'Log Out?',
@@ -640,60 +644,56 @@ class _YourCardScreenState extends State<YourCardScreen> {
     showLog('text==? ${kHomeController.mainUserData['cards']}');
     showLog('text==? index $cardIndex');
 
-    if (cardIndex == 0) {
-      showSnackBar(message: 'You can\'t delete your primary card...', color: colorRed);
-    } else {
-      String? deletedCardId;
-      if (kHomeController.mainUserData['cards'].isNotEmpty) {
-        kHomeController.cards.clear();
-        kHomeController.mainUserData['cards'].forEach((element) {
-          kHomeController.cards.add(element);
-        });
-        deletedCardId = kHomeController.cards[cardIndex];
-        // showLog('~~~~~~~-- 11 ${kHomeController.cards}');
-        kHomeController.getContacts = true;
-      }
-
-      kHomeController.cards.remove(kHomeController.cards[cardIndex]);
-      showLog('~~~~~~~-- ${kHomeController.cards}');
-      kHomeController.cards.refresh();
-
-      /// Change card
-      if ((kHomeController.cards.length - 1) > currentIndex.value) {
-        currentIndex.value++;
-        pageViewController.nextPage(duration: const Duration(milliseconds: 10), curve: Curves.bounceInOut);
-      } else {
-        currentIndex.value--;
-        pageViewController.previousPage(duration: const Duration(milliseconds: 10), curve: Curves.bounceInOut);
-      }
-
-      kHomeController.userRef.update({'cards': kHomeController.cards}).whenComplete(() async {
-        showLog('Delete successfully...');
-
-        // var collectionRef = FirebaseFirestore.instance.collection('users');
-        // var doc = await collectionRef.doc(docId).get();
-
-        // var doc = await FirebaseFirestore.instance.collection('users').doc(deletedCardId).get();
-        //
-        // if (doc.exists) {
-        FirebaseFirestore.instance
-            .collection('users')
-            .doc(deletedCardId)
-            .delete()
-            .whenComplete(() => showSnackBar(message: 'Delete card successfully, please try again later'))
-            .catchError((e) => showSnackBar(message: 'Card deleting failed, please try again later', color: colorRed));
-        // }
-
-        // kHomeController.userRef
-        //     .delete()
-        //     .whenComplete(() => showSnackBar(message: 'Delete card successfully, please try again later'))
-        //     .catchError((e) => showSnackBar(message: 'Card deleting failed, please try again later', color: colorRed));
-
-        // await FirebaseFirestore.instance.runTransaction((Transaction myTransaction) async {
-        //   await myTransaction.delete(snapshot.data.documents[index].reference);
-        // });
+    String? deletedCardId;
+    if (kHomeController.mainUserData['cards'].isNotEmpty) {
+      kHomeController.cards.clear();
+      kHomeController.mainUserData['cards'].forEach((element) {
+        kHomeController.cards.add(element);
       });
+      deletedCardId = kHomeController.cards[cardIndex];
+      // showLog('~~~~~~~-- 11 ${kHomeController.cards}');
+      kHomeController.getContacts = true;
     }
+
+    kHomeController.cards.remove(kHomeController.cards[cardIndex]);
+    showLog('~~~~~~~-- ${kHomeController.cards}');
+    kHomeController.cards.refresh();
+
+    /// Change card
+    if ((kHomeController.cards.length - 1) > currentIndex.value) {
+      currentIndex.value++;
+      pageViewController.nextPage(duration: const Duration(milliseconds: 10), curve: Curves.bounceInOut);
+    } else {
+      currentIndex.value--;
+      pageViewController.previousPage(duration: const Duration(milliseconds: 10), curve: Curves.bounceInOut);
+    }
+
+    kHomeController.userRef.update({'cards': kHomeController.cards}).whenComplete(() async {
+      showLog('Delete successfully...');
+
+      // var collectionRef = FirebaseFirestore.instance.collection('users');
+      // var doc = await collectionRef.doc(docId).get();
+
+      // var doc = await FirebaseFirestore.instance.collection('users').doc(deletedCardId).get();
+      //
+      // if (doc.exists) {
+      FirebaseFirestore.instance
+          .collection('users')
+          .doc(deletedCardId)
+          .delete()
+          .whenComplete(() => showSnackBar(message: 'Delete card successfully!'))
+          .catchError((e) => showSnackBar(message: 'Card deleting failed, please try again later', color: colorRed));
+      // }
+
+      // kHomeController.userRef
+      //     .delete()
+      //     .whenComplete(() => showSnackBar(message: 'Delete card successfully, please try again later'))
+      //     .catchError((e) => showSnackBar(message: 'Card deleting failed, please try again later', color: colorRed));
+
+      // await FirebaseFirestore.instance.runTransaction((Transaction myTransaction) async {
+      //   await myTransaction.delete(snapshot.data.documents[index].reference);
+      // });
+    });
   }
 }
 
