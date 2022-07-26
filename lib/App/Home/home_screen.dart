@@ -19,7 +19,6 @@ class _HomeScreenState extends State<HomeScreen> {
   // final auth = FirebaseAuth.instance;
 
   RxInt selectedTabIndex = 0.obs;
-
   static const List<Widget> _widgetOptions = <Widget>[
     YourCardScreen(),
     ContactScreen(),
