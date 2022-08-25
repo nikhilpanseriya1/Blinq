@@ -6,7 +6,7 @@ import 'package:get/get.dart';
 
 import '../../Utility/constants.dart';
 
-var currentUserData;
+
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);

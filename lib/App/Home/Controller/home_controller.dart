@@ -8,7 +8,7 @@ import '../../../Utility/utility_export.dart';
 
 class HomeController extends GetxController {
 
-
+  var currentUserData;
   GlobalKey<ScaffoldState> openDrawer = GlobalKey();
 
   RxList<String> cards = <String>[].obs;

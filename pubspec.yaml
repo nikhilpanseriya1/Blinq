@@ -41,7 +41,7 @@ dependencies:
   step_progress_indicator: ^1.0.2
   intl: ^0.17.0
   fluttertoast: ^8.0.8
-  permission_handler: ^9.2.0
+  permission_handler: ^8.1.2
   image_picker: ^0.8.4+10
   flutter_share: ^2.0.0
   country_code_picker: ^2.0.2
@@ -58,6 +58,7 @@ dependencies:
   url_launcher: ^6.1.5
   open_mail_app: ^0.4.5
   qr_code_scanner: ^1.0.0
+  screenshot_callback: ^2.0.1
 
 
   ## firebase

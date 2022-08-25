@@ -13,9 +13,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+
+// import 'package:screen_capture_event/screen_capture_event.dart';
+import 'package:screenshot_callback/screenshot_callback.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:velocity_x/velocity_x.dart';
@@ -29,22 +33,52 @@ class YourCardScreen extends StatefulWidget {
 
 class _YourCardScreenState extends State<YourCardScreen> {
   RxInt currentIndex = 0.obs;
-  var currentUserSnap =
-      FirebaseFirestore.instance.collection('users').doc(kAuthenticationController.userId).snapshots();
+  var currentUserSnap = FirebaseFirestore.instance.collection('users').doc(kAuthenticationController.userId).snapshots();
 
   // var userCards;
   PageController pageViewController = PageController();
+
+  // final ScreenCaptureEvent screenListener = ScreenCaptureEvent();
+  late ScreenshotCallback screenshotCallback;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    init();
+
+    // screenListener.addScreenShotListener((filePath) {
+    //
+    //   print("fresh screenshot!");
+    //   /* setState(() {
+    //     text = "Screenshot stored on : $filePath";
+    //   });*/
+    // });
+    // screenListener.watch();
 
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       if (kHomeController.getSubCards) {
         getCards();
       }
     });
+  }
+
+  void init() async {
+    await initScreenshotCallback();
+  }
+
+  //It must be created after permission is granted.
+  Future<void> initScreenshotCallback() async {
+    screenshotCallback = ScreenshotCallback();
+
+    screenshotCallback.addListener(() {
+      print("We can add multiple listeners..... ");
+      Fluttertoast.showToast(msg: 'Take a screenshot..');
+    });
+
+    // screenshotCallback.addListener(() {
+    //   print("abcdefg.....!!! ");
+    // });
   }
 
   getCards() async {
@@ -69,6 +103,13 @@ class _YourCardScreenState extends State<YourCardScreen> {
     } catch (e) {
       throw e;
     }
+  }
+
+  @override
+  void dispose() {
+    // screenListener.dispose();
+    screenshotCallback.dispose();
+    super.dispose();
   }
 
   @override
@@ -247,10 +288,7 @@ class _YourCardScreenState extends State<YourCardScreen> {
                       // var collectionRef = FirebaseFirestore.instance.collection('users');
                       // var doc = await collectionRef.doc(kHomeController.cards[currentIndex.value]).get();
                       // if (doc.exists) {
-                      currentUserSnap = FirebaseFirestore.instance
-                          .collection('users')
-                          .doc(kHomeController.cards[currentIndex.value])
-                          .snapshots();
+                      currentUserSnap = FirebaseFirestore.instance.collection('users').doc(kHomeController.cards[currentIndex.value]).snapshots();
                       // }
 
                       // setState(() {});
@@ -269,15 +307,15 @@ class _YourCardScreenState extends State<YourCardScreen> {
                               return Center(child: (Text('Loading...')));
                             }
 
-                            currentUserData = snapshot.requireData;
+                            kHomeController.currentUserData = snapshot.requireData;
 
                             // showLog('~~~~~~~ ~~~~~~~ ~~~~~~~ ~~~~~~~ ');
                             if (kHomeController.getSubCards && currentIndex == 0) {
                               showLog('~~~~~~~ Main data added');
                               kHomeController.mainUserData = snapshot.requireData;
-                              if (currentUserData['cards'].isNotEmpty) {
+                              if (kHomeController.currentUserData['cards'].isNotEmpty) {
                                 kHomeController.cards.clear();
-                                currentUserData['cards'].forEach((element) {
+                                kHomeController.currentUserData['cards'].forEach((element) {
                                   kHomeController.cards.add(element);
                                 });
                                 kHomeController.cards.refresh();
@@ -313,16 +351,13 @@ class _YourCardScreenState extends State<YourCardScreen> {
                                         height: getScreenHeight(context) * 0.25,
                                         width: getScreenWidth(context),
                                         decoration: BoxDecoration(borderRadius: BorderRadius.circular(25), boxShadow: [
-                                          BoxShadow(
-                                              color: colorGrey.withOpacity(0.5),
-                                              offset: const Offset(0.0, 3.0),
-                                              blurRadius: 10)
+                                          BoxShadow(color: colorGrey.withOpacity(0.5), offset: const Offset(0.0, 3.0), blurRadius: 10)
                                         ]),
                                         child: ClipRRect(
                                           borderRadius: BorderRadius.circular(15),
                                           child: CachedNetworkImage(
                                             fit: BoxFit.cover,
-                                            imageUrl: currentUserData['company_logo'],
+                                            imageUrl: kHomeController.currentUserData['company_logo'],
                                             placeholder: (context, url) => Image(
                                               image: bgPlaceholder,
                                               fit: BoxFit.cover,
@@ -350,16 +385,14 @@ class _YourCardScreenState extends State<YourCardScreen> {
                                           margin: const EdgeInsets.only(right: 15),
                                           decoration: BoxDecoration(
                                               borderRadius: BorderRadius.circular(100),
-                                              boxShadow: const [
-                                                BoxShadow(color: colorGrey, offset: Offset(0.0, 3.0), blurRadius: 10)
-                                              ]),
+                                              boxShadow: const [BoxShadow(color: colorGrey, offset: Offset(0.0, 3.0), blurRadius: 10)]),
                                           child: ClipRRect(
                                             borderRadius: BorderRadius.circular(100),
                                             child: CachedNetworkImage(
                                               height: 100,
                                               width: 100,
                                               fit: BoxFit.cover,
-                                              imageUrl: currentUserData['profile_pic'],
+                                              imageUrl: kHomeController.currentUserData['profile_pic'],
                                               placeholder: (context, url) => Image(
                                                 image: profilePlaceholder,
                                                 fit: BoxFit.cover,
@@ -386,41 +419,39 @@ class _YourCardScreenState extends State<YourCardScreen> {
                                 ),
                                 10.heightBox,
                                 Text(
-                                  '${currentUserData['first_name']} ${currentUserData['last_name']}',
+                                  '${kHomeController.currentUserData['first_name']} ${kHomeController.currentUserData['last_name']}',
                                   style: FontStyleUtility.blackInter16W600.copyWith(fontSize: 30),
                                 ),
                                 10.heightBox,
-                                Text(currentUserData['job_title'], style: FontStyleUtility.blackInter22W400),
+                                Text(kHomeController.currentUserData['job_title'], style: FontStyleUtility.blackInter22W400),
                                 10.heightBox,
-                                Text(currentUserData['department'], style: FontStyleUtility.blackInter22W400),
+                                Text(kHomeController.currentUserData['department'], style: FontStyleUtility.blackInter22W400),
                                 10.heightBox,
-                                Text(currentUserData['company_name'], style: FontStyleUtility.blackInter22W400),
-                                currentUserData['headline'].isNotEmpty
+                                Text(kHomeController.currentUserData['company_name'], style: FontStyleUtility.blackInter22W400),
+                                kHomeController.currentUserData['headline'].isNotEmpty
                                     ? Container(
                                         margin: EdgeInsets.only(top: 10),
-                                        child:
-                                            Text(currentUserData['headline'], style: FontStyleUtility.greyInter16W400))
+                                        child: Text(kHomeController.currentUserData['headline'], style: FontStyleUtility.greyInter16W400))
                                     : SizedBox.shrink(),
                                 10.heightBox,
                                 Divider(),
                                 ListView.builder(
                                   shrinkWrap: true,
                                   physics: ClampingScrollPhysics(),
-                                  itemCount: currentUserData['fields'].length ?? 0,
+                                  itemCount: kHomeController.currentUserData['fields'].length ?? 0,
                                   itemBuilder: (context, index) {
                                     return ListTile(
                                       onTap: () async {
-                                        String type =
-                                            getFieldType(fileTitle: currentUserData['fields'][index]['title']);
+                                        String type = getFieldType(fileTitle: kHomeController.currentUserData['fields'][index]['title']);
 
                                         if (type == typeEmail) {
                                           openMail(
-                                            emailAddress: currentUserData['fields'][index]['data'],
+                                            emailAddress: kHomeController.currentUserData['fields'][index]['data'],
                                           );
                                         } else if (type == typePhone) {
                                           final Uri launchUri = Uri(
                                             scheme: 'tel',
-                                            path: currentUserData['fields'][index]['data'],
+                                            path: kHomeController.currentUserData['fields'][index]['data'],
                                           );
                                           await launchUrl(launchUri);
                                         } else if (type == typeLink) {
@@ -438,20 +469,18 @@ class _YourCardScreenState extends State<YourCardScreen> {
                                         height: 50,
                                         width: 50,
                                         padding: EdgeInsets.all(12),
-                                        decoration: BoxDecoration(
-                                            color: colorPrimary, borderRadius: BorderRadius.circular(100)),
+                                        decoration: BoxDecoration(color: colorPrimary, borderRadius: BorderRadius.circular(100)),
                                         child: Image(
-                                          image: getImage(
-                                              index: index, fieldName: currentUserData['fields'][index]['title']),
+                                          image: getImage(index: index, fieldName: kHomeController.currentUserData['fields'][index]['title']),
                                           color: colorWhite,
                                         ),
                                       ),
                                       title: Text(
-                                        currentUserData['fields'][index]['data'],
+                                        kHomeController.currentUserData['fields'][index]['data'],
                                         style: FontStyleUtility.blackInter16W500,
                                       ),
                                       subtitle: Text(
-                                        currentUserData['fields'][index]['label'],
+                                        kHomeController.currentUserData['fields'][index]['label'],
                                         style: FontStyleUtility.greyInter14W400,
                                       ),
                                     );
@@ -473,15 +502,13 @@ class _YourCardScreenState extends State<YourCardScreen> {
           GlobalKey shareQrKey = GlobalKey();
           showModalBottomSheet(
               isScrollControlled: true,
-              shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.only(topRight: Radius.circular(20), topLeft: Radius.circular(20))),
+              shape: const RoundedRectangleBorder(borderRadius: BorderRadius.only(topRight: Radius.circular(20), topLeft: Radius.circular(20))),
               context: context,
               builder: (context) {
                 return Container(
                   height: getScreenHeight(context) * 0.9,
                   decoration: const BoxDecoration(
-                      borderRadius: BorderRadius.only(topRight: Radius.circular(20), topLeft: Radius.circular(20)),
-                      color: colorPrimary),
+                      borderRadius: BorderRadius.only(topRight: Radius.circular(20), topLeft: Radius.circular(20)), color: colorPrimary),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 15),
                     child: Column(
@@ -528,7 +555,7 @@ class _YourCardScreenState extends State<YourCardScreen> {
                                     callBack: () {
                                       Clipboard.setData(ClipboardData(
                                           text:
-                                              '${currentUserData['first_name']} ${currentUserData['last_name']}\'s $appName card. Copy this id and add card on $appName \n\n ${kHomeController.cards[currentIndex.value]}'));
+                                              '${kHomeController.currentUserData['first_name']} ${kHomeController.currentUserData['last_name']}\'s $appName card. Copy this id and add card on $appName \n\n ${kHomeController.cards[currentIndex.value]}'));
 
                                       myToast(message: 'Copy card');
                                     },
@@ -546,7 +573,7 @@ class _YourCardScreenState extends State<YourCardScreen> {
                                       openMail(
                                           emailAddress: kHomeController.cards[currentIndex.value],
                                           msg:
-                                              '${currentUserData['first_name']} ${currentUserData['last_name']}\'s $appName card. Copy this id and add card on $appName \n\n ${kHomeController.cards[currentIndex.value]}');
+                                              '${kHomeController.currentUserData['first_name']} ${kHomeController.currentUserData['last_name']}\'s $appName card. Copy this id and add card on $appName \n\n ${kHomeController.cards[currentIndex.value]}');
                                     },
                                     icon: Icons.email,
                                     name: 'Mail your card'),
@@ -561,7 +588,7 @@ class _YourCardScreenState extends State<YourCardScreen> {
                                 commonSheetRow(
                                     callBack: () async {
                                       await Share.share(
-                                        '${currentUserData['first_name']} ${currentUserData['last_name']}\'s $appName card. Copy this id and add card on $appName \n\n ${kHomeController.cards[currentIndex.value]}', /* subject: '${userData['first_name']} ${userData['last_name']}\'s $appName card.'*/
+                                        '${kHomeController.currentUserData['first_name']} ${kHomeController.currentUserData['last_name']}\'s $appName card. Copy this id and add card on $appName \n\n ${kHomeController.cards[currentIndex.value]}', /* subject: '${userData['first_name']} ${userData['last_name']}\'s $appName card.'*/
                                       );
                                     },
                                     icon: Icons.more_horiz,

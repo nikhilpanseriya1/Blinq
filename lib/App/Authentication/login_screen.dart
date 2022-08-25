@@ -39,7 +39,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   hintText: 'Enter your email address',
                   textEditingController: emailController,
                   validationFunction: (String val) {
-                    return emailValidation(val.trim());
+                    return emailValidation(emailController.text.trim());
                   }),
               commonTextField(
                   hintText: 'Enter your password',
@@ -59,7 +59,7 @@ class _LoginScreenState extends State<LoginScreen> {
               tapOnButton: () {
                 if (formKey.currentState!.validate()) {
                   kAuthenticationController.userAuthentication
-                      .signInWithEmailAndPassword(email: emailController.text, password: passwordController.text)
+                      .signInWithEmailAndPassword(email: emailController.text.trim(), password: passwordController.text)
                       .then((val) {
                     /// save userId
                     setObject(PrefConstants.userId, val.user?.uid);

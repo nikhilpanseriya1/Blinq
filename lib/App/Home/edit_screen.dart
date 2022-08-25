@@ -48,7 +48,7 @@ class _EditScreenState extends State<EditScreen> {
   GlobalKey<FormState> formKey = GlobalKey();
 
   /// saved used data
-  var currentUserData;
+  // var currentUserData;
   var userRef;
 
   Future uploadFile({required String filePath, required bool isProfile}) async {
@@ -84,13 +84,13 @@ class _EditScreenState extends State<EditScreen> {
     //   userRef = FirebaseFirestore.instance.doc('users');
     // }
 
-    if (widget.isFromEdit) {
-      firstNameController.text = currentUserData['first_name'];
-      lastNameController.text = currentUserData['last_name'];
-      jobTitleController.text = currentUserData['job_title'];
-      departmentNameController.text = currentUserData['department'];
-      companyNameController.text = currentUserData['company_name'];
-      headlineController.text = currentUserData['headline'];
+    if (widget.isFromEdit && kHomeController.currentUserData != null) {
+      firstNameController.text = kHomeController.currentUserData['first_name'];
+      lastNameController.text = kHomeController.currentUserData['last_name'];
+      jobTitleController.text = kHomeController.currentUserData['job_title'];
+      departmentNameController.text = kHomeController.currentUserData['department'];
+      companyNameController.text = kHomeController.currentUserData['company_name'];
+      headlineController.text = kHomeController.currentUserData['headline'];
     } else {
       kHomeController.addFieldsModelList.clear();
     }
@@ -105,9 +105,7 @@ class _EditScreenState extends State<EditScreen> {
           Obx(
             () => IconButton(
                 onPressed: () async {
-
                   if (formKey.currentState!.validate()) {
-
                     showProgress.value = true;
 
                     if (widget.isFromEdit) {
@@ -125,8 +123,7 @@ class _EditScreenState extends State<EditScreen> {
                       });
 
                       if (isProfileChanged.value) {
-                        String profilePic =
-                            await uploadFile(filePath: kAuthenticationController.selectedImage.value, isProfile: true);
+                        String profilePic = await uploadFile(filePath: kAuthenticationController.selectedImage.value, isProfile: true);
                         if (profilePic.isNotEmpty) {
                           userRef.update({'profile_pic': profilePic}).whenComplete(() {
                             showLog('Profile Pic Uploaded...');
@@ -134,8 +131,7 @@ class _EditScreenState extends State<EditScreen> {
                         }
                       }
                       if (isLogoChanged.value) {
-                        String companyLogo = await uploadFile(
-                            filePath: kAuthenticationController.selectedCompanyLogo.value, isProfile: false);
+                        String companyLogo = await uploadFile(filePath: kAuthenticationController.selectedCompanyLogo.value, isProfile: false);
                         if (companyLogo.isNotEmpty) {
                           userRef.update({'company_logo': companyLogo}).whenComplete(() {
                             showLog('Company Logo Uploaded...');
@@ -183,41 +179,37 @@ class _EditScreenState extends State<EditScreen> {
                                     Container(
                                       height: getScreenHeight(context) * 0.22,
                                       width: getScreenWidth(context) * 0.9,
-                                      decoration: BoxDecoration(borderRadius: BorderRadius.circular(15), boxShadow: [
-                                        BoxShadow(
-                                            color: colorGrey.withOpacity(0.5),
-                                            offset: const Offset(0.0, 3.0),
-                                            blurRadius: 10)
-                                      ]),
+                                      decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(15),
+                                          boxShadow: [BoxShadow(color: colorGrey.withOpacity(0.5), offset: const Offset(0.0, 3.0), blurRadius: 10)]),
                                       child: ClipRRect(
                                         borderRadius: BorderRadius.circular(15),
-                                        child: widget.isFromEdit
-                                            ? CachedNetworkImage(
-                                                fit: BoxFit.cover,
-                                                imageUrl: currentUserData['company_logo'],
-                                                placeholder: (context, url) => Image(
-                                                  fit: BoxFit.cover,
-                                                  image: kAuthenticationController.selectedCompanyLogo.value.isNotEmpty
-                                                      ? FileImage(
-                                                              File(kAuthenticationController.selectedCompanyLogo.value))
-                                                          as ImageProvider
-                                                      : bgPlaceholder,
-                                                ),
-                                                errorWidget: (context, url, error) => Image(
-                                                  fit: BoxFit.cover,
-                                                  image: kAuthenticationController.selectedCompanyLogo.value.isNotEmpty
-                                                      ? FileImage(
-                                                              File(kAuthenticationController.selectedCompanyLogo.value))
-                                                          as ImageProvider
-                                                      : bgPlaceholder,
-                                                ),
-                                              )
+                                        child: widget.isFromEdit && kHomeController.currentUserData != null
+                                            ? isLogoChanged.value
+                                                ? Image(
+                                                    fit: BoxFit.cover,
+                                                    image: FileImage(File(kAuthenticationController.selectedCompanyLogo.value)),
+                                                  )
+                                                : CachedNetworkImage(
+                                                    fit: BoxFit.cover,
+                                                    imageUrl: kHomeController.currentUserData['company_logo'],
+                                                    placeholder: (context, url) => Image(
+                                                      fit: BoxFit.cover,
+                                                      image: kAuthenticationController.selectedCompanyLogo.value.isNotEmpty
+                                                          ? FileImage(File(kAuthenticationController.selectedCompanyLogo.value)) as ImageProvider
+                                                          : bgPlaceholder,
+                                                    ),
+                                                    errorWidget: (context, url, error) => Image(
+                                                      fit: BoxFit.cover,
+                                                      image: kAuthenticationController.selectedCompanyLogo.value.isNotEmpty
+                                                          ? FileImage(File(kAuthenticationController.selectedCompanyLogo.value)) as ImageProvider
+                                                          : bgPlaceholder,
+                                                    ),
+                                                  )
                                             : Image(
                                                 fit: BoxFit.cover,
                                                 image: kAuthenticationController.selectedCompanyLogo.value.isNotEmpty
-                                                    ? FileImage(
-                                                            File(kAuthenticationController.selectedCompanyLogo.value))
-                                                        as ImageProvider
+                                                    ? FileImage(File(kAuthenticationController.selectedCompanyLogo.value)) as ImageProvider
                                                     : bgPlaceholder,
                                               ),
                                         // child: Image(
@@ -233,8 +225,7 @@ class _EditScreenState extends State<EditScreen> {
                                     Container(
                                       height: getScreenHeight(context) * 0.22,
                                       width: getScreenWidth(context) * 0.9,
-                                      decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(15), color: colorBlack.withOpacity(0.15)),
+                                      decoration: BoxDecoration(borderRadius: BorderRadius.circular(15), color: colorBlack.withOpacity(0.15)),
                                       child: Center(
                                           child: commonButtonView(
                                               title: 'Upload Company Logo',
@@ -262,43 +253,45 @@ class _EditScreenState extends State<EditScreen> {
                                       margin: const EdgeInsets.only(right: 30),
                                       decoration: BoxDecoration(
                                           borderRadius: BorderRadius.circular(100),
-                                          boxShadow: const [
-                                            BoxShadow(color: colorGrey, offset: Offset(0.0, 3.0), blurRadius: 10)
-                                          ]),
+                                          boxShadow: const [BoxShadow(color: colorGrey, offset: Offset(0.0, 3.0), blurRadius: 10)]),
                                       child: ClipRRect(
                                         borderRadius: BorderRadius.circular(100),
-                                        child: widget.isFromEdit
-                                            ? CachedNetworkImage(
-                                                height: 100,
-                                                width: 100,
-                                                fit: BoxFit.cover,
-                                                imageUrl: currentUserData['profile_pic'],
-                                                placeholder: (context, url) => Image(
-                                                  height: 100,
-                                                  width: 100,
-                                                  fit: BoxFit.cover,
-                                                  image: kAuthenticationController.selectedImage.value.isNotEmpty
-                                                      ? FileImage(File(kAuthenticationController.selectedImage.value))
-                                                          as ImageProvider
-                                                      : profilePlaceholder,
-                                                ),
-                                                errorWidget: (context, url, error) => Image(
-                                                  height: 100,
-                                                  width: 100,
-                                                  fit: BoxFit.cover,
-                                                  image: kAuthenticationController.selectedImage.value.isNotEmpty
-                                                      ? FileImage(File(kAuthenticationController.selectedImage.value))
-                                                          as ImageProvider
-                                                      : profilePlaceholder,
-                                                ),
-                                              )
+                                        child: widget.isFromEdit && kHomeController.currentUserData != null
+                                            ? isProfileChanged.value
+                                                ? Image(
+                                                    height: 100,
+                                                    width: 100,
+                                                    fit: BoxFit.cover,
+                                                    image: FileImage(File(kAuthenticationController.selectedImage.value)),
+                                                  )
+                                                : CachedNetworkImage(
+                                                    height: 100,
+                                                    width: 100,
+                                                    fit: BoxFit.cover,
+                                                    imageUrl: kHomeController.currentUserData['profile_pic'],
+                                                    placeholder: (context, url) => Image(
+                                                      height: 100,
+                                                      width: 100,
+                                                      fit: BoxFit.cover,
+                                                      image: kAuthenticationController.selectedImage.value.isNotEmpty
+                                                          ? FileImage(File(kAuthenticationController.selectedImage.value)) as ImageProvider
+                                                          : profilePlaceholder,
+                                                    ),
+                                                    errorWidget: (context, url, error) => Image(
+                                                      height: 100,
+                                                      width: 100,
+                                                      fit: BoxFit.cover,
+                                                      image: kAuthenticationController.selectedImage.value.isNotEmpty
+                                                          ? FileImage(File(kAuthenticationController.selectedImage.value)) as ImageProvider
+                                                          : profilePlaceholder,
+                                                    ),
+                                                  )
                                             : Image(
                                                 height: 100,
                                                 width: 100,
                                                 fit: BoxFit.cover,
                                                 image: kAuthenticationController.selectedImage.value.isNotEmpty
-                                                    ? FileImage(File(kAuthenticationController.selectedImage.value))
-                                                        as ImageProvider
+                                                    ? FileImage(File(kAuthenticationController.selectedImage.value)) as ImageProvider
                                                     : profilePlaceholder,
                                               ),
                                         // child: Image(
@@ -325,9 +318,7 @@ class _EditScreenState extends State<EditScreen> {
                                         height: 100,
                                         width: 100,
                                         margin: const EdgeInsets.only(right: 30),
-                                        decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(100),
-                                            color: colorBlack.withOpacity(0.15)),
+                                        decoration: BoxDecoration(borderRadius: BorderRadius.circular(100), color: colorBlack.withOpacity(0.15)),
                                         child: Icon(
                                           Icons.camera_alt_outlined,
                                           color: colorWhite,
@@ -371,8 +362,7 @@ class _EditScreenState extends State<EditScreen> {
                             validationFunction: (value) {
                               return emptyFieldValidation(value);
                             }),
-                        commonTextField(
-                            hintText: 'Enter your headline (Optional)', textEditingController: headlineController),
+                        commonTextField(hintText: 'Enter your headline (Optional)', textEditingController: headlineController),
                         20.heightBox,
                         commonSwitchRow(enable: branding, title: 'Display $appName branding on card'),
                         commonSwitchRow(enable: logoToQr, title: 'Add Logo to Qe Code'),
@@ -389,15 +379,15 @@ class _EditScreenState extends State<EditScreen> {
                               if (snapshot.connectionState == ConnectionState.waiting) {
                                 return (Text('Loading...'));
                               }
-                              currentUserData = snapshot.requireData;
+                              kHomeController.currentUserData = snapshot.requireData;
                               if (widget.isFromEdit) {
                                 kHomeController.addFieldsModelList.clear();
-                                currentUserData['fields'].forEach((element) {
-                                  kHomeController.addFieldsModelList.add(
-                                      {'data': element['data'], 'label': element['label'], 'title': element['title']});
+                                kHomeController.currentUserData['fields'].forEach((element) {
+                                  kHomeController.addFieldsModelList
+                                      .add({'data': element['data'], 'label': element['label'], 'title': element['title']});
                                 });
                               }
-                              return (widget.isFromEdit && currentUserData['fields'].isNotEmpty) ||
+                              return (widget.isFromEdit && kHomeController.currentUserData['fields'].isNotEmpty) ||
                                       (!widget.isFromEdit && kHomeController.addFieldsModelList.isNotEmpty)
                                   ? Padding(
                                       padding: const EdgeInsets.only(top: 20),
@@ -407,9 +397,7 @@ class _EditScreenState extends State<EditScreen> {
                                             child: Container(
                                               margin: EdgeInsets.only(bottom: 20),
                                               padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-                                              decoration: BoxDecoration(
-                                                  color: colorGrey.withOpacity(0.2),
-                                                  borderRadius: BorderRadius.circular(5)),
+                                              decoration: BoxDecoration(color: colorGrey.withOpacity(0.2), borderRadius: BorderRadius.circular(5)),
                                               child: Text(
                                                 '- Your Fields -',
                                                 style: FontStyleUtility.blackInter16W500,
@@ -420,7 +408,7 @@ class _EditScreenState extends State<EditScreen> {
                                             shrinkWrap: true,
                                             physics: ClampingScrollPhysics(),
                                             itemCount: widget.isFromEdit
-                                                ? (currentUserData['fields'].length ?? 0)
+                                                ? (kHomeController.currentUserData['fields'].length ?? 0)
                                                 : (kHomeController.addFieldsModelList.length),
                                             itemBuilder: (context, index) {
                                               return ListTile(
@@ -428,26 +416,25 @@ class _EditScreenState extends State<EditScreen> {
                                                   height: 50,
                                                   width: 50,
                                                   padding: EdgeInsets.all(12),
-                                                  decoration: BoxDecoration(
-                                                      color: colorPrimary, borderRadius: BorderRadius.circular(100)),
+                                                  decoration: BoxDecoration(color: colorPrimary, borderRadius: BorderRadius.circular(100)),
                                                   child: Image(
                                                     image: getImage(
                                                         index: index,
                                                         fieldName: widget.isFromEdit
-                                                            ? currentUserData['fields'][index]['title']
+                                                            ? kHomeController.currentUserData['fields'][index]['title']
                                                             : kHomeController.addFieldsModelList[index]['title']),
                                                     color: colorWhite,
                                                   ),
                                                 ),
                                                 title: Text(
                                                   widget.isFromEdit
-                                                      ? currentUserData['fields'][index]['data']
+                                                      ? kHomeController.currentUserData['fields'][index]['data']
                                                       : kHomeController.addFieldsModelList[index]['data'],
                                                   style: FontStyleUtility.blackInter16W500,
                                                 ),
                                                 subtitle: Text(
                                                   widget.isFromEdit
-                                                      ? currentUserData['fields'][index]['label']
+                                                      ? kHomeController.currentUserData['fields'][index]['label']
                                                       : kHomeController.addFieldsModelList[index]['label'],
                                                   style: FontStyleUtility.greyInter14W400,
                                                 ),
@@ -455,19 +442,15 @@ class _EditScreenState extends State<EditScreen> {
                                                     onPressed: () {
                                                       showAlertDialog(
                                                           title: 'Delete?',
-                                                          msg:
-                                                              'Are you sure you want to delete this field from social profile list?',
+                                                          msg: 'Are you sure you want to delete this field from social profile list?',
                                                           context: context,
                                                           callback: () async {
-                                                            kHomeController.addFieldsModelList
-                                                                .remove(kHomeController.addFieldsModelList[index]);
+                                                            kHomeController.addFieldsModelList.remove(kHomeController.addFieldsModelList[index]);
 
                                                             /// remove field and update list
                                                             // var userRef = FirebaseFirestore.instance
                                                             //     .doc('users/${kAuthenticationController.userId}');
-                                                            userRef.update({
-                                                              'fields': kHomeController.addFieldsModelList
-                                                            }).whenComplete(() {
+                                                            userRef.update({'fields': kHomeController.addFieldsModelList}).whenComplete(() {
                                                               showLog('Remove data successfully...');
                                                             });
                                                           });
@@ -489,8 +472,7 @@ class _EditScreenState extends State<EditScreen> {
                         Center(
                           child: Container(
                             padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-                            decoration: BoxDecoration(
-                                color: colorGrey.withOpacity(0.2), borderRadius: BorderRadius.circular(5)),
+                            decoration: BoxDecoration(color: colorGrey.withOpacity(0.2), borderRadius: BorderRadius.circular(5)),
                             child: Text(
                               'Tap a field below to add it +',
                               style: FontStyleUtility.blackInter16W500,
@@ -510,8 +492,7 @@ class _EditScreenState extends State<EditScreen> {
                         physics: NeverScrollableScrollPhysics(),
                         shrinkWrap: true,
                         itemCount: kHomeController.socialMediaList.length,
-                        gridDelegate:
-                            SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, childAspectRatio: 1.2),
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, childAspectRatio: 1.2),
                         itemBuilder: (BuildContext context, int index) {
                           return InkWell(
                             highlightColor: colorWhite,
@@ -526,8 +507,7 @@ class _EditScreenState extends State<EditScreen> {
                                   height: 60,
                                   width: 60,
                                   padding: EdgeInsets.all(15),
-                                  decoration:
-                                      BoxDecoration(color: colorPrimary, borderRadius: BorderRadius.circular(100)),
+                                  decoration: BoxDecoration(color: colorPrimary, borderRadius: BorderRadius.circular(100)),
                                   child: Image(
                                     image: kHomeController.socialMediaList[index].logo,
                                     color: colorWhite,
@@ -596,8 +576,8 @@ class _EditScreenState extends State<EditScreen> {
       }).whenComplete(() {
         showLog('======= ${newCardId}');
 
-        if (currentUserData['cards'].isNotEmpty) {
-          currentUserData['cards'].forEach((element) {
+        if (kHomeController.currentUserData['cards'].isNotEmpty) {
+          kHomeController.currentUserData['cards'].forEach((element) {
             cards.add(element);
           });
         }
@@ -627,15 +607,14 @@ class _EditScreenState extends State<EditScreen> {
           // if (snapshot.connectionState == ConnectionState.waiting) {
           //   return (Text('Loading...'));
           // }
-          currentUserData = snapshot.requireData;
+          kHomeController.currentUserData = snapshot.requireData;
           if (widget.isFromEdit) {
             kHomeController.addFieldsModelList.clear();
-            currentUserData['fields'].forEach((element) {
-              kHomeController.addFieldsModelList
-                  .add({'data': element['data'], 'label': element['label'], 'title': element['title']});
+            kHomeController.currentUserData['fields'].forEach((element) {
+              kHomeController.addFieldsModelList.add({'data': element['data'], 'label': element['label'], 'title': element['title']});
             });
           }
-          return (widget.isFromEdit && currentUserData['fields'].isNotEmpty) ||
+          return (widget.isFromEdit && kHomeController.currentUserData['fields'].isNotEmpty) ||
                   (!widget.isFromEdit && kHomeController.addFieldsModelList.isNotEmpty)
               ? Padding(
                   padding: const EdgeInsets.only(top: 20),
@@ -645,8 +624,7 @@ class _EditScreenState extends State<EditScreen> {
                         child: Container(
                           margin: EdgeInsets.only(bottom: 20),
                           padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-                          decoration:
-                              BoxDecoration(color: colorGrey.withOpacity(0.2), borderRadius: BorderRadius.circular(5)),
+                          decoration: BoxDecoration(color: colorGrey.withOpacity(0.2), borderRadius: BorderRadius.circular(5)),
                           child: Text(
                             '- Your Fields -',
                             style: FontStyleUtility.blackInter16W500,
@@ -656,9 +634,8 @@ class _EditScreenState extends State<EditScreen> {
                       ListView.builder(
                         shrinkWrap: true,
                         physics: ClampingScrollPhysics(),
-                        itemCount: widget.isFromEdit
-                            ? (currentUserData['fields'].length ?? 0)
-                            : (kHomeController.addFieldsModelList.length),
+                        itemCount:
+                            widget.isFromEdit ? (kHomeController.currentUserData['fields'].length ?? 0) : (kHomeController.addFieldsModelList.length),
                         itemBuilder: (context, index) {
                           return ListTile(
                             leading: Container(
@@ -670,20 +647,20 @@ class _EditScreenState extends State<EditScreen> {
                                 image: getImage(
                                     index: index,
                                     fieldName: widget.isFromEdit
-                                        ? currentUserData['fields'][index]['title']
+                                        ? kHomeController.currentUserData['fields'][index]['title']
                                         : kHomeController.addFieldsModelList[index]['title']),
                                 color: colorWhite,
                               ),
                             ),
                             title: Text(
                               widget.isFromEdit
-                                  ? currentUserData['fields'][index]['data']
+                                  ? kHomeController.currentUserData['fields'][index]['data']
                                   : kHomeController.addFieldsModelList[index]['data'],
                               style: FontStyleUtility.blackInter16W500,
                             ),
                             subtitle: Text(
                               widget.isFromEdit
-                                  ? currentUserData['fields'][index]['label']
+                                  ? kHomeController.currentUserData['fields'][index]['label']
                                   : kHomeController.addFieldsModelList[index]['label'],
                               style: FontStyleUtility.greyInter14W400,
                             ),
@@ -694,8 +671,7 @@ class _EditScreenState extends State<EditScreen> {
                                       msg: 'Are you sure you want to delete this field from social profile list?',
                                       context: context,
                                       callback: () async {
-                                        kHomeController.addFieldsModelList
-                                            .remove(kHomeController.addFieldsModelList[index]);
+                                        kHomeController.addFieldsModelList.remove(kHomeController.addFieldsModelList[index]);
 
                                         /// remove field and update list
                                         // var userRef = FirebaseFirestore.instance
@@ -730,8 +706,7 @@ class _EditScreenState extends State<EditScreen> {
                   child: Container(
                     margin: EdgeInsets.only(bottom: 20),
                     padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-                    decoration:
-                        BoxDecoration(color: colorGrey.withOpacity(0.2), borderRadius: BorderRadius.circular(5)),
+                    decoration: BoxDecoration(color: colorGrey.withOpacity(0.2), borderRadius: BorderRadius.circular(5)),
                     child: Text(
                       '- Your Fields -',
                       style: FontStyleUtility.blackInter16W500,
