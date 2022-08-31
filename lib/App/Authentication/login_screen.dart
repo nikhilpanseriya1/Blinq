@@ -1,7 +1,6 @@
 import 'package:blinq/App/Home/home_screen.dart';
 import 'package:blinq/Utility/constants.dart';
 import 'package:blinq/Utility/utility_export.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:velocity_x/velocity_x.dart';
@@ -51,6 +50,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   }),
             ],
           ),
+
         ),
         bottomNavigation: Padding(
           padding: const EdgeInsets.only(left: 15, right: 15, bottom: 15, top: 5),
