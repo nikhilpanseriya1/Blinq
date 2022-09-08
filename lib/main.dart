@@ -1,4 +1,3 @@
-import 'package:blinq/App/Authentication/stepper_screen.dart';
 import 'package:blinq/App/splash_screen.dart';
 import 'package:country_code_picker/country_localizations.dart';
 import 'package:flutter/material.dart';
@@ -8,7 +7,6 @@ import 'package:get/get.dart';
 import 'package:responsive_framework/responsive_wrapper.dart';
 import 'package:responsive_framework/utils/scroll_behavior.dart';
 
-import 'App/scan_view.dart';
 import 'Utility/utility_export.dart';
 
 final getPreference = GetStorage();

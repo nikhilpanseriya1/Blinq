@@ -498,7 +498,7 @@ class _EditScreenState extends State<EditScreen> {
                             highlightColor: colorWhite,
                             splashColor: colorWhite,
                             onTap: () {
-                              Get.to(() => AddFieldScreen(index: index, isFromEdit: widget.isFromEdit));
+                              Get.to(() => AddFieldScreen(index: index, isFromEdit: widget.isFromEdit, cardId: widget.cardId));
                             },
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,

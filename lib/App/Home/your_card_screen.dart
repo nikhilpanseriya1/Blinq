@@ -15,11 +15,12 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
+import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 // import 'package:screen_capture_event/screen_capture_event.dart';
-import 'package:screenshot_callback/screenshot_callback.dart';
+// import 'package:screenshot_callback/screenshot_callback.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:velocity_x/velocity_x.dart';
@@ -39,13 +40,13 @@ class _YourCardScreenState extends State<YourCardScreen> {
   PageController pageViewController = PageController();
 
   // final ScreenCaptureEvent screenListener = ScreenCaptureEvent();
-  late ScreenshotCallback screenshotCallback;
+  // late ScreenshotCallback screenshotCallback;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    init();
+    // init();
 
     // screenListener.addScreenShotListener((filePath) {
     //
@@ -63,23 +64,23 @@ class _YourCardScreenState extends State<YourCardScreen> {
     });
   }
 
-  void init() async {
-    await initScreenshotCallback();
-  }
-
-  //It must be created after permission is granted.
-  Future<void> initScreenshotCallback() async {
-    screenshotCallback = ScreenshotCallback();
-
-    screenshotCallback.addListener(() {
-      print("We can add multiple listeners..... ");
-      Fluttertoast.showToast(msg: 'Take a screenshot..');
-    });
-
-    // screenshotCallback.addListener(() {
-    //   print("abcdefg.....!!! ");
-    // });
-  }
+  // void init() async {
+  //   await initScreenshotCallback();
+  // }
+  //
+  // //It must be created after permission is granted.
+  // Future<void> initScreenshotCallback() async {
+  //   screenshotCallback = ScreenshotCallback();
+  //
+  //   screenshotCallback.addListener(() {
+  //     print("We can add multiple listeners..... ");
+  //     Fluttertoast.showToast(msg: 'Take a screenshot..');
+  //   });
+  //
+  //   // screenshotCallback.addListener(() {
+  //   //   print("abcdefg.....!!! ");
+  //   // });
+  // }
 
   getCards() async {
     try {
@@ -108,7 +109,7 @@ class _YourCardScreenState extends State<YourCardScreen> {
   @override
   void dispose() {
     // screenListener.dispose();
-    screenshotCallback.dispose();
+    // screenshotCallback.dispose();
     super.dispose();
   }
 
@@ -734,12 +735,17 @@ void SaveQRImage({required bool isDownloadImage, required GlobalKey globalKey}) 
 
     // print(pngBytes);
 
-    final tempDir = await getApplicationDocumentsDirectory();
-    final file = await File('${tempDir.path}/${DateTime.now()}.png').create();
-    File file1 = await file.writeAsBytes(pngBytes);
     if (isDownloadImage) {
-      myToast(message: 'Image Saved Successfully!', bgColor: colorWhite);
+      // Download QR code
+      final result = await ImageGallerySaver.saveImage(pngBytes, quality: 100, name: DateTime.now().toString());
+      if (result != null) {
+        myToast(message: 'Image Saved Successfully!', bgColor: colorWhite);
+      }
     } else {
+      // share QR code
+      final tempDir = await getApplicationDocumentsDirectory();
+      final file = await File('${tempDir.path}/${DateTime.now()}.png').create();
+      File file1 = await file.writeAsBytes(pngBytes);
       await Share.shareFiles([file1.path], text: 'Connect this card with $appName.');
     }
   } catch (e) {

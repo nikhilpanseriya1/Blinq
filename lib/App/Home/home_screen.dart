@@ -3,10 +3,9 @@ import 'package:blinq/App/Home/your_card_screen.dart';
 import 'package:blinq/Utility/utility_export.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import '../../Utility/constants.dart';
-
-
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -31,6 +30,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
     kAuthenticationController.userId = getObject(PrefConstants.userId);
     setIsLogin(isLogin: true);
+
+    grantPermission();
 
     // WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
     //   // cards.clear();
@@ -78,5 +79,23 @@ class _HomeScreenState extends State<HomeScreen> {
             });
           },
         ));
+  }
+
+  Future<void> grantPermission() async {
+    // You can request multiple permissions at once.
+
+    var storagePermissionStatus = await Permission.storage.request();
+    if (await Permission.storage.status.isGranted) {
+    } else {
+      if (!storagePermissionStatus.isGranted) {
+        await Permission.storage.request();
+        return;
+      }
+      if (storagePermissionStatus.isPermanentlyDenied) {
+        print('====> Permanently denied');
+        openAppSettings();
+      }
+      myToast(message: "Provide Storage permission to pic photos.");
+    }
   }
 }

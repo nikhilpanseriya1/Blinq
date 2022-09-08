@@ -33,9 +33,6 @@ dependencies:
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^1.0.2
-  #  flutter_contacts: ^1.1.5
-  #  flutter_lints: ^2.0.0
   get: ^4.6.5
   responsive_framework: ^0.1.5
   step_progress_indicator: ^1.0.2
@@ -43,7 +40,6 @@ dependencies:
   fluttertoast: ^8.0.8
   permission_handler: ^8.1.2
   image_picker: ^0.8.4+10
-  flutter_share: ^2.0.0
   country_code_picker: ^2.0.2
   cached_network_image: ^3.2.0
   get_storage: ^2.0.3
@@ -51,23 +47,30 @@ dependencies:
   validators: ^3.0.0
   qr_flutter: ^4.0.0
   share_plus: ^4.0.10
-  flutter_image_compress: ^1.1.0
   path_provider: ^2.0.11
-  carousel_slider: ^4.1.1
   receive_sharing_intent: ^1.4.5
   url_launcher: ^6.1.5
   open_mail_app: ^0.4.5
   qr_code_scanner: ^1.0.0
-  screenshot_callback: ^2.0.1
+  image_gallery_saver: ^1.7.1
 
 
   ## firebase
   firebase_core: ^1.19.1
-  firebase_database: ^9.0.18
+#  firebase_database: ^9.0.18
   firebase_storage: ^10.3.1
   firebase_auth: ^3.4.1
   cloud_firestore: ^3.2.1
 
+
+
+#  cupertino_icons: ^1.0.2
+#  flutter_contacts: ^1.1.5
+#  flutter_lints: ^2.0.0
+#  flutter_share: ^2.0.0
+#  flutter_image_compress: ^1.1.0
+#  carousel_slider: ^4.1.1
+#  screenshot_callback: ^2.0.1
 
 dev_dependencies:
   flutter_test:

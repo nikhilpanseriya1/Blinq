@@ -3,8 +3,6 @@ import 'dart:io';
 
 import 'package:blinq/Utility/utility_export.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_database/firebase_database.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
@@ -235,8 +233,8 @@ class _ScanQrScreenState extends State<ScanQrScreen> {
               /// Add New Contact
 
               isValidQr = false;
-
               FirebaseFirestore.instance.collection('users').doc(sharedCardId).get().then((value) {
+
                 kHomeController.userContacts.add({
                   'id': sharedCardId,
                   'profile_pic': value['profile_pic'],

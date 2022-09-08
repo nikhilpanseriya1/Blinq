@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:blinq/Utility/constants.dart';
 import 'package:blinq/Utility/utility_export.dart';
@@ -8,11 +7,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:step_progress_indicator/step_progress_indicator.dart';
 import 'package:velocity_x/velocity_x.dart';
@@ -28,10 +24,15 @@ class StepperScreen extends StatefulWidget {
 }
 
 class _StepperScreenState extends State<StepperScreen> {
+
+
+  RxList<Map<String, dynamic>> addMyField = <Map<String, dynamic>>[].obs;
+
   RxInt selectedStep = 0.obs;
   PageController pageController = PageController();
   String profilePic = '';
   String companyLogo = '';
+  String selectedCountryCode = '+91';
 
   RxBool isShowLocation = false.obs;
   RxBool isProfileChanged = false.obs;
@@ -52,6 +53,16 @@ class _StepperScreenState extends State<StepperScreen> {
 
   GlobalKey<FormState> formKey = GlobalKey();
 
+  // @override
+  // void initState() {
+  //   // TODO: implement initState
+  //   super.initState();
+  //
+  //   WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+  //     kHomeController.addFieldsModelList.clear();
+  //   });
+  // }
+
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
@@ -60,8 +71,10 @@ class _StepperScreenState extends State<StepperScreen> {
         context: context,
         appBar: commonAppBar(backButtonCallBack: () {
           if (selectedStep.value > 0) {
-            pageController.animateToPage(--selectedStep.value,
-                duration: const Duration(milliseconds: 400), curve: Curves.bounceInOut);
+            if (selectedStep.value == 1) {
+              return;
+            }
+            pageController.animateToPage(--selectedStep.value, duration: const Duration(milliseconds: 400), curve: Curves.bounceInOut);
           } else {
             Get.back();
           }
@@ -78,7 +91,7 @@ class _StepperScreenState extends State<StepperScreen> {
                   SizedBox(
                     height: getScreenHeight(context) * 0.05,
                     child: StepProgressIndicator(
-                      totalSteps: 8,
+                      totalSteps: 7,
                       currentStep: selectedStep.value + 1,
                       selectedColor: colorRed,
                       unselectedColor: colorGrey,
@@ -102,7 +115,7 @@ class _StepperScreenState extends State<StepperScreen> {
                             step4(),
                             step5(),
                             step6(),
-                            step7(),
+                            // step7(),
                             // step8(),
                             step9(),
                           ],
@@ -128,8 +141,7 @@ class _StepperScreenState extends State<StepperScreen> {
 
                         if (selectedStep.value == 0) {
                           kAuthenticationController.userAuthentication
-                              .createUserWithEmailAndPassword(
-                                  email: emailController.text, password: passwordController.text)
+                              .createUserWithEmailAndPassword(email: emailController.text, password: passwordController.text)
                               .then((value) {
                             // Get.offAll(() => const HomeScreen());
                             /// save userId
@@ -163,15 +175,13 @@ class _StepperScreenState extends State<StepperScreen> {
                                 duration: const Duration(milliseconds: 400), curve: Curves.bounceInOut);
                             isLoading.value = false;
                           }
-                        } else if (selectedStep.value == 7) {
-                          showLog('asdddd dddd dddd ddd ddd');
+                        } else if (selectedStep.value == 6) {
                           addNewCard(() {
                             kAuthenticationController.userId = getObject(PrefConstants.userId);
                             Get.offAll(() => const HomeScreen());
                           });
                         } else {
-                          pageController.animateToPage(++selectedStep.value,
-                              duration: const Duration(milliseconds: 400), curve: Curves.bounceInOut);
+                          pageController.animateToPage(++selectedStep.value, duration: const Duration(milliseconds: 400), curve: Curves.bounceInOut);
                         }
                       }
                     },
@@ -212,12 +222,17 @@ class _StepperScreenState extends State<StepperScreen> {
   void addNewCard(Function callBack) async {
     try {
       List<String> cards = [];
-      // kHomeController.addFieldsModelList.clear();
       var ref = FirebaseFirestore.instance.collection('users');
 
       String newCardId = getObject(PrefConstants.userId);
 
       cards.add(newCardId);
+
+      addMyField.add({'data': emailController.text, 'label': 'Email', 'title': 'Email'}); // add Email
+      addMyField
+          .add({'data': '$selectedCountryCode ${phoneController.text.trim()}', 'label': 'Call', 'title': 'Phone Number'}); // add Phone Number
+      addMyField
+          .add({'data': companyWebsiteController.text, 'label': 'Visit our website', 'title': 'Company Website'}); // add Website
 
       ref.doc(newCardId).set({
         'first_name': nameController.text,
@@ -234,7 +249,7 @@ class _StepperScreenState extends State<StepperScreen> {
         'profile_pic': profilePic,
         'contacts': [],
         'cards': cards,
-        'fields': [] /*kHomeController.addFieldsModelList*/
+        'fields': addMyField
       }).whenComplete(() {
         showLog('======= ${newCardId}');
 
@@ -278,6 +293,7 @@ class _StepperScreenState extends State<StepperScreen> {
             hintText: 'Enter your password',
             textEditingController: passwordController,
             isPassword: true,
+            errorMaxLines: 2,
             validationFunction: (val) {
               return passwordValidation(val);
             }),
@@ -303,7 +319,9 @@ class _StepperScreenState extends State<StepperScreen> {
             preFixWidget: SizedBox(
               width: 110,
               child: commonCountryCodePicker(
-                onChanged: () {},
+                onChanged: (value) {
+                  selectedCountryCode = value;
+                },
                 borderColor: colorWhite.withOpacity(0.0),
                 initialSelection: 'IN',
                 isShowDropIcon: false,
@@ -312,6 +330,7 @@ class _StepperScreenState extends State<StepperScreen> {
             hintText: 'Enter your phone number',
             keyboardType: TextInputType.number,
             textEditingController: phoneController,
+            maxLength: 14,
             validationFunction: (val) {
               return phoneValidationFunction(val);
             }),
@@ -410,9 +429,7 @@ class _StepperScreenState extends State<StepperScreen> {
                 30.heightBox,
                 Center(
                   child: commonFillButtonView(
-                      title: kAuthenticationController.selectedImage.value.isNotEmpty
-                          ? '-  Remove Profile Picture'
-                          : '+  Add Profile Picture',
+                      title: kAuthenticationController.selectedImage.value.isNotEmpty ? '-  Remove Profile Picture' : '+  Add Profile Picture',
                       tapOnButton: () {
                         kAuthenticationController.selectedImage.value.isNotEmpty
                             ? kAuthenticationController.selectedImage.value = ''
@@ -454,9 +471,9 @@ class _StepperScreenState extends State<StepperScreen> {
                 Container(
                   height: 200,
                   width: getScreenWidth(context) * 0.9,
-                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(25), boxShadow: [
-                    BoxShadow(color: colorGrey.withOpacity(0.5), offset: const Offset(0.0, 3.0), blurRadius: 10)
-                  ]),
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(25),
+                      boxShadow: [BoxShadow(color: colorGrey.withOpacity(0.5), offset: const Offset(0.0, 3.0), blurRadius: 10)]),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(25),
                     child: Image(
@@ -471,9 +488,7 @@ class _StepperScreenState extends State<StepperScreen> {
                 30.heightBox,
                 Center(
                   child: commonFillButtonView(
-                      title: kAuthenticationController.selectedCompanyLogo.value.isNotEmpty
-                          ? '+  Replace Logo'
-                          : '+  Add Logo',
+                      title: kAuthenticationController.selectedCompanyLogo.value.isNotEmpty ? '+  Replace Logo' : '+  Add Logo',
                       tapOnButton: () {
                         picImageFromGallery(
                             isProfile: false,
@@ -588,8 +603,7 @@ class _StepperScreenState extends State<StepperScreen> {
 
   Future<void> checkUserValid() async {
     try {
-      await FirebaseAuth.instance
-          .createUserWithEmailAndPassword(email: emailController.text.trim(), password: passwordController.text);
+      await FirebaseAuth.instance.createUserWithEmailAndPassword(email: emailController.text.trim(), password: passwordController.text);
     } catch (e) {
       showLog(e);
     }
